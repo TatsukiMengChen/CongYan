@@ -1,9 +1,25 @@
-import React from "react";
 import ReactDOM from "react-dom/client";
 import "virtual:uno.css";
 import "@unocss/reset/normalize.css";
-import App from "./App";
-import useAuthStore from "./store/auth";
+import "mdui/mdui.css";
+import { ThemeProvider, createTheme } from "@mui/material/styles";
+import { setColorScheme } from "mdui/functions/setColorScheme.js";
+import AnimatedRoutes from "./routes";
+import { lightBlue } from "@mui/material/colors";
+import { pink } from "@mui/material/colors";
+import "./index.css";
+
+setColorScheme("#03A9F4");
+
+const theme = createTheme({
+  colorSchemes: {
+    dark: true,
+  },
+  palette: {
+    primary: lightBlue,
+    secondary: pink,
+  },
+});
 
 const rootElement = document.getElementById("root") as HTMLElement;
 
@@ -14,15 +30,8 @@ if (isMobile) {
   //rootElement.style.paddingTop = "60px";
 }
 
-const Root = () => {
-  const { checkAuth } = useAuthStore();
-  checkAuth(); // 检查 Token 并恢复登录状态
-
-  return <App />;
-};
-
 ReactDOM.createRoot(rootElement).render(
-  <React.StrictMode>
-    <Root />
-  </React.StrictMode>,
+  <ThemeProvider theme={theme}>
+    <AnimatedRoutes />
+  </ThemeProvider>,
 );

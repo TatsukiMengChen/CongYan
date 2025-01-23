@@ -1,0 +1,51 @@
+/* animate.css */
+
+/* 前进动画 */
+.fade-enter {
+  opacity: 0;
+  transform: translateX(100%);
+  /* 新页面从右侧进入 */
+}
+
+.fade-enter-active {
+  opacity: 1;
+  transform: translateX(0);
+  transition: opacity 300ms, transform 300ms;
+}
+
+.fade-exit {
+  opacity: 1;
+  transform: translateX(0);
+  /* 旧页面从左侧退出 */
+}
+
+.fade-exit-active {
+  opacity: 0;
+  transform: translateX(100%);
+  transition: opacity 300ms, transform 300ms;
+}
+
+/* 回退动画 */
+.fade-reverse-enter {
+  opacity: 0;
+  transform: translateX(-100%);
+  /* 新页面从左侧进入 */
+}
+
+.fade-reverse-enter-active {
+  opacity: 1;
+  transform: translateX(0);
+  transition: opacity 300ms, transform 300ms;
+}
+
+.fade-reverse-exit {
+  opacity: 1;
+  transform: translateX(0);
+  /* 旧页面从右侧退出 */
+}
+
+.fade-reverse-exit-active {
+  opacity: 0;
+  transform: translateX(-100%);
+  transition: opacity 300ms, transform 300ms;
+}

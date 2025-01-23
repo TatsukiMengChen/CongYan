@@ -1,6 +1,11 @@
-import presetUno from "@unocss/preset-uno";
-import { defineConfig } from "unocss";
+import { defineConfig, presetUno, presetIcons } from "unocss";
 
 export default defineConfig({
-  presets: [presetUno()],
+  presets: [
+    presetUno(),
+    presetIcons(),
+  ],
+  shortcuts: {
+    "flex-center": "flex items-center justify-center",
+  }
 });

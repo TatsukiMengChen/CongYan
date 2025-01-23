@@ -2,8 +2,10 @@ import { create } from "zustand";
 
 interface AuthState {
   isAuthenticated: boolean;
-  user: { email: string } | null;
-  login: (email: string, token: string) => void;
+  user: { username: string; role: string } | null;
+  token: string | null;
+  tokenExpiry: number | null;
+  login: (username: string, token: string, role: string, expiry: number) => void;
   logout: () => void;
   checkAuth: () => void;
 }
@@ -11,19 +13,26 @@ interface AuthState {
 const useAuthStore = create<AuthState>((set) => ({
   isAuthenticated: false,
   user: null,
-  login: (email, token) => {
+  token: null,
+  tokenExpiry: null,
+  login: (username, token, role, expiry) => {
     localStorage.setItem("token", token);
-    set({ isAuthenticated: true, user: { email } });
+    localStorage.setItem("tokenExpiry", expiry.toString());
+    set({ isAuthenticated: true, user: { username, role }, token, tokenExpiry: expiry });
   },
   logout: () => {
     localStorage.removeItem("token");
-    set({ isAuthenticated: false, user: null });
+    localStorage.removeItem("tokenExpiry");
+    set({ isAuthenticated: false, user: null, token: null, tokenExpiry: null });
   },
   checkAuth: () => {
     const token = localStorage.getItem("token");
-    if (token) {
-      // 这里可以添加一个 API 请求来验证 Token 是否有效
-      set({ isAuthenticated: true, user: { email: "user@example.com" } });
+    const tokenExpiry = localStorage.getItem("tokenExpiry");
+    if (token && tokenExpiry) {
+      console.log("Token is valid");
+      set({ isAuthenticated: true });
+    } else {
+      set({ isAuthenticated: false, user: null, token: null, tokenExpiry: null });
     }
   },
 }));
