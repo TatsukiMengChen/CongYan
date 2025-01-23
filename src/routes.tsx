@@ -16,6 +16,7 @@ import { HomePage } from "./pages/home/home";
 import { ProfilePage } from "./pages/profile/profile";
 import useAuthStore from "./store/auth";
 import Spin from "antd/es/spin";
+import { ContactPage } from "./pages/contact/contact";
 
 const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
   const { isAuthenticated, checkAuth } = useAuthStore();
@@ -53,7 +54,9 @@ const AnimatedRoutes = () => {
     }
   }, [location, navigationType]);
 
-  return (
+  const isAuthRoute = location.pathname.startsWith("/login") || location.pathname.startsWith("/register");
+
+  return isAuthRoute ? (
     <SwitchTransition>
       <CSSTransition
         key={location.key}
@@ -70,6 +73,8 @@ const AnimatedRoutes = () => {
                 </ProtectedRoute>
               }
             >
+              <Route index element={<HomePage />} />
+              <Route path="contact" element={<ContactPage />} />
               <Route path="home" element={<HomePage />} />
               <Route path="profile" element={<ProfilePage />} />
             </Route>
@@ -79,6 +84,24 @@ const AnimatedRoutes = () => {
         </div>
       </CSSTransition>
     </SwitchTransition>
+  ) : (
+    <Routes location={location}>
+      <Route
+        path="/"
+        element={
+          <ProtectedRoute>
+            <App />
+          </ProtectedRoute>
+        }
+      >
+        <Route index element={<HomePage />} />
+        <Route path="contact" element={<ContactPage />} />
+        <Route path="home" element={<HomePage />} />
+        <Route path="profile" element={<ProfilePage />} />
+      </Route>
+      <Route path="/login" element={<LoginPage />} />
+      <Route path="/register" element={<RegisterPage />} />
+    </Routes>
   );
 };
 

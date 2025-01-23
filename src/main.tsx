@@ -4,7 +4,7 @@ import "@unocss/reset/normalize.css";
 import "mdui/mdui.css";
 import { ThemeProvider, createTheme } from "@mui/material/styles";
 import { setColorScheme } from "mdui/functions/setColorScheme.js";
-import AnimatedRoutes from "./routes";
+import AppRouter from "./routes";
 import { lightBlue } from "@mui/material/colors";
 import { pink } from "@mui/material/colors";
 import "./index.css";
@@ -32,6 +32,6 @@ if (isMobile) {
 
 ReactDOM.createRoot(rootElement).render(
   <ThemeProvider theme={theme}>
-    <AnimatedRoutes />
+    <AppRouter />
   </ThemeProvider>,
 );

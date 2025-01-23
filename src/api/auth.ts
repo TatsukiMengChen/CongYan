@@ -89,3 +89,23 @@ export const AskCodeAPI = async (email: string, type: string): Promise<AskCodeAP
     }
   }
 }
+
+export type LogoutAPIRes = {
+  code: number;
+  data: string;
+  id: number;
+  message: string;
+}
+
+export const LogoutAPI = async (): Promise<LogoutAPIRes> => {
+  try {
+    const res = await http.get<LogoutAPIRes>('/auth/logout');
+    return res.data;
+  } catch (error) {
+    if (error instanceof Error) {
+      throw new Error(error.message);
+    } else {
+      throw new Error(String(error));
+    }
+  }
+}
