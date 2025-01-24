@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import {
   BrowserRouter,
   Navigate,
@@ -45,6 +45,7 @@ const AnimatedRoutes = () => {
   const location = useLocation();
   const navigationType = useNavigationType();
   const [direction, setDirection] = useState("forward");
+  const nodeRef = useRef(null);
 
   useEffect(() => {
     if (navigationType === "POP") {
@@ -62,8 +63,9 @@ const AnimatedRoutes = () => {
         key={location.key}
         classNames={direction === "forward" ? "fade" : "fade-reverse"}
         timeout={300}
+        nodeRef={nodeRef}
       >
-        <div className="fade-wrapper">
+        <div className="fade-wrapper" ref={nodeRef}>
           <Routes location={location}>
             <Route
               path="/"
