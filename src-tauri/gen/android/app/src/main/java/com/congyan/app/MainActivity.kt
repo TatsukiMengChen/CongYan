@@ -11,10 +11,10 @@ class MainActivity : TauriActivity() {
   override fun onCreate(savedInstanceState: Bundle?) {
     super.onCreate(savedInstanceState)
 
-    window.addFlags(WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS)
+//    window.addFlags(WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS)
     window.decorView.systemUiVisibility =
       window.decorView.systemUiVisibility or View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR
-
+//
     window.statusBarColor = ContextCompat.getColor(this, android.R.color.white)
   }
 }

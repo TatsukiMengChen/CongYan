@@ -1,6 +1,6 @@
 import "mdui/components/navigation-bar.js";
 import "mdui/components/navigation-bar-item.js";
-import { Outlet, useNavigate } from "react-router";
+import { Outlet, useLocation, useNavigate } from "react-router";
 import HeadsetMicOutlinedIcon from "@mui/icons-material/HeadsetMicOutlined";
 import GraphicEqRoundedIcon from "@mui/icons-material/GraphicEqRounded";
 import PersonOutlineOutlinedIcon from "@mui/icons-material/PersonOutlineOutlined";
@@ -8,12 +8,17 @@ import "./App.css";
 
 function App() {
   const navigator = useNavigate();
+  const location = useLocation();
+
   return (
-    <main className="app">
-      <mdui-navigation-bar scroll-target=".example-scroll-target" value="home">
+    <main className="app h-full">
+      <mdui-navigation-bar
+        scroll-target=".example-scroll-target"
+        value={location.pathname === "/" ? "home" : location.pathname.slice(1)}
+      >
         <mdui-navigation-bar-item
           value="contact"
-          onClick={() => navigator("/contact")}
+          onClick={() => navigator("/contact", { replace: true })}
         >
           <span slot="icon" className="flex-center">
             <HeadsetMicOutlinedIcon />
@@ -23,7 +28,7 @@ function App() {
         <mdui-navigation-bar-item
           icon="commute"
           value="home"
-          onClick={() => navigator("/")}
+          onClick={() => navigator("/", { replace: true })}
         >
           <span slot="icon" className="flex-center">
             <GraphicEqRoundedIcon />
@@ -32,7 +37,7 @@ function App() {
         </mdui-navigation-bar-item>
         <mdui-navigation-bar-item
           value="profile"
-          onClick={() => navigator("/profile")}
+          onClick={() => navigator("/profile", { replace: true })}
         >
           <span slot="icon" className="flex-center">
             <PersonOutlineOutlinedIcon />
