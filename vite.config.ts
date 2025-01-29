@@ -2,8 +2,6 @@ import { defineConfig } from "vite";
 import React from "@vitejs/plugin-react-swc";
 import UnoCSS from "unocss/vite";
 
-// eslint-disable-next-line @typescript-eslint/ban-ts-comment
-// @ts-expect-error
 const host = process.env.TAURI_DEV_HOST || "0.0.0.0";
 
 // https://vitejs.dev/config/

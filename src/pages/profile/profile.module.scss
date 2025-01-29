@@ -1,0 +1,8 @@
+.bg {
+  padding-top: env(safe-area-inset-top);
+  background-image: linear-gradient(#d7fffe 0%, #fcfcff 100%);
+}
+
+.card {
+  box-shadow: rgba(33, 35, 38, 0.1) 0px 10px 10px -10px;
+}
