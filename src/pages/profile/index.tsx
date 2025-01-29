@@ -9,16 +9,18 @@ import SettingsOutlinedIcon from "@mui/icons-material/SettingsOutlined";
 import styles from "./index.module.scss";
 import { Card } from "antd";
 import { Button, IconButton } from "@mui/material";
-
+import { useNavigate } from "react-router";
 const FunctionButton = ({
   icon,
   title,
+  onClick,
 }: {
   icon: React.ReactNode;
   title: string;
+  onClick?: () => void;
 }) => {
   return (
-    <div className="flex flex-col items-center">
+    <div className="flex flex-col items-center" onClick={onClick}>
       <IconButton>
         {React.cloneElement(icon as React.ReactElement, { fontSize: "large" })}
       </IconButton>
@@ -30,12 +32,14 @@ const FunctionButton = ({
 const FunctionButton2 = ({
   icon,
   title,
+  onClick,
 }: {
   icon: React.ReactNode;
   title: string;
+  onClick?: () => void;
 }) => {
   return (
-    <Button className="w-full border-none" style={{ borderRadius: 0 }}>
+    <Button className="w-full border-none" style={{ borderRadius: 0 }} onClick={onClick}>
       <div
         className="h-full w-full flex-between px-4 py-2"
         style={{ color: "black" }}
@@ -49,6 +53,8 @@ const FunctionButton2 = ({
 };
 
 export const ProfilePage = () => {
+  const navigator = useNavigate();
+
   return (
     <div className="h-full">
       <div className={`${styles.bg}`}>
@@ -74,7 +80,7 @@ export const ProfilePage = () => {
       <div className="mt-4">
         <FunctionButton2 icon={<HelpOutlineOutlinedIcon />} title="使用帮助" />
         <FunctionButton2 icon={<InfoOutlinedIcon />} title="关于软件" />
-        <FunctionButton2 icon={<SettingsOutlinedIcon />} title="设置" />
+        <FunctionButton2 icon={<SettingsOutlinedIcon />} title="设置" onClick={()=> navigator("/settings")}/>
       </div>
     </div>
   );

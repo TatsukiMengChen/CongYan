@@ -11,7 +11,7 @@ function App() {
   const location = useLocation();
 
   return (
-    <main className="app h-full">
+    <main className="app h-100vh">
       <mdui-navigation-bar
         scroll-target=".example-scroll-target"
         value={location.pathname === "/" ? "home" : location.pathname.slice(1)}

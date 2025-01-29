@@ -1,5 +1,24 @@
 /* animate.css */
 
+/* AppRoute 淡入淡出动画 */
+.fade-app-enter {
+  opacity: 0;
+}
+
+.fade-app-enter-active {
+  opacity: 1;
+  transition: opacity 300ms;
+}
+
+.fade-app-exit {
+  opacity: 1;
+}
+
+.fade-app-exit-active {
+  opacity: 0;
+  transition: opacity 300ms;
+}
+
 /* 前进动画 */
 .fade-enter {
   opacity: 0;
