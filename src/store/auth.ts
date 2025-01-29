@@ -18,19 +18,22 @@ const useAuthStore = create<AuthState>((set) => ({
   login: (username, token, role, expiry) => {
     localStorage.setItem("token", token);
     localStorage.setItem("tokenExpiry", expiry.toString());
+    localStorage.setItem("user", JSON.stringify({ username, role }));
     set({ isAuthenticated: true, user: { username, role }, token, tokenExpiry: expiry });
   },
   logout: () => {
     localStorage.removeItem("token");
     localStorage.removeItem("tokenExpiry");
+    localStorage.removeItem("user");
     set({ isAuthenticated: false, user: null, token: null, tokenExpiry: null });
   },
   checkAuth: () => {
     const token = localStorage.getItem("token");
     const tokenExpiry = localStorage.getItem("tokenExpiry");
-    if (token && tokenExpiry) {
+    const user = localStorage.getItem("user");
+    if (token && tokenExpiry && user) {
       console.log("Token is valid");
-      set({ isAuthenticated: true });
+      set({ isAuthenticated: true, user: JSON.parse(user), token, tokenExpiry: Number(tokenExpiry) });
     } else {
       set({ isAuthenticated: false, user: null, token: null, tokenExpiry: null });
     }

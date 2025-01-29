@@ -111,7 +111,7 @@ export const LoginPage = () => {
               timestamp,
             );
             console.log("登录成功");
-            navigator("/home");
+            navigator("/home", { replace: true });
           } else {
             message.error({ content: res.message, key: "login" });
             console.log(res.message);

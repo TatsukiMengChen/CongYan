@@ -22,7 +22,7 @@ import { ContactPage } from "./pages/contact";
 const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
   const { isAuthenticated } = useAuthStore();
 
-  return isAuthenticated ? <>{children}</> : <Navigate to="/login" />;
+  return isAuthenticated ? <>{children}</> : <Navigate to="/login" replace />;
 };
 
 const AnimatedRoutes = () => {
@@ -45,20 +45,12 @@ const AnimatedRoutes = () => {
     location.pathname === "/profile" ||
     location.pathname === "/contact";
 
-  const noAnimation =
-    navigationType === "REPLACE";
-  const appRouteAnimation = isAppRoute
-    ? "fade-app"
-    : direction === "forward"
-    ? "fade"
-    : "fade-reverse";
+  const noAnimation = navigationType === "REPLACE" || isAppRoute;
+  const appRouteAnimation = direction === "forward" ? "fade" : "fade-reverse";
 
   const handleExited = () => {
-    if (isAppRoute) {
-      if (nodeRef.current) {
-        nodeRef.current.classList.remove("fade-exit-active");
-        nodeRef.current.classList.remove("fade-app-exit-active");
-      }
+    if (nodeRef.current) {
+      nodeRef.current.classList.remove("fade-exit-active");
     }
   };
 
@@ -71,7 +63,7 @@ const AnimatedRoutes = () => {
         nodeRef={nodeRef}
         onExited={handleExited}
       >
-        <div className="fade-wrapper" ref={nodeRef}>
+        <div className="fade-wrapper h-100%" ref={nodeRef}>
           <Routes location={location}>
             <Route
               path="/"

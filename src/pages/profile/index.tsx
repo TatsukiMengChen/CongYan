@@ -10,6 +10,7 @@ import styles from "./index.module.scss";
 import { Card } from "antd";
 import { Button, IconButton } from "@mui/material";
 import { useNavigate } from "react-router";
+import useAuthStore from "../../store/auth";
 const FunctionButton = ({
   icon,
   title,
@@ -39,7 +40,7 @@ const FunctionButton2 = ({
   onClick?: () => void;
 }) => {
   return (
-    <Button className="w-full border-none" style={{ borderRadius: 0 }} onClick={onClick}>
+    <Button className="w-full border-none !b-rd-0" onClick={onClick}>
       <div
         className="h-full w-full flex-between px-4 py-2"
         style={{ color: "black" }}
@@ -54,6 +55,7 @@ const FunctionButton2 = ({
 
 export const ProfilePage = () => {
   const navigator = useNavigate();
+  const { user } = useAuthStore();
 
   return (
     <div className="h-full">
@@ -65,7 +67,7 @@ export const ProfilePage = () => {
             sx={{ width: 80, height: 80 }}
           ></Avatar>
           <div className="ml-4 w-full">
-            <strong className="text-5">用户名</strong>
+            <strong className="text-5">{user?.username}</strong>
             <div>已练习0时0分</div>
           </div>
           <ArrowForwardIosRoundedIcon />
@@ -80,7 +82,11 @@ export const ProfilePage = () => {
       <div className="mt-4">
         <FunctionButton2 icon={<HelpOutlineOutlinedIcon />} title="使用帮助" />
         <FunctionButton2 icon={<InfoOutlinedIcon />} title="关于软件" />
-        <FunctionButton2 icon={<SettingsOutlinedIcon />} title="设置" onClick={()=> navigator("/settings")}/>
+        <FunctionButton2
+          icon={<SettingsOutlinedIcon />}
+          title="设置"
+          onClick={() => navigator("/settings")}
+        />
       </div>
     </div>
   );
