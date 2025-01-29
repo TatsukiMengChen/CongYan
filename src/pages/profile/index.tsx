@@ -6,7 +6,7 @@ import BookOutlinedIcon from "@mui/icons-material/BookOutlined";
 import HelpOutlineOutlinedIcon from "@mui/icons-material/HelpOutlineOutlined";
 import InfoOutlinedIcon from "@mui/icons-material/InfoOutlined";
 import SettingsOutlinedIcon from "@mui/icons-material/SettingsOutlined";
-import styles from "./profile.module.scss";
+import styles from "./index.module.scss";
 import { Card } from "antd";
 import { Button, IconButton } from "@mui/material";
 

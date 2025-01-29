@@ -12,11 +12,11 @@ import "./animate.css"; // 引入动画样式
 import App from "./App";
 import { LoginPage } from "./pages/auth/login";
 import { RegisterPage } from "./pages/auth/register";
-import { HomePage } from "./pages/home/home";
-import { ProfilePage } from "./pages/profile/profile";
+import { HomePage } from "./pages/home";
+import { ProfilePage } from "./pages/profile";
 import useAuthStore from "./store/auth";
 import Spin from "antd/es/spin";
-import { ContactPage } from "./pages/contact/contact";
+import { ContactPage } from "./pages/contact";
 
 const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
   const { isAuthenticated, checkAuth } = useAuthStore();
