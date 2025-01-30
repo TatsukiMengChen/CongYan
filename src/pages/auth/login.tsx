@@ -1,66 +1,23 @@
-import { styled } from "@mui/material/styles";
-import MuiCard from "@mui/material/Card";
-import Stack from "@mui/material/Stack";
-import TextField from "@mui/material/TextField";
-import { useState } from "react";
-import Button from "@mui/material/Button";
-import { Checkbox, FormControlLabel, FormControl } from "@mui/material";
-import Link from "@mui/material/Link";
-import InputAdornment from "@mui/material/InputAdornment";
-import IconButton from "@mui/material/IconButton";
-import OutlinedInput from "@mui/material/OutlinedInput";
-import FormHelperText from "@mui/material/FormHelperText";
-import InputLabel from "@mui/material/InputLabel";
-import VisibilityOutlinedIcon from "@mui/icons-material/VisibilityOutlined";
 import VisibilityOffOutlinedIcon from "@mui/icons-material/VisibilityOffOutlined";
-import UserAgreement from "../../components/UserAgreement";
-import PrivacyPolicy from "../../components/PrivacyPolicy";
-import { LoginAPI } from "../../api/auth";
-import { useNavigate } from "react-router";
+import VisibilityOutlinedIcon from "@mui/icons-material/VisibilityOutlined";
+import { Checkbox, FormControl, FormControlLabel } from "@mui/material";
+import Button from "@mui/material/Button";
+import FormHelperText from "@mui/material/FormHelperText";
+import IconButton from "@mui/material/IconButton";
+import InputAdornment from "@mui/material/InputAdornment";
+import InputLabel from "@mui/material/InputLabel";
+import Link from "@mui/material/Link";
+import OutlinedInput from "@mui/material/OutlinedInput";
+import TextField from "@mui/material/TextField";
 import { message } from "antd";
+import { useState } from "react";
+import { useNavigate } from "react-router";
+import { LoginAPI } from "../../api/auth";
+import PrivacyPolicy from "../../components/PrivacyPolicy";
+import UserAgreement from "../../components/UserAgreement";
 import useAuthStore from "../../store/auth";
-
-const LoginContainer = styled(Stack)(({ theme }) => ({
-  height: "calc((1 - var(--template-frame-height, 0)) * 100dvh)",
-  minHeight: "100%",
-  padding: theme.spacing(2),
-  [theme.breakpoints.up("sm")]: {
-    padding: theme.spacing(4),
-  },
-  "&::before": {
-    content: '""',
-    display: "block",
-    position: "absolute",
-    zIndex: -1,
-    inset: 0,
-    backgroundImage:
-      "radial-gradient(ellipse at 50% 50%, hsl(210, 100%, 97%), hsl(0, 0%, 100%))",
-    backgroundRepeat: "no-repeat",
-    ...theme.applyStyles("dark", {
-      backgroundImage:
-        "radial-gradient(at 50% 50%, hsla(210, 100%, 16%, 0.5), hsl(220, 30%, 5%))",
-    }),
-  },
-}));
-
-const Card = styled(MuiCard)(({ theme }) => ({
-  display: "flex",
-  flexDirection: "column",
-  alignSelf: "center",
-  width: "80%",
-  padding: theme.spacing(4),
-  gap: theme.spacing(2),
-  margin: "auto",
-  [theme.breakpoints.up("sm")]: {
-    maxWidth: "450px",
-  },
-  boxShadow:
-    "hsla(220, 30%, 5%, 0.05) 0px 5px 15px 0px, hsla(220, 25%, 10%, 0.05) 0px 15px 35px -5px",
-  ...theme.applyStyles("dark", {
-    boxShadow:
-      "hsla(220, 30%, 5%, 0.5) 0px 5px 15px 0px, hsla(220, 25%, 10%, 0.08) 0px 15px 35px -5px",
-  }),
-}));
+import { AuthCard } from "./components/AuthCard";
+import { AuthContainer } from "./components/AuthContainer";
 
 export const LoginPage = () => {
   const { login: authLogin } = useAuthStore();
@@ -140,8 +97,8 @@ export const LoginPage = () => {
   };
 
   return (
-    <LoginContainer>
-      <Card>
+    <AuthContainer>
+      <AuthCard>
         <div className="flex-center gap-2">
           <img className="w-20" src="/logo.png" alt="logo" />
           <h1>聪言</h1>
@@ -249,7 +206,7 @@ export const LoginPage = () => {
             点我注册
           </Link>
         </div>
-      </Card>
+      </AuthCard>
       <UserAgreement
         open={isUserAgreementOpen}
         onClose={handleUserAgreementClose}
@@ -258,6 +215,6 @@ export const LoginPage = () => {
         open={isPrivacyPolicyOpen}
         onClose={handlePrivacyPolicyClose}
       />
-    </LoginContainer>
+    </AuthContainer>
   );
 };

@@ -2,10 +2,32 @@ import { Button } from "@mui/material";
 import { useNavigate } from "react-router";
 import { message } from "antd";
 import { Dialog, NavBar } from "antd-mobile";
-import { ScallView } from "../../components/ScallView";
+import { ScrollView } from "../../components/ScallView";
 import useAuthStore from "../../store/auth";
+import ArrowForwardIosRoundedIcon from "@mui/icons-material/ArrowForwardIosRounded";
 import { LogoutAPI } from "../../api/auth";
 
+const SettingItem = ({
+  title,
+  onClick,
+}: {
+  title: string;
+  onClick?: () => void;
+}) => {
+  return (
+    <Button
+      className="w-full !b-rd-0 !bg-white"
+      color="inherit"
+      size="large"
+      onClick={onClick}
+    >
+      <div className="w-full flex-between pl-2">
+        {title}
+        <ArrowForwardIosRoundedIcon sx={{ fontSize: "16px" }} color="disabled" />
+      </div>
+    </Button>
+  );
+};
 
 export const SettingsPage = () => {
   const navigator = useNavigate();
@@ -32,11 +54,12 @@ export const SettingsPage = () => {
       onAction: (action) => {
         if (action.key === "ok") {
           message.loading({ content: "正在退出登录...", key: "logout" });
-          LogoutAPI().then(() => {
-            message.success({ content: "退出登录成功", key: "logout" });
-            logout();
-            navigator(-1);
-            // navigator("/login", { replace: true });
+          LogoutAPI().then((res) => {
+            if (res.code == 200) {
+              message.success({ content: "退出登录成功", key: "logout" });
+              logout();
+              navigator(-1);
+            }
           });
         }
       },
@@ -44,8 +67,10 @@ export const SettingsPage = () => {
   };
   return (
     <div className="h-full flex flex-col">
-      <NavBar onBack={() => navigator(-1)}>标题</NavBar>
-      <ScallView>
+      <NavBar onBack={() => navigator(-1)}>设置</NavBar>
+      <ScrollView>
+        <SettingItem title="账号管理" onClick={()=> navigator("account")}/>
+        <div className="h-2"></div>
         <Button
           className="w-full !b-rd-0 !bg-white"
           color="secondary"
@@ -54,7 +79,7 @@ export const SettingsPage = () => {
         >
           退出登录
         </Button>
-      </ScallView>
+      </ScrollView>
     </div>
   );
 };

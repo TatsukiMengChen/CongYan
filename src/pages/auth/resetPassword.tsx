@@ -1,23 +1,23 @@
-import TextField from "@mui/material/TextField";
-import { useState, useEffect } from "react";
-import Button from "@mui/material/Button";
-import { Checkbox, FormControlLabel, FormControl } from "@mui/material";
-import Link from "@mui/material/Link";
-import InputAdornment from "@mui/material/InputAdornment";
-import IconButton from "@mui/material/IconButton";
-import OutlinedInput from "@mui/material/OutlinedInput";
-import FormHelperText from "@mui/material/FormHelperText";
-import InputLabel from "@mui/material/InputLabel";
-import VisibilityOutlinedIcon from "@mui/icons-material/VisibilityOutlined";
-import VisibilityOffOutlinedIcon from "@mui/icons-material/VisibilityOffOutlined";
 import ArrowBackIosNewIcon from "@mui/icons-material/ArrowBackIosNew";
-import UserAgreement from "../../components/UserAgreement";
-import PrivacyPolicy from "../../components/PrivacyPolicy";
-import { RegisterAPI, AskCodeAPI } from "../../api/auth";
-import { useNavigate } from "react-router";
+import VisibilityOffOutlinedIcon from "@mui/icons-material/VisibilityOffOutlined";
+import VisibilityOutlinedIcon from "@mui/icons-material/VisibilityOutlined";
+import { Checkbox, FormControl, FormControlLabel } from "@mui/material";
+import Button from "@mui/material/Button";
+import FormHelperText from "@mui/material/FormHelperText";
+import IconButton from "@mui/material/IconButton";
+import InputAdornment from "@mui/material/InputAdornment";
+import InputLabel from "@mui/material/InputLabel";
+import Link from "@mui/material/Link";
+import OutlinedInput from "@mui/material/OutlinedInput";
+import TextField from "@mui/material/TextField";
 import { message } from "antd";
-import { AuthContainer } from "./components/AuthContainer";
+import { useEffect, useState } from "react";
+import { useNavigate } from "react-router";
+import { AskCodeAPI } from "../../api/auth";
+import PrivacyPolicy from "../../components/PrivacyPolicy";
+import UserAgreement from "../../components/UserAgreement";
 import { AuthCard } from "./components/AuthCard";
+import { AuthContainer } from "./components/AuthContainer";
 
 export const RegisterPage = () => {
   const [showPassword, setShowPassword] = useState(false);
@@ -119,24 +119,6 @@ export const RegisterPage = () => {
       console.log({ email, username, password, verificationCode });
       setIsRegisterLoading(true);
       message.loading({ content: "正在注册", key: "register" });
-      RegisterAPI(email, verificationCode, username, password)
-        .then((res) => {
-          console.log(res);
-          if (res.code === 200) {
-            message.success({ content: "注册成功", key: "register" });
-            console.log("注册成功");
-          } else {
-            message.error({ content: res.message, key: "register" });
-            console.log(res.message);
-          }
-        })
-        .catch((error) => {
-          message.error({ content: "注册失败", key: "register" });
-          console.log(error);
-        })
-        .finally(() => {
-          setIsRegisterLoading(false);
-        });
     }
   };
 
