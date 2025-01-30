@@ -1,33 +1,11 @@
 import { Button } from "@mui/material";
-import { useNavigate } from "react-router";
 import { message } from "antd";
 import { Dialog, NavBar } from "antd-mobile";
+import { useNavigate } from "react-router";
+import { LogoutAPI } from "../../api/auth";
+import { OptionButton } from "../../components/OptionButton";
 import { ScrollView } from "../../components/ScallView";
 import useAuthStore from "../../store/auth";
-import ArrowForwardIosRoundedIcon from "@mui/icons-material/ArrowForwardIosRounded";
-import { LogoutAPI } from "../../api/auth";
-
-const SettingItem = ({
-  title,
-  onClick,
-}: {
-  title: string;
-  onClick?: () => void;
-}) => {
-  return (
-    <Button
-      className="w-full !b-rd-0 !bg-white"
-      color="inherit"
-      size="large"
-      onClick={onClick}
-    >
-      <div className="w-full flex-between pl-2">
-        {title}
-        <ArrowForwardIosRoundedIcon sx={{ fontSize: "16px" }} color="disabled" />
-      </div>
-    </Button>
-  );
-};
 
 export const SettingsPage = () => {
   const navigator = useNavigate();
@@ -69,7 +47,11 @@ export const SettingsPage = () => {
     <div className="h-full flex flex-col">
       <NavBar onBack={() => navigator(-1)}>设置</NavBar>
       <ScrollView>
-        <SettingItem title="账号管理" onClick={()=> navigator("account")}/>
+        <OptionButton title="账号管理" onClick={() => navigator("account")} />
+        <OptionButton title="关于聪言" onClick={() => navigator("about")} />
+        <div className="px-5 py-2 color-gray">隐私</div>
+        <OptionButton title="个人信息收集清单" />
+        <OptionButton title="第三方信息共享清单" />
         <div className="h-2"></div>
         <Button
           className="w-full !b-rd-0 !bg-white"

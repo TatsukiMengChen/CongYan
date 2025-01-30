@@ -18,7 +18,8 @@ import { SettingsPage } from "./pages/settings"; // 引入SettingsPage
 import useAuthStore from "./store/auth";
 import Spin from "antd/es/spin";
 import { ContactPage } from "./pages/contact";
-import { AccountSettingsPage } from "./pages/settings/accout";
+import { AccountSettingsPage } from "./pages/settings/account";
+import { AboutSettingsPage } from "./pages/settings/about";
 
 const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
   const { isAuthenticated } = useAuthStore();
@@ -84,6 +85,14 @@ const AnimatedRoutes = () => {
               element={
                 <ProtectedRoute>
                   <SettingsPage />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/settings/about"
+              element={
+                <ProtectedRoute>
+                  <AboutSettingsPage />
                 </ProtectedRoute>
               }
             />
