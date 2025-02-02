@@ -1,7 +1,7 @@
 import { lightBlue, pink } from "@mui/material/colors";
 import { ThemeProvider, createTheme } from "@mui/material/styles";
 import "@unocss/reset/normalize.css";
-import { ConfigProvider, theme } from "antd";
+import { ConfigProvider, App, theme } from "antd";
 import { setColorScheme } from "mdui/functions/setColorScheme.js";
 import "mdui/mdui.css";
 import { useEffect, useState } from "react";
@@ -9,7 +9,7 @@ import ReactDOM from "react-dom/client";
 import "virtual:uno.css";
 import "./index.scss";
 import AppRouter from "./routes";
-import { getTheme } from 'mdui/functions/getTheme.js';
+import { getTheme } from "mdui/functions/getTheme.js";
 console.log(getTheme());
 const { darkAlgorithm, defaultAlgorithm } = theme;
 
@@ -57,7 +57,9 @@ const Root = () => {
   return (
     <ThemeProvider theme={muiTheme}>
       <ConfigProvider theme={antdTheme}>
-        <AppRouter />
+        <App>
+          <AppRouter />
+        </App>
       </ConfigProvider>
     </ThemeProvider>
   );
