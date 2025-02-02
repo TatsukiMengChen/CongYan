@@ -1,13 +1,10 @@
 package com.congyan.app
 
+import android.annotation.SuppressLint
 import android.content.res.Configuration
 import android.os.Bundle
 import android.view.View
-import android.webkit.JavascriptInterface
 import android.webkit.WebView
-import android.widget.Toast
-import androidx.core.content.ContextCompat
-import app.tauri.plugin.PluginManager
 
 class MainActivity : TauriActivity() {
   override fun onCreate(savedInstanceState: Bundle?) {
@@ -26,6 +23,7 @@ class MainActivity : TauriActivity() {
     updateBackgroundColor()
   }
 
+  @SuppressLint("SetJavaScriptEnabled")
   override fun onWebViewCreate(webView: WebView) {
     super.onWebViewCreate(webView)
     val nightModeFlags = resources.configuration.uiMode and Configuration.UI_MODE_NIGHT_MASK
@@ -57,12 +55,5 @@ class MainActivity : TauriActivity() {
       else -> 0xFFFCFCFF.toInt()
     }
     window.decorView.setBackgroundColor(color)
-  }
-
-  class WebAppInterface(private val activity: MainActivity) {
-    @JavascriptInterface
-    fun showToast(message: String) {
-      Toast.makeText(activity, message, Toast.LENGTH_SHORT).show()
-    }
   }
 }
