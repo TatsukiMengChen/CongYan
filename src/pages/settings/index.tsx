@@ -1,8 +1,9 @@
-import { Button } from "@mui/material";
+import { Button, Divider } from "@mui/material";
 import { message } from "antd";
-import { Dialog, NavBar } from "antd-mobile";
+import { Dialog } from "antd-mobile";
 import { useNavigate } from "react-router";
 import { LogoutAPI } from "../../api/auth";
+import Navbar from "../../components/Navbar";
 import { OptionButton } from "../../components/OptionButton";
 import { ScrollView } from "../../components/ScallView";
 import useAuthStore from "../../store/auth";
@@ -43,18 +44,21 @@ export const SettingsPage = () => {
       },
     });
   };
+
   return (
     <div className="h-full flex flex-col">
-      <NavBar onBack={() => navigator(-1)}>设置</NavBar>
+      <Navbar onBack={() => navigator(-1)}>设置</Navbar>
       <ScrollView>
         <OptionButton title="账号管理" onClick={() => navigator("account")} />
+        <Divider />
         <OptionButton title="关于聪言" onClick={() => navigator("about")} />
         <div className="px-5 py-2 color-gray">隐私</div>
         <OptionButton title="个人信息收集清单" />
+        <Divider />
         <OptionButton title="第三方信息共享清单" />
         <div className="h-2"></div>
         <Button
-          className="w-full !b-rd-0 !bg-white"
+          className="w-full !b-rd-0 !bg-white dark:!bg-dark"
           color="secondary"
           size="large"
           onClick={handleLogout}

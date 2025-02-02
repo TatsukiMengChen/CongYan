@@ -1,8 +1,15 @@
 .bg {
   padding-top: env(safe-area-inset-top);
-  background-image: linear-gradient(#d7fffe 0%, #fcfcff 100%);
+  background-image: linear-gradient(#fcfcff 0%, #d7fffe 50%, #fcfcff 100%);
+  @media (prefers-color-scheme: dark) {
+    background-image: linear-gradient(#1a1c1e 0%, #333333 50%, #1a1c1e 100%);
+  }
 }
 
 .card {
   box-shadow: rgba(33, 35, 38, 0.1) 0px 10px 10px -10px;
+  background: #fcfcff;
+  @media (prefers-color-scheme: dark) {
+    background: #1a1c1e;
+  }
 }

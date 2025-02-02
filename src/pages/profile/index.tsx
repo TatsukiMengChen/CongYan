@@ -8,9 +8,10 @@ import InfoOutlinedIcon from "@mui/icons-material/InfoOutlined";
 import SettingsOutlinedIcon from "@mui/icons-material/SettingsOutlined";
 import styles from "./index.module.scss";
 import { Card } from "antd";
-import { Button, IconButton } from "@mui/material";
+import { Button, IconButton, Typography } from "@mui/material";
 import { useNavigate } from "react-router";
 import useAuthStore from "../../store/auth";
+
 const FunctionButton = ({
   icon,
   title,
@@ -25,7 +26,7 @@ const FunctionButton = ({
       <IconButton>
         {React.cloneElement(icon as React.ReactElement, { fontSize: "large" })}
       </IconButton>
-      <div>{title}</div>
+      <Typography variant="body2">{title}</Typography>
     </div>
   );
 };
@@ -40,13 +41,20 @@ const FunctionButton2 = ({
   onClick?: () => void;
 }) => {
   return (
-    <Button className="w-full border-none !b-rd-0" onClick={onClick}>
-      <div
-        className="h-full w-full flex-between px-4 py-2"
-        style={{ color: "black" }}
-      >
-        {icon}
-        <div className="ml-4 w-full text-left text-4">{title}</div>
+    <Button
+      color="inherit"
+      className="w-full border-none !b-rd-0"
+      onClick={onClick}
+    >
+      <div className="h-full w-full flex-between px-4 py-2">
+        {React.cloneElement(icon as React.ReactElement, { color: "action" })}
+        <Typography
+          variant="body2"
+          className="w-full text-left text-4 !ml-4"
+          color="textPrimary"
+        >
+          {title}
+        </Typography>
         <ArrowForwardIosRoundedIcon fontSize="small" color="action" />
       </div>
     </Button>
@@ -60,17 +68,21 @@ export const ProfilePage = () => {
   return (
     <div className="h-full">
       <div className={`${styles.bg}`}>
-        <div className="flex-between px-4 pt-8">
+        <div className="flex-between px-4 pt-12">
           <Avatar
             alt="Avatar"
             src="images/avatar-boy.png"
             sx={{ width: 80, height: 80 }}
           ></Avatar>
           <div className="ml-4 w-full">
-            <strong className="text-5">{user?.username}</strong>
-            <div>已练习0时0分</div>
+            <Typography variant="h6" color="textPrimary">
+              {user?.username}
+            </Typography>
+            <Typography variant="inherit" color="textPrimary">
+              已练习0时0分
+            </Typography>
           </div>
-          <ArrowForwardIosRoundedIcon />
+          <ArrowForwardIosRoundedIcon color="action" />
         </div>
         <Card className={`mx-4 mt-8 box-border ${styles.card}`}>
           <div className="flex-around">

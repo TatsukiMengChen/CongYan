@@ -1,4 +1,4 @@
-import { Button } from "@mui/material";
+import { Button, Typography } from "@mui/material";
 import ArrowForwardIosRoundedIcon from "@mui/icons-material/ArrowForwardIosRounded";
 
 export const OptionButton = ({
@@ -18,15 +18,18 @@ export const OptionButton = ({
 }) => {
   return (
     <Button
-      className={`w-full !b-rd-0 !bg-white ${className}`}
+      className={`w-full !b-rd-0 !bg-white dark:!bg-dark ${className}`}
       color="inherit"
       size="large"
       onClick={onClick}
+      sx={{ height: "48px" }}
     >
       <div className="w-full flex-between pl-2">
-        {title}
+        <Typography variant="body1" color="textPrimary">{title}</Typography>
         <div className="flex-center">
-          <span className="text-3 color-gray">{description}</span>
+          <Typography variant="body2" className="text-3 color-gray dark:color-gray-400">
+            {description}
+          </Typography>
           {icon}
         </div>
       </div>

@@ -1,6 +1,11 @@
-body, html {
+body,
+html {
   margin: 0;
   overflow: hidden;
+  background: #fcfcff;
+  @media (prefers-color-scheme: dark) {
+    background: #1a1c1e;
+  }
 }
 
 #root {

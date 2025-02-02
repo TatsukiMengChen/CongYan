@@ -1,37 +1,63 @@
+import { lightBlue, pink } from "@mui/material/colors";
+import { ThemeProvider, createTheme } from "@mui/material/styles";
+import "@unocss/reset/normalize.css";
+import { ConfigProvider, theme } from "antd";
+import { setColorScheme } from "mdui/functions/setColorScheme.js";
+import "mdui/mdui.css";
+import { useEffect, useState } from "react";
 import ReactDOM from "react-dom/client";
 import "virtual:uno.css";
-import "@unocss/reset/normalize.css";
-import "mdui/mdui.css";
-import { ThemeProvider, createTheme } from "@mui/material/styles";
-import { setColorScheme } from "mdui/functions/setColorScheme.js";
+import "./index.scss";
 import AppRouter from "./routes";
-import { lightBlue } from "@mui/material/colors";
-import { pink } from "@mui/material/colors";
-import "./index.css";
+import { getTheme } from 'mdui/functions/getTheme.js';
+console.log(getTheme());
+const { darkAlgorithm, defaultAlgorithm } = theme;
 
 setColorScheme("#03A9F4");
 
-const theme = createTheme({
-  colorSchemes: {
-    dark: true,
-  },
-  palette: {
-    primary: lightBlue,
-    secondary: pink,
-  },
-});
+const Root = () => {
+  const [prefersDarkMode, setPrefersDarkMode] = useState(
+    window.matchMedia("(prefers-color-scheme: dark)").matches,
+  );
+
+  useEffect(() => {
+    const mediaQuery = window.matchMedia("(prefers-color-scheme: dark)");
+    const handleChange = (event: MediaQueryListEvent) => {
+      setPrefersDarkMode(event.matches);
+    };
+    mediaQuery.addEventListener("change", handleChange);
+    return () => mediaQuery.removeEventListener("change", handleChange);
+  }, []);
+
+  useEffect(() => {
+    if (prefersDarkMode) {
+      document.documentElement.classList.add("dark");
+    } else {
+      document.documentElement.classList.remove("dark");
+    }
+  }, [prefersDarkMode]);
+
+  const muiTheme = createTheme({
+    palette: {
+      mode: prefersDarkMode ? "dark" : "light",
+      primary: lightBlue,
+      secondary: pink,
+    },
+  });
+
+  const antdTheme = {
+    algorithm: prefersDarkMode ? darkAlgorithm : defaultAlgorithm,
+  };
+
+  return (
+    <ThemeProvider theme={muiTheme}>
+      <ConfigProvider theme={antdTheme}>
+        <AppRouter />
+      </ConfigProvider>
+    </ThemeProvider>
+  );
+};
 
 const rootElement = document.getElementById("root") as HTMLElement;
 
-// 检测是否为移动设备
-const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
-
-if (isMobile) {
-  //rootElement.style.paddingTop = "60px";
-}
-
-ReactDOM.createRoot(rootElement).render(
-  <ThemeProvider theme={theme}>
-    <AppRouter />
-  </ThemeProvider>,
-);
+ReactDOM.createRoot(rootElement).render(<Root />);
