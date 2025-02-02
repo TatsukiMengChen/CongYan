@@ -15,6 +15,11 @@ const { darkAlgorithm, defaultAlgorithm } = theme;
 
 setColorScheme("#03A9F4");
 
+const isAndroid = /Android/i.test(navigator.userAgent);
+if (isAndroid) {
+  Android.showToast("Hello, Android!");
+}
+
 const Root = () => {
   const [prefersDarkMode, setPrefersDarkMode] = useState(
     window.matchMedia("(prefers-color-scheme: dark)").matches,
