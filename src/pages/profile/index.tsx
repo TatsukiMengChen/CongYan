@@ -84,7 +84,7 @@ export const ProfilePage = () => {
           </div>
           <ArrowForwardIosRoundedIcon color="action" />
         </div>
-        <Card className={`mx-4 mt-8 box-border ${styles.card}`}>
+        <Card className={`mx-4 mt-8 box-border`}>
           <div className="flex-around">
             <FunctionButton icon={<AutoGraphRoundedIcon />} title="统计分析" />
             <FunctionButton icon={<BookOutlinedIcon />} title="我的收藏" />

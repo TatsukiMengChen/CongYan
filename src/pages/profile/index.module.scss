@@ -5,11 +5,3 @@
     background-image: linear-gradient(#1a1c1e 0%, #333333 50%, #1a1c1e 100%);
   }
 }
-
-.card {
-  box-shadow: rgba(33, 35, 38, 0.1) 0px 10px 10px -10px;
-  background: #fcfcff;
-  @media (prefers-color-scheme: dark) {
-    background: #1a1c1e;
-  }
-}

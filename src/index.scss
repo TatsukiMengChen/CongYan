@@ -2,6 +2,7 @@ body,
 html {
   margin: 0;
   overflow: hidden;
+  user-select: none;
   background: #fcfcff;
   @media (prefers-color-scheme: dark) {
     background: #1a1c1e;
@@ -19,4 +20,12 @@ html {
 .adm-nav-bar {
   z-index: 1;
   box-shadow: rgba(0, 0, 0, 0.16) 0px 1px 4px;
+}
+
+.ant-card {
+  box-shadow: rgba(33, 35, 38, 0.1) 0px 10px 10px -10px;
+  background: #fcfcff;
+  @media (prefers-color-scheme: dark) {
+    background: #1a1c1e;
+  }
 }

@@ -20,6 +20,7 @@ import Spin from "antd/es/spin";
 import { ContactPage } from "./pages/contact";
 import { AccountSettingsPage } from "./pages/settings/account";
 import { AboutSettingsPage } from "./pages/settings/about";
+import KeepAlive, { AliveScope } from "react-activation";
 
 const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
   const { isAuthenticated } = useAuthStore();
@@ -71,14 +72,42 @@ const AnimatedRoutes = () => {
               path="/"
               element={
                 <ProtectedRoute>
-                  <App />
+                  <App key={location.pathname} />
                 </ProtectedRoute>
               }
             >
-              <Route index element={<HomePage />} />
-              <Route path="contact" element={<ContactPage />} />
-              <Route path="home" element={<HomePage />} />
-              <Route path="profile" element={<ProfilePage />} />
+              <Route
+                index
+                element={
+                  <KeepAlive id="home">
+                    <HomePage />
+                  </KeepAlive>
+                }
+              />
+              <Route
+                path="contact"
+                element={
+                  <KeepAlive id="contact">
+                    <ContactPage />
+                  </KeepAlive>
+                }
+              />
+              <Route
+                path="home"
+                element={
+                  <KeepAlive id="home">
+                    <HomePage />
+                  </KeepAlive>
+                }
+              />
+              <Route
+                path="profile"
+                element={
+                  <KeepAlive id="profile">
+                    <ProfilePage />
+                  </KeepAlive>
+                }
+              />
             </Route>
             <Route
               path="/settings"
@@ -135,7 +164,9 @@ const AppRouter = () => {
 
   return (
     <BrowserRouter>
-      <AnimatedRoutes />
+      <AliveScope>
+        <AnimatedRoutes />
+      </AliveScope>
     </BrowserRouter>
   );
 };
