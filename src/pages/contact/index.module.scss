@@ -1,0 +1,35 @@
+.bubbleStart {
+  :global {
+    .ant-bubble-content-shadow {
+      background-color: rgb(var(--mdui-color-on-secondary));
+    }
+    .ant-bubble-content {
+      white-space: pre-wrap;
+    }
+  }
+}
+
+.bubbleEnd {
+  :global {
+    .ant-bubble-content-shadow {
+      background-color: rgb(var(--mdui-color-secondary-container));
+    }
+    .ant-bubble-content {
+      white-space: pre-wrap;
+    }
+  }
+}
+
+.menu {
+  :global {
+    .MuiPaper-root {
+      box-shadow: rgba(0, 0, 0, 0.16) 0px 1px 4px;
+
+      .MuiList-root {
+        .MuiButtonBase-root {
+          min-height: 24px;
+        }
+      }
+    }
+  }
+}

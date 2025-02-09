@@ -11,11 +11,13 @@ import "./animate.css";
 import { HomePage } from "./pages/home";
 import { ContactPage } from "./pages/contact";
 import { ProfilePage } from "./pages/profile";
+import useInputStore from "./store/input";
 
 function App() {
   const location = useLocation();
   const nodeRef = useRef<HTMLDivElement>(null);
   const navigator = useNavigate();
+  const { input: isTyping } = useInputStore();
 
   const tabs = [
     {
@@ -41,7 +43,12 @@ function App() {
   return (
     <main className="app h-100vh">
       <mdui-navigation-bar
-        style={{ position: "fixed", bottom: 0, width: "100%" }}
+        style={{
+          position: "fixed",
+          bottom: isTyping ? "-80px" : "0px",
+          transition: "bottom 0.3s ease-in-out",
+          width: "100%",
+        }}
         scroll-target=".example-scroll-target"
         value={location.pathname === "/" ? "home" : location.pathname.slice(1)}
       >
@@ -65,7 +72,10 @@ function App() {
           timeout={300}
           nodeRef={nodeRef}
         >
-          <div ref={nodeRef}>
+          <div
+            ref={nodeRef}
+            className={`${isTyping ? "h-full" : "h-[calc(100%-80px)]"}`}
+          >
             <Outlet />
           </div>
         </CSSTransition>

@@ -13,7 +13,7 @@ import { getTheme } from "mdui/functions/getTheme.js";
 console.log(getTheme());
 const { darkAlgorithm, defaultAlgorithm } = theme;
 
-setColorScheme("#03A9F4");
+setColorScheme("#4FC3F7");
 
 const isAndroid = /Android/i.test(navigator.userAgent);
 if (isAndroid) {
@@ -45,7 +45,7 @@ const Root = () => {
   const muiTheme = createTheme({
     palette: {
       mode: prefersDarkMode ? "dark" : "light",
-      primary: lightBlue,
+      primary: { main: lightBlue[300] },
       secondary: pink,
     },
   });
