@@ -54,7 +54,8 @@ class MainActivity : TauriActivity() {
       }
 
       if (doubleBackToExitPressedOnce) {
-        super.onBackPressed()
+        finishAffinity()
+        System.exit(0)
         return true
       }
 
