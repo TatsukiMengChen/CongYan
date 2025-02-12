@@ -118,56 +118,59 @@ const InputArea = () => {
   const { addMessage } = useMessageStore();
 
   return (
-    <div
-      className={`fixed ${isTyping ? "bottom-0px" : "bottom-80px"} box-border flex items-start bg-gray-50 p-2 container dark:bg-dark-8`}
-      style={{
-        transition: "bottom 0.3s ease-in-out",
-      }}
-    >
-      <InputBase
-        className="minh-8 !rounded-md !px-2"
-        multiline
-        fullWidth
-        sx={{
-          backgroundColor: "rgb(var(--mdui-color-on-secondary))",
-        }}
-        maxRows={4}
-        value={message}
-        onChange={(e) => setMessage(e.target.value)}
-        onFocus={() => {
-          setIsTyping(true);
-        }}
-        onBlur={() => {
-          setIsTyping(false);
-        }}
-      />
-      <Button
-        className="h-8 !ml-2 !rounded-md"
-        sx={{
-          fontSize: "14px",
-          color: "rgb(var(--mdui-color-primary))",
-          backgroundColor: "rgb(var(--mdui-color-secondary-container))",
-        }}
-        onClick={() => {
-          addMessage({
-            content: message,
-            time: Date.now(),
-            from: "user",
-            id: Date.now().toString(),
-          });
-          setMessage("");
-          setTimeout(() => {
-            addMessage({
-              content: "你好，请问有什么可以帮您？",
-              time: Date.now(),
-              from: "doctor",
-              id: Date.now().toString(),
-            });
-          }, 3000);
+    <div>
+      <div style={{ height: "48px" }}></div>
+      <div
+        className={`fixed ${isTyping ? "bottom-0px" : "bottom-80px"} box-border flex items-start bg-gray-50 p-2 container dark:bg-dark-8`}
+        style={{
+          transition: "bottom 0.3s ease-in-out",
         }}
       >
-        发送
-      </Button>
+        <InputBase
+          className="minh-8 !rounded-md !px-2"
+          multiline
+          fullWidth
+          sx={{
+            backgroundColor: "rgb(var(--mdui-color-on-secondary))",
+          }}
+          maxRows={4}
+          value={message}
+          onChange={(e) => setMessage(e.target.value)}
+          onFocus={() => {
+            setIsTyping(true);
+          }}
+          onBlur={() => {
+            setIsTyping(false);
+          }}
+        />
+        <Button
+          className="h-8 !ml-2 !rounded-md"
+          sx={{
+            fontSize: "14px",
+            color: "rgb(var(--mdui-color-primary))",
+            backgroundColor: "rgb(var(--mdui-color-secondary-container))",
+          }}
+          onClick={() => {
+            addMessage({
+              content: message,
+              time: Date.now(),
+              from: "user",
+              id: Date.now().toString(),
+            });
+            setMessage("");
+            setTimeout(() => {
+              addMessage({
+                content: "你好，请问有什么可以帮您？",
+                time: Date.now(),
+                from: "doctor",
+                id: Date.now().toString(),
+              });
+            }, 3000);
+          }}
+        >
+          发送
+        </Button>
+      </div>
     </div>
   );
 };
@@ -178,9 +181,9 @@ export const ContactPage = () => {
   const [showTime, setShowTime] = useState<string | null>(null);
 
   return (
-    <div className="h-full">
+    <div className="relative h-full flex flex-col">
       <div
-        className="box-border flex flex-col p-2 container"
+        className="box-border flex flex-col overflow-y-auto p-2 container"
         ref={messageListRef}
       >
         <MessageItem

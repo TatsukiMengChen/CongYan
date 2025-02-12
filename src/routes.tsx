@@ -1,4 +1,5 @@
-import { useEffect, useState, useRef } from "react";
+import Spin from "antd/es/spin";
+import { useEffect, useRef, useState } from "react";
 import {
   BrowserRouter,
   Navigate,
@@ -12,16 +13,14 @@ import "./animate.css"; // 引入动画样式
 import App from "./App";
 import { LoginPage } from "./pages/auth/login";
 import { RegisterPage } from "./pages/auth/register";
+import { ContactPage } from "./pages/contact";
+import TrainTextListPage from "./pages/features/trainTextList";
 import { HomePage } from "./pages/home";
 import { ProfilePage } from "./pages/profile";
 import { SettingsPage } from "./pages/settings"; // 引入SettingsPage
-import useAuthStore from "./store/auth";
-import Spin from "antd/es/spin";
-import { ContactPage } from "./pages/contact";
-import { AccountSettingsPage } from "./pages/settings/account";
 import { AboutSettingsPage } from "./pages/settings/about";
-import KeepAlive, { AliveScope } from "react-activation";
-import TrainTextListPage from "./pages/features/trainTextList";
+import { AccountSettingsPage } from "./pages/settings/account";
+import useAuthStore from "./store/auth";
 
 const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
   const { isAuthenticated } = useAuthStore();
@@ -77,38 +76,10 @@ const AnimatedRoutes = () => {
                 </ProtectedRoute>
               }
             >
-              <Route
-                index
-                element={
-                  <KeepAlive id="home">
-                    <HomePage />
-                  </KeepAlive>
-                }
-              />
-              <Route
-                path="contact"
-                element={
-                  <KeepAlive id="contact">
-                    <ContactPage />
-                  </KeepAlive>
-                }
-              />
-              <Route
-                path="home"
-                element={
-                  <KeepAlive id="home">
-                    <HomePage />
-                  </KeepAlive>
-                }
-              />
-              <Route
-                path="profile"
-                element={
-                  <KeepAlive id="profile">
-                    <ProfilePage />
-                  </KeepAlive>
-                }
-              />
+              <Route index element={<HomePage />} />
+              <Route path="contact" element={<ContactPage />} />
+              <Route path="home" element={<HomePage />} />
+              <Route path="profile" element={<ProfilePage />} />
             </Route>
             <Route
               path="/train"
@@ -165,7 +136,12 @@ const AppRouter = () => {
 
   if (loading) {
     return (
-      <div className="h-100vh flex-center">
+      <div
+        className="h-100vh flex-center"
+        style={{
+          transition: "height 0.3s ease-in-out",
+        }}
+      >
         <Spin size="large" />
       </div>
     );
@@ -173,9 +149,9 @@ const AppRouter = () => {
 
   return (
     <BrowserRouter>
-      <AliveScope>
-        <AnimatedRoutes />
-      </AliveScope>
+      {/* <AliveScope> */}
+      <AnimatedRoutes />
+      {/* </AliveScope> */}
     </BrowserRouter>
   );
 };
