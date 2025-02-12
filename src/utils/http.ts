@@ -20,7 +20,13 @@ http.interceptors.request.use((config) => {
 
 // 响应拦截器：统一处理错误
 http.interceptors.response.use(
-  (response) => response,
+  (response) => {
+    if (response.data.message === "no auth") {
+      localStorage.removeItem('token');
+      window.location.href = '/login';
+    }
+    return response;
+  },
   (error) => {
     if (error.response?.status === 401) {
       localStorage.removeItem('token');
