@@ -21,6 +21,7 @@ import { ContactPage } from "./pages/contact";
 import { AccountSettingsPage } from "./pages/settings/account";
 import { AboutSettingsPage } from "./pages/settings/about";
 import KeepAlive, { AliveScope } from "react-activation";
+import TrainTextListPage from "./pages/features/trainTextList";
 
 const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
   const { isAuthenticated } = useAuthStore();
@@ -109,6 +110,14 @@ const AnimatedRoutes = () => {
                 }
               />
             </Route>
+            <Route
+              path="/train"
+              element={
+                <ProtectedRoute>
+                  <TrainTextListPage />
+                </ProtectedRoute>
+              }
+            />
             <Route
               path="/settings"
               element={
