@@ -34,7 +34,7 @@ export const SettingsPage = () => {
         if (action.key === "ok") {
           message.loading({ content: "正在退出登录...", key: "logout" });
           LogoutAPI().then((res) => {
-            if (res.code == 200) {
+            if (res.code == 200 || res.code == 400) {
               message.success({ content: "退出登录成功", key: "logout" });
               logout();
               navigator(-1);
