@@ -14,13 +14,14 @@ import App from "./App";
 import { LoginPage } from "./pages/auth/login";
 import { RegisterPage } from "./pages/auth/register";
 import { ContactPage } from "./pages/contact";
-import TrainTextListPage from "./pages/features/trainTextList";
+import TrainTextListPage from "./pages/features/train/trainTextList";
 import { HomePage } from "./pages/home";
 import { ProfilePage } from "./pages/profile";
 import { SettingsPage } from "./pages/settings"; // 引入SettingsPage
 import { AboutSettingsPage } from "./pages/settings/about";
 import { AccountSettingsPage } from "./pages/settings/account";
 import useAuthStore from "./store/auth";
+import TrainTextDetailPage from "./pages/features/train/trainTextDetail";
 
 const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
   const { isAuthenticated } = useAuthStore();
@@ -86,6 +87,15 @@ const AnimatedRoutes = () => {
               element={
                 <ProtectedRoute>
                   <TrainTextListPage />
+                </ProtectedRoute>
+              }
+            />
+
+            <Route
+              path="/train/detail"
+              element={
+                <ProtectedRoute>
+                  <TrainTextDetailPage />
                 </ProtectedRoute>
               }
             />

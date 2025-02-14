@@ -1,8 +1,8 @@
+import { Chip, ListItemButton, Typography } from "@mui/material";
 import { useEffect, useState } from "react";
 import { useLocation, useNavigate } from "react-router";
-import { GetTrainTextByCategoryAPI, TrainText } from "../../api/train";
-import Navbar from "../../components/Navbar";
-import { Chip, ListItemButton, Typography } from "@mui/material";
+import { GetTrainTextByCategoryAPI, TrainText } from "../../../api/train";
+import Navbar from "../../../components/Navbar";
 
 const TrainTextCard = (props: TrainText) => {
   const getColor = (grade: string) => {
@@ -64,7 +64,7 @@ const TrainTextCard = (props: TrainText) => {
         建议时长：{props.suggestedDuration} s
       </Typography>
       <div className="absolute left-0 top-0 h-full w-full">
-        <ListItemButton className="h-full" />
+        <ListItemButton className="h-full" onClick={props.onClick} />
       </div>
     </div>
   );
@@ -73,16 +73,22 @@ const TrainTextCard = (props: TrainText) => {
 const TrainTextListPage = () => {
   const location = useLocation();
   const { title, type } = location.state || { title: "散文", type: "prose" };
-  const [textList, setTextList] = useState<TrainText[]>([]);
+  const [textList, setTextList] = useState<TrainText[]>(() => {
+    const savedList = sessionStorage.getItem("textList");
+    return savedList ? JSON.parse(savedList) : [];
+  });
   const navigator = useNavigate();
 
   useEffect(() => {
-    GetTrainTextByCategoryAPI(type).then((res) => {
-      if (res.code === 200 && res.data) {
-        setTextList(res.data);
-      }
-    });
-  }, [type]);
+    if (textList.length === 0) {
+      GetTrainTextByCategoryAPI(type).then((res) => {
+        if (res.code === 200 && res.data) {
+          setTextList(res.data);
+          sessionStorage.setItem("textList", JSON.stringify(res.data));
+        }
+      });
+    }
+  }, [type, textList.length]);
 
   return (
     <div className="h-100vh flex flex-col">
@@ -94,7 +100,17 @@ const TrainTextListPage = () => {
       </Navbar>
       <div className="overflow-y-auto">
         {textList.map((text, id) => (
-          <TrainTextCard key={id} {...text} />
+          <TrainTextCard
+            key={id}
+            {...text}
+            onClick={() => {
+              navigator("detail", {
+                state: {
+                  text: text,
+                },
+              });
+            }}
+          />
         ))}
       </div>
     </div>

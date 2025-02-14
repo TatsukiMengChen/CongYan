@@ -83,7 +83,7 @@ export type GetTTSAPIResType = {
 * TtsVO
 */
 export type TtsVO = {
-  audioBase64?: number[];
+  audioBase64?: string;
   [property: string]: any;
 }
 

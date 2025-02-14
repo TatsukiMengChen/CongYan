@@ -66,6 +66,7 @@ const TextCard = ({ title, type }: { title: string; type: string }) => {
 
   const handleClick = () => {
     // 处理点击事件
+    sessionStorage.removeItem("textList");
     navigate(`/train`, { state: { title, type } });
   };
 
