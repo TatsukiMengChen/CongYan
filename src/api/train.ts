@@ -179,7 +179,7 @@ export const DysarthriaByBase64API = async (text: string, audioBase64: string) =
 /**
  * 返回每个汉字的详细发音信息
  *
- * RestBeanDysarthriaResultVO
+ * RestBeanDysarthriaResult
  */
 export type DysarthriaResType = {
   /**
@@ -189,7 +189,7 @@ export type DysarthriaResType = {
   /**
    * 响应数据
    */
-  data?: DysarthriaResultVO;
+  data?: DysarthriaResult;
   id?: number;
   /**
    * 其他消息
@@ -201,9 +201,9 @@ export type DysarthriaResType = {
 /**
 * 响应数据
 *
-* DysarthriaResultVO
+* DysarthriaResult
 */
-export type DysarthriaResultVO = {
+export type DysarthriaResult = {
   sd?: Sd[];
   single_score?: number[];
   sm?: Sm[];
@@ -296,7 +296,7 @@ export type GetPinyinDetailResType = {
   /**
    * 响应数据
    */
-  data?: PinyinDetailVO;
+  data?: PinyinDetail;
   id?: number;
   /**
    * 其他消息
@@ -308,9 +308,9 @@ export type GetPinyinDetailResType = {
 /**
 * 响应数据
 *
-* PinyinDetailVO
+* PinyinDetail
 */
-export type PinyinDetailVO = {
+export type PinyinDetail = {
   sm_detail?: Initial[];
   textPinyin?: TextPinyin;
   ym_detail?: Vowel[];
