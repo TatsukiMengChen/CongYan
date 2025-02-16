@@ -368,7 +368,7 @@ const FunctionalArea = ({ text }: { text: string }) => {
         text={getChineseCharacters(selectedText || "")}
         result={dysarthriaResult}
       />
-      <div className="flex-evenly mt-4 w-full">
+      <div className="mt-4 w-full flex-evenly">
         <IconButton
           className="!bg-white dark:!bg-dark-4"
           color="primary"

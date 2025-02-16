@@ -67,7 +67,7 @@ const AnimatedRoutes = () => {
         nodeRef={nodeRef}
         onExited={handleExited}
       >
-        <div className="fade-wrapper h-100%" ref={nodeRef}>
+        <div className="fade-wrapper h-100vh" ref={nodeRef}>
           <Routes location={location}>
             <Route
               path="/"

@@ -1,9 +1,17 @@
-import { ReactNode } from "react";
+import { ReactNode, HTMLAttributes } from "react";
 
-interface ScallViewProps {
+interface ScallViewProps extends HTMLAttributes<HTMLDivElement> {
   children: ReactNode;
 }
 
-export const ScrollView = ({ children }: ScallViewProps) => {
-  return <div className="h-full overflow-y-auto">{children}</div>;
+export const ScrollView = ({
+  children,
+  className = "",
+  ...props
+}: ScallViewProps) => {
+  return (
+    <div className={`h-full overflow-y-auto ${className}`} {...props}>
+      {children}
+    </div>
+  );
 };

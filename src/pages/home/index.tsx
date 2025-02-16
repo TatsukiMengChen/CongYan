@@ -11,6 +11,7 @@ import "swiper/css/pagination";
 import { Pagination } from "swiper/modules";
 import { Swiper, SwiperSlide } from "swiper/react";
 import styles from "./index.module.scss";
+import { ScrollView } from "../../components/ScallView";
 
 const SearchBar = () => {
   return (
@@ -99,11 +100,13 @@ const PracticeArea = () => {
 
 export const HomePage = () => {
   return (
-    <div className="h-full">
+    <div className="h-full flex flex-col">
       <SearchBar />
-      <Alert severity="info">公告内容</Alert>
-      <SwiperArea />
-      <PracticeArea />
+      <ScrollView className="pb-4">
+        <Alert severity="info">公告内容</Alert>
+        <SwiperArea />
+        <PracticeArea />
+      </ScrollView>
     </div>
   );
 };

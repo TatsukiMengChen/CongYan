@@ -44,6 +44,7 @@ export const AboutSettingsPage = () => {
           <div>Copyright © 2025 南昌大学聪言项目组</div>
         </div>
       </ScrollView>
+      <div className="h-60px w-full"></div>
       <UserAgreement
         open={isUserAgreementOpen}
         onClose={() => setIsUserAgreementOpen(false)}

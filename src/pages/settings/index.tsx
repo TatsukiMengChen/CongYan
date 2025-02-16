@@ -48,7 +48,7 @@ export const SettingsPage = () => {
   return (
     <div className="h-full flex flex-col">
       <Navbar onBack={() => navigator(-1)}>设置</Navbar>
-      <ScrollView>
+      <ScrollView >
         <OptionButton title="账号管理" onClick={() => navigator("account")} />
         <Divider />
         <OptionButton title="关于聪言" onClick={() => navigator("about")} />

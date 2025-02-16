@@ -11,6 +11,7 @@ import { Card } from "antd";
 import { Button, IconButton, Typography } from "@mui/material";
 import { useNavigate } from "react-router";
 import useAuthStore from "../../store/auth";
+import { ScrollView } from "../../components/ScallView";
 
 const FunctionButton = ({
   icon,
@@ -66,40 +67,48 @@ export const ProfilePage = () => {
   const { user } = useAuthStore();
 
   return (
-    <div className="h-full">
-      <div className={`${styles.bg}`}>
-        <div className="flex-between px-4 pt-12">
-          <Avatar
-            alt="Avatar"
-            src="images/avatar-boy.png"
-            sx={{ width: 80, height: 80 }}
-          ></Avatar>
-          <div className="ml-4 w-full">
-            <Typography variant="h6" color="textPrimary">
-              {user?.username}
-            </Typography>
-            <Typography variant="inherit" color="textPrimary">
-              已练习0时0分
-            </Typography>
+    <div className="h-full flex flex-col">
+      <ScrollView className="pb-4">
+        <div className={`${styles.bg}`}>
+          <div className="flex-between px-4 pt-12">
+            <Avatar
+              alt="Avatar"
+              src="images/avatar-boy.png"
+              sx={{ width: 80, height: 80 }}
+            ></Avatar>
+            <div className="ml-4 w-full">
+              <Typography variant="h6" color="textPrimary">
+                {user?.username}
+              </Typography>
+              <Typography variant="inherit" color="textPrimary">
+                已练习0时0分
+              </Typography>
+            </div>
+            <ArrowForwardIosRoundedIcon color="action" />
           </div>
-          <ArrowForwardIosRoundedIcon color="action" />
+          <Card className={`mx-4 mt-8 box-border`}>
+            <div className="flex-around">
+              <FunctionButton
+                icon={<AutoGraphRoundedIcon />}
+                title="统计分析"
+              />
+              <FunctionButton icon={<BookOutlinedIcon />} title="我的收藏" />
+            </div>
+          </Card>
         </div>
-        <Card className={`mx-4 mt-8 box-border`}>
-          <div className="flex-around">
-            <FunctionButton icon={<AutoGraphRoundedIcon />} title="统计分析" />
-            <FunctionButton icon={<BookOutlinedIcon />} title="我的收藏" />
-          </div>
-        </Card>
-      </div>
-      <div className="mt-4">
-        <FunctionButton2 icon={<HelpOutlineOutlinedIcon />} title="使用帮助" />
-        <FunctionButton2 icon={<InfoOutlinedIcon />} title="关于软件" />
-        <FunctionButton2
-          icon={<SettingsOutlinedIcon />}
-          title="设置"
-          onClick={() => navigator("/settings")}
-        />
-      </div>
+        <div className="mt-4">
+          <FunctionButton2
+            icon={<HelpOutlineOutlinedIcon />}
+            title="使用帮助"
+          />
+          <FunctionButton2 icon={<InfoOutlinedIcon />} title="关于软件" />
+          <FunctionButton2
+            icon={<SettingsOutlinedIcon />}
+            title="设置"
+            onClick={() => navigator("/settings")}
+          />
+        </div>
+      </ScrollView>
     </div>
   );
 };

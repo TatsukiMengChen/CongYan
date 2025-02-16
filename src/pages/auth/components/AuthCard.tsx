@@ -2,6 +2,7 @@ import { styled } from "@mui/material/styles";
 import MuiCard from "@mui/material/Card";
 
 export const AuthCard = styled(MuiCard)(({ theme }) => ({
+  overflowY: "auto",
   display: "flex",
   flexDirection: "column",
   alignSelf: "center",

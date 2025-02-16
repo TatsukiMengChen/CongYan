@@ -1,4 +1,4 @@
-import TextField from "@mui/material/TextField";
+import TextField from "../../components/TextField";
 import { useState, useEffect } from "react";
 import Button from "@mui/material/Button";
 import { Checkbox, FormControlLabel, FormControl } from "@mui/material";
@@ -18,8 +18,10 @@ import { useNavigate } from "react-router";
 import { message } from "antd";
 import { AuthContainer } from "./components/AuthContainer";
 import { AuthCard } from "./components/AuthCard";
+import useInputStore from "../../store/input";
 
 export const RegisterPage = () => {
+  const { input: isTyping } = useInputStore();
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [email, setEmail] = useState("");
@@ -181,19 +183,21 @@ export const RegisterPage = () => {
 
   return (
     <AuthContainer>
-      <IconButton
-        style={{
-          position: "fixed",
-          bottom: 16,
-          left: "50%",
-          transform: "translateX(-50%)",
-        }}
-        size="large"
-        color="primary"
-        onClick={() => navigator(-1)}
-      >
-        <ArrowBackIosNewIcon />
-      </IconButton>
+      {!isTyping && (
+        <IconButton
+          style={{
+            position: "fixed",
+            bottom: 16,
+            left: "50%",
+            transform: "translateX(-50%)",
+          }}
+          size="large"
+          color="primary"
+          onClick={() => navigator(-1)}
+        >
+          <ArrowBackIosNewIcon />
+        </IconButton>
+      )}
       <AuthCard>
         <div className="flex-center gap-2">
           <img className="w-20" src="/logo.png" alt="logo" />
