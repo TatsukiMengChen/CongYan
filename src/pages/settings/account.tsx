@@ -1,7 +1,7 @@
 import { NavBar } from "antd-mobile";
 import { useNavigate } from "react-router";
 import { OptionButton } from "../../components/OptionButton";
-import { ScrollView } from "../../components/ScallView";
+import { ScrollView } from "../../components/ScrollView";
 
 export const AccountSettingsPage = () => {
   const navigator = useNavigate();

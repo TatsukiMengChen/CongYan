@@ -11,7 +11,7 @@ import "swiper/css/pagination";
 import { Pagination } from "swiper/modules";
 import { Swiper, SwiperSlide } from "swiper/react";
 import styles from "./index.module.scss";
-import { ScrollView } from "../../components/ScallView";
+import { ScrollView } from "../../components/ScrollView";
 
 const SearchBar = () => {
   return (

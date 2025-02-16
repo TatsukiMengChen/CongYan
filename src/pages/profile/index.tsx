@@ -11,7 +11,7 @@ import { Card } from "antd";
 import { Button, IconButton, Typography } from "@mui/material";
 import { useNavigate } from "react-router";
 import useAuthStore from "../../store/auth";
-import { ScrollView } from "../../components/ScallView";
+import { ScrollView } from "../../components/ScrollView";
 
 const FunctionButton = ({
   icon,

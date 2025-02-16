@@ -1,7 +1,7 @@
 import { NavBar } from "antd-mobile";
 import { useNavigate } from "react-router";
 import { OptionButton } from "../../components/OptionButton";
-import { ScrollView } from "../../components/ScallView";
+import { ScrollView } from "../../components/ScrollView";
 import UserAgreement from "../../components/UserAgreement";
 import PrivacyPolicy from "../../components/PrivacyPolicy"; // Import PrivacyPolicy component
 import { useState } from "react";

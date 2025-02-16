@@ -5,7 +5,7 @@ import { useNavigate } from "react-router";
 import { LogoutAPI } from "../../api/auth";
 import Navbar from "../../components/Navbar";
 import { OptionButton } from "../../components/OptionButton";
-import { ScrollView } from "../../components/ScallView";
+import { ScrollView } from "../../components/ScrollView";
 import useAuthStore from "../../store/auth";
 
 export const SettingsPage = () => {
