@@ -8,6 +8,8 @@ type TextContextType = {
   setSelectedTextIndex: (index: number) => void;
   audios: string[];
   setAudios: (audios: string[]) => void;
+  charAudios: { [key: string]: string };
+  setCharAudios: (charAudios: { [key: string]: string }) => void;
   currentAudio: HTMLAudioElement | null;
   setCurrentAudio: (audio: HTMLAudioElement | null) => void;
   isPlaying: boolean;
@@ -15,6 +17,7 @@ type TextContextType = {
   dysarthriaResult: DysarthriaResult;
   setDysarthriaResult: (result: DysarthriaResult) => void;
   getAudio: (text: string, index: number) => Promise<string>;
+  getCharAudio: (char: string) => Promise<string>;
   playAudio: (audioBase64: string) => void;
 };
 
@@ -32,6 +35,7 @@ export const TextProvider = ({ children }: { children: React.ReactNode }) => {
   const [selectedText, setSelectedText] = useState<string>("");
   const [selectedTextIndex, setSelectedTextIndex] = useState<number>(0);
   const [audios, setAudios] = useState<string[]>([]);
+  const [charAudios, setCharAudios] = useState<{ [key: string]: string }>({});
   const [currentAudio, setCurrentAudio] = useState<HTMLAudioElement | null>(
     null,
   );
@@ -71,6 +75,26 @@ export const TextProvider = ({ children }: { children: React.ReactNode }) => {
     }
   };
 
+  const getCharAudio = async (char: string) => {
+    if (charAudios[char]) {
+      return charAudios[char];
+    } else {
+      const res = await GetTTSAPI(char);
+      if (res.code === 200) {
+        if (res.data?.audioBase64) {
+          const newCharAudios = { ...charAudios };
+          newCharAudios[char] = res.data.audioBase64;
+          setCharAudios(newCharAudios);
+          return res.data.audioBase64;
+        }
+        return "";
+      } else {
+        // throw new Error("No audioBase64 in response data");
+        return "";
+      }
+    }
+  };
+
   return (
     <TextContext.Provider
       value={{
@@ -80,6 +104,8 @@ export const TextProvider = ({ children }: { children: React.ReactNode }) => {
         setSelectedTextIndex,
         audios,
         setAudios,
+        charAudios,
+        setCharAudios,
         currentAudio,
         setCurrentAudio,
         isPlaying,
@@ -87,6 +113,7 @@ export const TextProvider = ({ children }: { children: React.ReactNode }) => {
         dysarthriaResult,
         setDysarthriaResult,
         getAudio,
+        getCharAudio,
         playAudio,
       }}
     >

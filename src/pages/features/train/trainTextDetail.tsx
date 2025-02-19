@@ -4,6 +4,8 @@ import MicNoneRoundedIcon from "@mui/icons-material/MicNoneRounded";
 import MicRoundedIcon from "@mui/icons-material/MicRounded";
 import PauseRoundedIcon from "@mui/icons-material/PauseRounded";
 import PlayArrowRoundedIcon from "@mui/icons-material/PlayArrowRounded";
+import PlayCircleIcon from "@mui/icons-material/PlayCircle";
+import PauseCircleIcon from "@mui/icons-material/PauseCircle";
 import {
   Button,
   CircularProgress,
@@ -26,6 +28,7 @@ import { TextProvider, useTextContext } from "./context/TextContext";
 import Popup from "antd-mobile/es/components/popup";
 import { GetPronunciationDesc } from "../../../utils/text";
 import { Skeleton } from "antd-mobile";
+// import ScoreAlert from './ScoreAlert';
 
 type TextDataType = {
   title: string;
@@ -126,7 +129,6 @@ const DysarthriaText = ({
   });
   const [pinyin, setPinyin] = useState<string | null>(null);
   const [pinyinDetail, setPinyinDetail] = useState<PinyinDetail | null>(null);
-
   const getColor = (score: number) => {
     if (score >= 90) {
       return theme.palette.success.main;
@@ -159,6 +161,16 @@ const DysarthriaText = ({
       if (res.code === 200 && res.data) {
         setPinyinDetail(res.data);
       }
+    });
+  };
+
+  const { isPlaying, setIsPlaying, playAudio, getCharAudio, currentAudio } =
+    useTextContext();
+
+  const handlePlayCharAudio = () => {
+    getCharAudio(detail.char).then((audio) => {
+      playAudio(audio);
+      setIsPlaying(true);
     });
   };
 
@@ -207,7 +219,35 @@ const DysarthriaText = ({
                 <strong>{pinyin ? pinyin : <Skeleton.Title animated />}</strong>
               </div>
               <div>
-                <strong>{detail.char}</strong>
+                <strong>
+                  <span>{detail.char}</span>
+                  {/* 单个字发音按钮 */}
+                  <IconButton
+                    className="!bg-white dark:!bg-dark-4"
+                    color="primary"
+                    onClick={() => {
+                      if (isPlaying) {
+                        setIsPlaying(false);
+                        currentAudio?.pause();
+                      } else {
+                        handlePlayCharAudio();
+                      }
+                    }}
+                    sx={{
+                      width: "8px",
+                      height: "8px",
+                      marginLeft: "10px",
+                      marginBottom: "5px",
+                      boxShadow: "rgba(99, 99, 99, 0.2) 0px 2px 8px 0px",
+                    }}
+                  >
+                    {isPlaying ? (
+                      <PauseCircleIcon color="primary" fontSize="large" />
+                    ) : (
+                      <PlayCircleIcon color="action" fontSize="large" />
+                    )}
+                  </IconButton>
+                </strong>
               </div>
             </Typography>
             <Divider />
@@ -410,6 +450,7 @@ const FunctionalArea = ({ text }: { text: string }) => {
           ) : (
             <MicNoneRoundedIcon color="action" fontSize="large" />
           )}
+          {/* <ScoreAlert score={95} /> */}
         </IconButton>
       </div>
 
