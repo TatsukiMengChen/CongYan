@@ -43,6 +43,9 @@ export const TextProvider = ({ children }: { children: React.ReactNode }) => {
   const [dysarthriaResult, setDysarthriaResult] = useState<DysarthriaResult>(
     {},
   );
+  const [pendingRequests, setPendingRequests] = useState<{
+    [key: string]: boolean;
+  }>({});
 
   const playAudio = (audioBase64: string) => {
     currentAudio?.pause();
@@ -56,41 +59,62 @@ export const TextProvider = ({ children }: { children: React.ReactNode }) => {
   };
 
   const getAudio = async (text: string, index: number) => {
-    if (audios[index]) {
+    if (pendingRequests[`audio-${index}`]) {
+      throw new Error("请求已在进行中");
+    }
+    if (audios[index] && audios[index] != "") {
       return audios[index];
     } else {
-      const res = await GetTTSAPI(text);
-      if (res.code === 200) {
-        if (res.data?.audioBase64) {
-          const newAudios = [...audios];
-          newAudios[index] = res.data.audioBase64;
-          setAudios(newAudios);
-          return res.data.audioBase64;
+      setPendingRequests((prev) => ({ ...prev, [`audio-${index}`]: true }));
+      try {
+        const res = await GetTTSAPI(text);
+        if (res.code === 200) {
+          if (res.data?.audioBase64) {
+            setAudios((prevAudios) => {
+              const newAudios = [...prevAudios];
+              newAudios[index] = res.data?.audioBase64 || "";
+              return newAudios;
+            });
+            return res.data.audioBase64;
+          }
+          return "";
+        } else {
+          return "";
         }
-        return "";
-      } else {
-        // throw new Error("No audioBase64 in response data");
-        return "";
+      } finally {
+        setPendingRequests((prev) => ({ ...prev, [`audio-${index}`]: false }));
       }
     }
   };
 
   const getCharAudio = async (char: string) => {
-    if (charAudios[char]) {
+    if (pendingRequests[`charAudio-${char}`]) {
+      throw new Error("请求已在进行中");
+    }
+    if (charAudios[char] && charAudios[char] != "") {
       return charAudios[char];
     } else {
-      const res = await GetTTSAPI(char);
-      if (res.code === 200) {
-        if (res.data?.audioBase64) {
-          const newCharAudios = { ...charAudios };
-          newCharAudios[char] = res.data.audioBase64;
-          setCharAudios(newCharAudios);
-          return res.data.audioBase64;
+      setPendingRequests((prev) => ({ ...prev, [`charAudio-${char}`]: true }));
+      try {
+        const res = await GetTTSAPI(char);
+        if (res.code === 200) {
+          if (res.data?.audioBase64) {
+            setCharAudios((prevCharAudios) => {
+              const newCharAudios = { ...prevCharAudios };
+              newCharAudios[char] = res.data?.audioBase64 || "";
+              return newCharAudios;
+            });
+            return res.data.audioBase64;
+          }
+          return "";
+        } else {
+          return "";
         }
-        return "";
-      } else {
-        // throw new Error("No audioBase64 in response data");
-        return "";
+      } finally {
+        setPendingRequests((prev) => ({
+          ...prev,
+          [`charAudio-${char}`]: false,
+        }));
       }
     }
   };
