@@ -370,3 +370,186 @@ export const GetPinyinDetailAPI = async (text: string) => {
     throw error;
   }
 }
+
+/**
+ * 成功保存
+ *
+ * RestBeanVoid
+ */
+export type SaveUserTrainDataResType = {
+  /**
+   * 错误码
+   */
+  code?: number;
+  /**
+   * 响应数据
+   */
+  data?: null;
+  id?: number;
+  /**
+   * 其他消息
+   */
+  message?: string;
+  [property: string]: any;
+}
+
+export type SaveUserTrainDataReqType = {
+  sd: Sd[];
+  sm: Sm[];
+  text: string;
+  total_score: number;
+  ym: Ym[];
+  [property: string]: any;
+}
+
+export const SaveUserTrainDataAPI = async (data: SaveUserTrainDataReqType) => {
+  try {
+    const response = await http<SaveUserTrainDataResType>({
+      url: '/userData/saveUserTrainDta',
+      method: 'POST',
+      data,
+    });
+    return response.data;
+  } catch (error) {
+    console.error(error);
+    throw error;
+  }
+}
+
+/**
+ * 用户记录
+ *
+ * RestBeanUserTrainDataVO[]
+ */
+export type GetUserTrainHistoryResType = {
+  /**
+   * 状态码
+   */
+  code?: number;
+  /**
+   * 响应数据
+   */
+  data?: UserTrainDataVO[];
+  id?: number;
+  /**
+   * 其他消息
+   */
+  message?: string;
+  [property: string]: any;
+}
+
+/**
+* UserTrainDataVO[]
+*/
+export type UserTrainDataVO = {
+  id?: number;
+  time?: string;
+  userId?: number;
+  userInfoVO?: UserInfoVO;
+  userTrainData?: UserTrainDataJson;
+  [property: string]: any;
+}
+
+/**
+* UserInfoVO
+*/
+export type UserInfoVO = {
+  email?: string;
+  username?: string;
+  [property: string]: any;
+}
+
+/**
+* UserTrainDataJson
+*/
+export type UserTrainDataJson = {
+  sd?: string[];
+  sd_enums?: Sd[];
+  sm?: string[];
+  sm_enums?: Sm[];
+  total_score?: number;
+  ym?: string[];
+  ym_enums?: Ym[];
+  [property: string]: any;
+}
+
+export const GetUserTrainHistoryAPI = async () => {
+  try {
+    const response = await http<GetUserTrainHistoryResType>({
+      url: '/userData/getUserTrainHistory',
+      method: 'GET',
+    });
+    return response.data;
+  } catch (error) {
+    console.error(error);
+    throw error;
+  }
+}
+
+/**
+ * 返回一个根据时间指数衰减得到的分析数据结构
+ *
+ * RestBeanUserTrainSummaryAnalysisVO
+ */
+export type GetSummaryAnalysisResType = {
+  /**
+   * 状态码
+   */
+  code?: number;
+  /**
+   * 响应数据
+   */
+  data?: UserTrainSummaryAnalysisVO;
+  id?: number;
+  /**
+   * 其他消息
+   */
+  message?: string;
+  [property: string]: any;
+}
+
+/**
+* 响应数据
+*
+* UserTrainSummaryAnalysisVO
+*/
+export type UserTrainSummaryAnalysisVO = {
+  /**
+   * 发音方法
+   */
+  method_score?: number;
+  /**
+   * 发音部位
+   */
+  part_score?: number;
+  /**
+   * 发音声调
+   */
+  sd_score?: number;
+  /**
+   * 发音口型
+   */
+  shape_score?: number;
+  /**
+   * 发音结构
+   */
+  struct_score?: number;
+  /**
+   * 总评分
+   */
+  total_score?: number;
+  [property: string]: any;
+}
+
+export const GetSummaryAnalysisAPI = async () => {
+  try {
+    const response = await http<GetSummaryAnalysisResType>({
+      url: '/userData/getSummaryAnalysis',
+      method: 'GET',
+    });
+    return response.data;
+  } catch (error) {
+    console.error(error);
+    throw error;
+  }
+}

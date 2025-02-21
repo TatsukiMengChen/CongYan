@@ -10,6 +10,7 @@ import {
   Button,
   CircularProgress,
   Divider,
+  FormControlLabel,
   IconButton,
   Typography,
   useTheme,
@@ -22,12 +23,14 @@ import {
   GetPinyinAPI,
   GetPinyinDetailAPI,
   PinyinDetail,
+  SaveUserTrainDataAPI,
 } from "../../../api/train";
 import Navbar from "../../../components/Navbar";
 import { TextProvider, useTextContext } from "./context/TextContext";
 import Popup from "antd-mobile/es/components/popup";
 import { GetPronunciationDesc } from "../../../utils/text";
 import { Skeleton } from "antd-mobile";
+import { AndroidSwitch } from "../../../components/Switch";
 // import ScoreAlert from './ScoreAlert';
 
 type TextDataType = {
@@ -335,6 +338,7 @@ const FunctionalArea = ({ text }: { text: string }) => {
   } = useTextContext();
 
   const [isRecording, setIsRecording] = useState(false);
+  const [isEvaluationMode, setIsEvaluationMode] = useState(false);
   const mediaRecorderRef = useRef<MediaRecorder | null>(null);
   const audioChunksRef = useRef<Blob[]>([]);
 
@@ -381,6 +385,19 @@ const FunctionalArea = ({ text }: { text: string }) => {
           const res = await DysarthriaAPI(selectedText, audioFile);
           if (res.code == 200 && res?.data) {
             setDysarthriaResult(res.data);
+            if (isEvaluationMode) {
+              SaveUserTrainDataAPI({
+                text: selectedText,
+                sd: res.data.sd!,
+                sm: res.data.sm!,
+                ym: res.data.ym!,
+                total_score: res.data.total_score!,
+              }).then((res) => {
+                if (res.code == 200) {
+                  console.log("保存成功");
+                }
+              });
+            }
           }
         } catch (error) {
           console.error("Error calling DysarthriaAPI:", error);
@@ -408,50 +425,61 @@ const FunctionalArea = ({ text }: { text: string }) => {
         text={getChineseCharacters(selectedText || "")}
         result={dysarthriaResult}
       />
-      <div className="mt-4 w-full flex-evenly">
-        <IconButton
-          className="!bg-white dark:!bg-dark-4"
-          color="primary"
-          onClick={handlePlay}
-          sx={{
-            width: "60px",
-            height: "60px",
-            boxShadow: "rgba(99, 99, 99, 0.2) 0px 2px 8px 0px",
-          }}
-        >
-          {isPlaying ? (
-            <PauseRoundedIcon color="primary" fontSize="large" />
-          ) : (
-            <PlayArrowRoundedIcon color="action" fontSize="large" />
-          )}
-        </IconButton>
-        <Button
-          variant="outlined"
-          size="large"
-          onClick={() => {
-            setSelectedText(text);
-            setSelectedTextIndex(-1);
-          }}
-        >
-          全文练习
-        </Button>
-        <IconButton
-          className="!bg-white dark:!bg-dark-4"
-          color="primary"
-          onClick={isRecording ? handleRecordEnd : handleRecordStart}
-          sx={{
-            width: "60px",
-            height: "60px",
-            boxShadow: "rgba(99, 99, 99, 0.2) 0px 2px 8px 0px",
-          }}
-        >
-          {isRecording ? (
-            <MicRoundedIcon color="primary" fontSize="large" />
-          ) : (
-            <MicNoneRoundedIcon color="action" fontSize="large" />
-          )}
-          {/* <ScoreAlert score={95} /> */}
-        </IconButton>
+      <div className="mt-4 w-full flex flex-col items-center">
+        <div className="w-full flex-evenly">
+          <IconButton
+            className="!bg-white dark:!bg-dark-4"
+            color="primary"
+            onClick={handlePlay}
+            sx={{
+              width: "60px",
+              height: "60px",
+              boxShadow: "rgba(99, 99, 99, 0.2) 0px 2px 8px 0px",
+            }}
+          >
+            {isPlaying ? (
+              <PauseRoundedIcon color="primary" fontSize="large" />
+            ) : (
+              <PlayArrowRoundedIcon color="action" fontSize="large" />
+            )}
+          </IconButton>
+          <Button
+            variant="outlined"
+            size="large"
+            onClick={() => {
+              setSelectedText(text);
+              setSelectedTextIndex(-1);
+            }}
+          >
+            全文练习
+          </Button>
+          <IconButton
+            className="!bg-white dark:!bg-dark-4"
+            color="primary"
+            onClick={isRecording ? handleRecordEnd : handleRecordStart}
+            sx={{
+              width: "60px",
+              height: "60px",
+              boxShadow: "rgba(99, 99, 99, 0.2) 0px 2px 8px 0px",
+            }}
+          >
+            {isRecording ? (
+              <MicRoundedIcon color="primary" fontSize="large" />
+            ) : (
+              <MicNoneRoundedIcon color="action" fontSize="large" />
+            )}
+            {/* <ScoreAlert score={95} /> */}
+          </IconButton>
+        </div>
+        <FormControlLabel
+          value={isEvaluationMode}
+          onChange={() => setIsEvaluationMode(!isEvaluationMode)}
+          control={<AndroidSwitch />}
+          label={<Typography fontSize="small">测评模式</Typography>}
+        />
+        <Typography fontSize="12px" color="textSecondary">
+          测评模式会将测评的数据保存到测评记录中
+        </Typography>
       </div>
 
       {/* 添加 audio 组件用于播放录制的音频
