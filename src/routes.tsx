@@ -22,6 +22,7 @@ import { AboutSettingsPage } from "./pages/settings/about";
 import { AccountSettingsPage } from "./pages/settings/account";
 import useAuthStore from "./store/auth";
 import TrainTextDetailPage from "./pages/features/train/trainTextDetail";
+import AnalysisPage from "./pages/features/analysis";
 
 const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
   const { isAuthenticated } = useAuthStore();
@@ -90,12 +91,19 @@ const AnimatedRoutes = () => {
                 </ProtectedRoute>
               }
             />
-
             <Route
               path="/train/detail"
               element={
                 <ProtectedRoute>
                   <TrainTextDetailPage />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/analysis"
+              element={
+                <ProtectedRoute>
+                  <AnalysisPage />
                 </ProtectedRoute>
               }
             />

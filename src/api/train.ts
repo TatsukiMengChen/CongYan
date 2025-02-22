@@ -429,7 +429,7 @@ export type GetUserTrainHistoryResType = {
   /**
    * 响应数据
    */
-  data?: UserTrainDataVO[];
+  data?: UserTrainData[];
   id?: number;
   /**
    * 其他消息
@@ -439,21 +439,21 @@ export type GetUserTrainHistoryResType = {
 }
 
 /**
-* UserTrainDataVO[]
+* UserTrainData[]
 */
-export type UserTrainDataVO = {
+export type UserTrainData = {
   id?: number;
   time?: string;
   userId?: number;
-  userInfoVO?: UserInfoVO;
+  userInfoVO?: UserInfo;
   userTrainData?: UserTrainDataJson;
   [property: string]: any;
 }
 
 /**
-* UserInfoVO
+* UserInfo
 */
-export type UserInfoVO = {
+export type UserInfo = {
   email?: string;
   username?: string;
   [property: string]: any;

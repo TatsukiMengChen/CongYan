@@ -1,17 +1,17 @@
-import React from "react";
-import Avatar from "@mui/material/Avatar";
 import ArrowForwardIosRoundedIcon from "@mui/icons-material/ArrowForwardIosRounded";
 import AutoGraphRoundedIcon from "@mui/icons-material/AutoGraphRounded";
 import BookOutlinedIcon from "@mui/icons-material/BookOutlined";
 import HelpOutlineOutlinedIcon from "@mui/icons-material/HelpOutlineOutlined";
 import InfoOutlinedIcon from "@mui/icons-material/InfoOutlined";
 import SettingsOutlinedIcon from "@mui/icons-material/SettingsOutlined";
-import styles from "./index.module.scss";
-import { Card } from "antd";
 import { Button, IconButton, Typography } from "@mui/material";
+import Avatar from "@mui/material/Avatar";
+import { Card } from "antd";
+import React from "react";
 import { useNavigate } from "react-router";
-import useAuthStore from "../../store/auth";
 import { ScrollView } from "../../components/ScrollView";
+import useAuthStore from "../../store/auth";
+import styles from "./index.module.scss";
 
 const FunctionButton = ({
   icon,
@@ -91,6 +91,7 @@ export const ProfilePage = () => {
               <FunctionButton
                 icon={<AutoGraphRoundedIcon />}
                 title="统计分析"
+                onClick={() => navigator("/analysis")}
               />
               <FunctionButton icon={<BookOutlinedIcon />} title="我的收藏" />
             </div>
