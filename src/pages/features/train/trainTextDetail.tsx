@@ -31,6 +31,7 @@ import Popup from "antd-mobile/es/components/popup";
 import { GetPronunciationDesc } from "../../../utils/text";
 import { Skeleton } from "antd-mobile";
 import { AndroidSwitch } from "../../../components/Switch";
+import { message } from "antd";
 // import ScoreAlert from './ScoreAlert';
 
 type TextDataType = {
@@ -341,6 +342,7 @@ const FunctionalArea = ({ text }: { text: string }) => {
 
   const [isRecording, setIsRecording] = useState(false);
   const [isEvaluationMode, setIsEvaluationMode] = useState(false);
+  const [isAnalyzing, setIsAnalyzing] = useState(false);
   const mediaRecorderRef = useRef<MediaRecorder | null>(null);
   const audioChunksRef = useRef<Blob[]>([]);
 
@@ -366,6 +368,11 @@ const FunctionalArea = ({ text }: { text: string }) => {
       return;
     }
 
+    if (isAnalyzing) {
+      message.warning("正在分析中，请稍后再试");
+      return;
+    }
+
     try {
       const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
       mediaRecorderRef.current = new MediaRecorder(stream);
@@ -383,8 +390,13 @@ const FunctionalArea = ({ text }: { text: string }) => {
         const audioFile = new File([audioBlob], "recording.wav", {
           type: "audio/wav",
         });
+        message.loading("正在分析中...", 0);
+        setIsAnalyzing(true);
         try {
           const res = await DysarthriaAPI(selectedText, audioFile);
+          message.destroy();
+          message.success("分析完成");
+          setIsAnalyzing(false);
           if (res.code == 200 && res?.data) {
             setDysarthriaResult(res.data);
             if (isEvaluationMode) {
