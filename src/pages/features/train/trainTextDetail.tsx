@@ -51,6 +51,7 @@ const Text = ({ text, index }: { text: string; index: number }) => {
     isPlaying,
     playAudio,
     getAudio,
+    setDysarthriaResult,
   } = useTextContext();
   const [isLoading, setIsLoading] = useState(false);
 
@@ -62,6 +63,7 @@ const Text = ({ text, index }: { text: string; index: number }) => {
       playAudio(audio!);
       setIsLoading(false);
     });
+    setDysarthriaResult({});
   };
 
   return (
