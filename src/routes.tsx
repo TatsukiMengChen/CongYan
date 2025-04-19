@@ -25,6 +25,7 @@ import useAuthStore from "./store/auth";
 import TrainTextDetailPage from "./pages/features/train/trainTextDetail";
 import AnalysisPage from "./pages/features/analysis";
 import PatientsPage from "./pages/features/patients"; // 导入 PatientPage
+import PatientDetailPage from "./pages/features/patients/detail"; // 导入 PatientDetailPage
 
 const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
   const { isAuthenticated } = useAuthStore();
@@ -147,6 +148,14 @@ const AnimatedRoutes = () => {
               element={
                 <ProtectedRoute>
                   <PatientsPage />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/patients/detail" // 新增：病人详情页
+              element={
+                <ProtectedRoute>
+                  <PatientDetailPage />
                 </ProtectedRoute>
               }
             />

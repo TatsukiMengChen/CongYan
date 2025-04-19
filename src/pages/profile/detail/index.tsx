@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router';
 import useAuthStore from '../../../store/auth';
 import { NavBar, List, Avatar, Tag, Input, Dialog, Toast, DatePicker, Picker } from 'antd-mobile'; // 增加 DatePicker, Picker
+import { CopyOutlined } from '@ant-design/icons'; // 使用 antd 的复制图标
 import { InputRef } from 'antd-mobile/es/components/input';
 import styles from './index.module.scss';
 import { UserInfo, UpdateUsernameAPI, UpdateUserInfoAPI, UpdateUserInfoPayload } from '../../../api/user'; // 导入 UpdateUserInfoAPI 及相关类型
@@ -118,6 +119,28 @@ const ProfileDetailPage: React.FC = () => {
   const [newDisease, setNewDisease] = useState<string | null | undefined>(undefined); // 使用 undefined 初始状态区分空字符串和未编辑
   const [submittingDisease, setSubmittingDisease] = useState(false);
   const diseaseInputRef = useRef<InputRef>(null);
+
+  // --- 复制 ID ---
+  const copyUserId = async () => {
+    if (currentUserInfo?.id) {
+      try {
+        await navigator.clipboard.writeText(currentUserInfo.id.toString());
+        Toast.show({
+          content: 'ID 已复制',
+          position: 'center',
+          duration: 1500,
+          icon: <CopyOutlined />,
+        });
+      } catch (err) {
+        console.error('无法复制 ID: ', err);
+        Toast.show({
+          content: '复制失败',
+          position: 'center',
+          duration: 1500,
+        });
+      }
+    }
+  };
 
   useEffect(() => {
     // 如果 store 中没有用户信息，尝试从 localStorage 加载
@@ -356,6 +379,19 @@ const ProfileDetailPage: React.FC = () => {
 
       {/* 详细信息列表 */}
       <List header="详细资料" className={styles.infoList}>
+        {/* 用户 ID - 可复制 */}
+        <List.Item
+          extra={
+            <span className={styles.idCopyContainer}>
+              {currentUserInfo.id}
+              <CopyOutlined className={styles.copyIcon} />
+            </span>
+          }
+          onClick={copyUserId} // 点击整行复制
+          arrow={false} // 通常复制项不需要箭头
+        >
+          用户 ID
+        </List.Item>
         {/* 用户名项添加点击编辑功能 */}
         <List.Item extra={currentUserInfo.username} onClick={startEditUsername} arrow className={styles.editableItem}>用户名</List.Item>
         <List.Item extra={currentUserInfo.phone_number || '未绑定'}>手机号</List.Item>

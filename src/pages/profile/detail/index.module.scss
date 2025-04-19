@@ -202,6 +202,27 @@
       font-size: 15px;
       color: #777777; // 更好的对比度
       font-weight: 400;
+      display: flex; // 使 extra 内容可以使用 flex 布局
+      align-items: center; // 垂直居中对齐
+    }
+
+    // ID 复制容器样式
+    .idCopyContainer {
+      display: inline-flex; // 使用 inline-flex 使图标和文本在同一行
+      align-items: center;
+      cursor: pointer; // 提示用户可以点击
+      gap: 6px; // 图标和文本之间的间距
+    }
+
+    // 复制图标样式
+    .copyIcon {
+      font-size: 16px; // 图标大小
+      color: #999999; // 图标颜色
+      transition: color 0.2s ease; // 添加颜色过渡效果
+
+      &:hover { // 鼠标悬停效果 (在移动端可能不明显，但桌面端有用)
+        color: #4285f4; // 悬停时变色
+      }
     }
 
     // 为图标添加样式

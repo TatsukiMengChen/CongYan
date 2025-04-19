@@ -8,7 +8,6 @@ export const getAvatarSrc = (userInfo: UserInfo | null): string => {
   const fallbackAvatar = "/avat/avatar-boy.png"; // 使用绝对路径
 
   if (!userInfo) {
-    console.log("No userInfo, returning fallback:", fallbackAvatar);
     return fallbackAvatar; // 没有用户信息，使用回退头像
   }
 
@@ -20,7 +19,6 @@ export const getAvatarSrc = (userInfo: UserInfo | null): string => {
   if (avatar_url && avatar_url !== defaultAvatarPath && avatar_url !== 'avatar/default.png') { // 同时检查旧的相对路径以防万一
     // 如果是完整 URL，直接使用
     if (isFullUrl) {
-      console.log("Using full avatar_url:", avatar_url);
       return avatar_url;
     } else {
       // 如果不是完整 URL，尝试拼接基础路径或假定它是相对于根的路径
@@ -28,7 +26,6 @@ export const getAvatarSrc = (userInfo: UserInfo | null): string => {
       // const fullPath = `${apiBaseUrl}/${avatar_url.startsWith('/') ? avatar_url.substring(1) : avatar_url}`;
       // 如果假定它是根相对路径:
       const fullPath = avatar_url.startsWith('/') ? avatar_url : `/${avatar_url}`;
-      console.log("Using relative avatar_url, constructed path:", fullPath);
       return fullPath;
     }
   }
@@ -41,7 +38,6 @@ export const getAvatarSrc = (userInfo: UserInfo | null): string => {
       case "doctor": rolePart = "doctor"; break;
       case "relative": rolePart = "relative"; break;
       default:
-        console.log("Default avatar path used, but unknown role, returning fallback:", user_role, fallbackAvatar);
         return fallbackAvatar;
     }
 
@@ -54,11 +50,9 @@ export const getAvatarSrc = (userInfo: UserInfo | null): string => {
 
     // 拼接绝对路径
     const defaultAvatarGeneratedPath = `/avatar/${rolePart}-${genderPart}.png`;
-    console.log("Using generated default avatar path:", defaultAvatarGeneratedPath);
     return defaultAvatarGeneratedPath;
   }
 
   // 其他情况（例如 avatar_url 为 null 或 undefined），使用回退头像
-  console.log("avatar_url is null or undefined, returning fallback:", fallbackAvatar);
   return fallbackAvatar;
 };
