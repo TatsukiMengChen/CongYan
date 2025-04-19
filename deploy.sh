@@ -29,7 +29,7 @@ fi
 # 构建项目
 log "构建项目..."
 if [ -f "package.json" ]; then
-  npm run build || { log "项目构建失败！"; exit 1; }
+  npm run build:test || { log "项目构建失败！"; exit 1; }
 fi
 
 # 检查构建输出目录是否存在
