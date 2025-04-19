@@ -1,0 +1,46 @@
+import http from '../utils/http';
+
+// 用户信息结构
+export type UserInfo = {
+  id: number;
+  phone_number: string;
+  username: string;
+  created_at: string; // ISO 8601 date string
+  avatar_url: string;
+  birth_date: string; // ISO 8601 date string
+  user_role: "patient" | "doctor" | string; // 根据实际情况调整
+  gender: "male" | "female" | "other" | string; // 根据实际情况调整
+  bind_doctor_id?: number; // 可选，可能只有 patient 有
+  practice_duration_minutes?: number; // 假设练习时长也从这里获取 (可选)
+}
+
+// 获取用户信息接口返回类型
+export type UserInfoAPIRes = {
+  status: number;
+  code: "userInfoGetSuccessful" | string; // 包含成功和其他可能的代码
+  data?: UserInfo; // data 只在成功时存在
+  message?: string;
+}
+
+// 获取用户信息接口
+export const GetUserInfoAPI = async (): Promise<UserInfoAPIRes> => {
+  console.log("调用获取用户信息接口");
+  try {
+    const res = await http.get<UserInfoAPIRes>('/user-info');
+    console.log("获取用户信息接口响应:", res.data);
+    return res.data;
+  } catch (error: any) {
+    console.error("获取用户信息接口错误:", error);
+    if (error.response && error.response.data) {
+      return error.response.data as UserInfoAPIRes;
+    }
+    // 返回一个标准的错误结构
+    return {
+        status: 1, // 或者更具体的错误状态码
+        code: "requestFailed",
+        message: error.message || "获取用户信息失败"
+    };
+    // 或者 re-throw error if you want the caller to handle it more directly
+    // throw new Error(error.message || "获取用户信息失败");
+  }
+};
