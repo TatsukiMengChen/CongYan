@@ -125,9 +125,12 @@ function App() {
       <mdui-navigation-bar
         style={{
           position: "fixed",
-          bottom: isTyping ? "-80px" : "0px",
-          transition: "bottom 0.3s ease-in-out",
+          bottom: "0px", // Base position at the bottom
           width: "100%",
+          transition: "all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1)", // Match InputArea animation
+          transform: isTyping ? "translateY(80px)" : "translateY(0)", // Slide down when typing
+          opacity: isTyping ? 0 : 1, // Fade out when typing
+          willChange: "transform, opacity", // Optimize animation
         }}
         scroll-target=".example-scroll-target"
         value={location.pathname === "/" ? "home" : location.pathname.slice(1)}
