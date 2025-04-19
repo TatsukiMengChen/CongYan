@@ -24,7 +24,7 @@ import { VerificationCodeInput } from "./components/VerificationCodeInput";
 // 定义解码后的 Payload 类型 (根据实际 Token 内容调整)
 interface DecodedToken {
   id: number;
-  phone_number: string;
+  'phone-number': string; // 使用实际的键名
   role: string;
   exp: number; // 过期时间戳
   // 可能还有其他字段，如 iat (issued at)
@@ -122,14 +122,14 @@ export const LoginPage = () => {
               console.log("Decoded Token:", decodedPayload);
 
               // 从解码后的 payload 中获取信息 (如果存在)
-              username = decodedPayload.phone_number || username; // 假设用手机号作为用户名显示
+              username = decodedPayload['phone-number'] || username; // 使用正确的键名 'phone-number' 访问 payload
               role = decodedPayload.role || role;
               expiryTimestamp = decodedPayload.exp * 1000; // JWT exp 是秒，转为毫秒
 
               // 将解码后的用户信息存储到 localStorage
               localStorage.setItem('userInfo', JSON.stringify({
                 id: decodedPayload.id,
-                phone_number: decodedPayload.phone_number,
+                phone_number: decodedPayload['phone-number'], // 存储时仍可使用 phone_number
                 role: decodedPayload.role,
                 // 可以根据需要存储更多信息
               }));
