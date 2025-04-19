@@ -73,10 +73,10 @@ export const SmsLoginAPI = async (
     // 但 AskCodeAPI 已经做了这个检查。如果后端 /sms-login-detail
     // 也做检查，这里的检查可以省略。为保险起见，可以保留。
     const statusRes = await http.get<RegisteredStatusAPIRes>('/registered-status', {
-        params: { phone_number }
+      params: { phone_number }
     });
     if (statusRes.data.status !== 0 || statusRes.data.code !== "phoneRegistered") {
-        return { status: 1, code: "phoneNotRegistered", message: "该手机号未注册" };
+      return { status: 1, code: "phoneNotRegistered", message: "该手机号未注册" };
     }
 
     const body: SmsLoginReqBody = { phone_number, sms_code };
@@ -90,38 +90,6 @@ export const SmsLoginAPI = async (
     }
     throw new Error(error.message || "验证码登录请求失败");
   }
-};
-
-// 模拟登录接口
-export const LoginAPI = (
-  phone_number: string,
-  password?: string, // 密码可选，如果不是必须的
-): Promise<any> => {
-  console.log("模拟登录接口调用:", { phone_number, password });
-  return new Promise((resolve) => {
-    setTimeout(() => {
-      // 根据输入模拟 API 响应（可选）
-      if (phone_number === "13000000000" && password === "123456") {
-        resolve({
-          status: 0, // 假设 0 表示成功
-          code: 6,   // 示例成功代码
-          data: {
-            jwt_token: `mock_jwt_token_${Date.now()}`, // 生成唯一的模拟令牌
-            username: "MockUser", // 示例用户名
-            role: "patient", // 示例角色
-            expire: new Date(Date.now() + 3600 * 1000).toISOString(), // 示例过期时间
-          },
-          message: "模拟：登录成功" // 可选成功消息
-        });
-      } else {
-        resolve({
-          status: 1, // 假设非零表示错误
-          code: 7,   // 示例错误代码（无效凭据）
-          message: "模拟：手机号或密码错误",
-        });
-      }
-    }, 1000); // 模拟网络延迟
-  });
 };
 
 // 注册接口返回类型
@@ -213,8 +181,8 @@ export const AskCodeAPI = async (
       }
       // 注册时：如果状态检查失败或非 "phoneNotRegistered"，也报错
       else if (statusRes.data.status !== 0 || statusRes.data.code !== "phoneNotRegistered") {
-         console.error("注册状态检查失败或返回意外结果:", statusRes.data);
-         return { status: 1, code: "statusCheckFailed", message: statusRes.data.message || "检查手机号状态时出错" };
+        console.error("注册状态检查失败或返回意外结果:", statusRes.data);
+        return { status: 1, code: "statusCheckFailed", message: statusRes.data.message || "检查手机号状态时出错" };
       }
     } else if (type === "login") {
       // 登录时：如果手机号未注册，则报错
@@ -224,15 +192,17 @@ export const AskCodeAPI = async (
       }
       // 登录时：如果状态检查失败或非 "phoneRegistered"，也报错
       else if (statusRes.data.status !== 0 || statusRes.data.code !== "phoneRegistered") {
-         console.error("注册状态检查失败或返回意外结果:", statusRes.data);
-         return { status: 1, code: "statusCheckFailed", message: statusRes.data.message || "检查手机号状态时出错" };
+        console.error("注册状态检查失败或返回意外结果:", statusRes.data);
+        return { status: 1, code: "statusCheckFailed", message: statusRes.data.message || "检查手机号状态时出错" };
       }
     }
 
     // 2. 如果检查通过，请求发送验证码
     console.log(`手机号状态符合 ${type} 要求，请求发送验证码:`, phone_number);
     // 注意：后端 /sms-code 接口可能也需要知道 type，如果需要，请在 body 中传递
-    const smsRes = await http.post<SmsCodeAPIRes>('/sms-code', { phone_number /*, type: type */ });
+    const smsRes = await http.get<SmsCodeAPIRes>('/sms-code', {
+      params: { phone_number }
+    });
     console.log("请求验证码接口响应:", smsRes.data);
     return smsRes.data;
 
