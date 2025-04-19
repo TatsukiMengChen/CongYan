@@ -5,6 +5,7 @@ import { NavBar, List, Avatar, Tag, Input, Dialog, Toast, DatePicker, Picker } f
 import { InputRef } from 'antd-mobile/es/components/input';
 import styles from './index.module.scss';
 import { UserInfo, UpdateUsernameAPI, UpdateUserInfoAPI, UpdateUserInfoPayload } from '../../../api/user'; // 导入 UpdateUserInfoAPI 及相关类型
+import { getAvatarSrc } from '../../../utils/avatar'; // 从 utils 导入
 import dayjs from 'dayjs'; // 引入 dayjs 用于日期处理
 import utc from 'dayjs/plugin/utc'; // 引入 UTC 插件
 dayjs.extend(utc); // 使用 UTC 插件
@@ -43,65 +44,6 @@ const calculateAge = (birthDateString?: string | null): string | null => {
     console.error("Error calculating age:", e);
     return null;
   }
-};
-
-// 辅助函数：获取头像 URL
-const getAvatarSrc = (userInfo: UserInfo | null): string => {
-  // 假设默认头像在 public/avatar/ 目录下
-  const defaultAvatarPath = "/avatar/default.png"; // 使用绝对路径
-  // 假设最终回退头像在 public/images/ 目录下
-  const fallbackAvatar = "/avat/avatar-boy.png"; // 使用绝对路径
-
-  if (!userInfo) {
-    console.log("No userInfo, returning fallback:", fallbackAvatar);
-    return fallbackAvatar; // 没有用户信息，使用回退头像
-  }
-
-  const { avatar_url, user_role, gender } = userInfo;
-
-  // 检查 avatar_url 是否是完整的 URL
-  const isFullUrl = avatar_url && (avatar_url.startsWith('http://') || avatar_url.startsWith('https://'));
-
-  if (avatar_url && avatar_url !== defaultAvatarPath && avatar_url !== 'avatar/default.png') { // 同时检查旧的相对路径以防万一
-    // 如果是完整 URL，直接使用
-    if (isFullUrl) {
-      console.log("Using full avatar_url:", avatar_url);
-      return avatar_url;
-    } else {
-      // 如果不是完整 URL，尝试拼接基础路径或假定它是相对于根的路径
-      // 如果需要 API 基础路径:
-      // const fullPath = `${apiBaseUrl}/${avatar_url.startsWith('/') ? avatar_url.substring(1) : avatar_url}`;
-      // 如果假定它是根相对路径:
-      const fullPath = avatar_url.startsWith('/') ? avatar_url : `/${avatar_url}`;
-      return fullPath;
-    }
-  }
-
-  // 如果是默认头像路径 (检查绝对和可能的旧相对路径)
-  if (avatar_url === defaultAvatarPath || avatar_url === 'avatar/default.png') {
-    let rolePart = "";
-    switch (user_role) {
-      case "patient": rolePart = "patient"; break;
-      case "doctor": rolePart = "doctor"; break;
-      case "relative": rolePart = "relative"; break;
-      default:
-        return fallbackAvatar;
-    }
-
-    let genderPart = "";
-    switch (gender) {
-      case "male": genderPart = "boy"; break;
-      case "female": genderPart = "girl"; break;
-      default: genderPart = "boy"; // 默认性别
-    }
-
-    // 拼接绝对路径
-    const defaultAvatarGeneratedPath = `/avatar/${rolePart}-${genderPart}.png`;
-    return defaultAvatarGeneratedPath;
-  }
-
-  // 其他情况（例如 avatar_url 为 null 或 undefined），使用回退头像
-  return fallbackAvatar;
 };
 
 // 新增：格式化出生日期 (只显示 YYYY-MM-DD)
@@ -143,7 +85,7 @@ const ensureISOFormat = (dateString: string | null | undefined): string | null =
   }
   // 尝试从 YYYY-MM-DD 转换
   if (/^\d{4}-\d{2}-\d{2}$/.test(dateString)) {
-     return dayjs(dateString).utc().startOf('day').toISOString();
+    return dayjs(dateString).utc().startOf('day').toISOString();
   }
 
   // 如果格式未知或无效，尝试直接用 dayjs 解析并转 UTC ISO
@@ -273,11 +215,11 @@ const ProfileDetailPage: React.FC = () => {
 
     // 构建包含所有字段的完整 payload
     const fullPayload: UpdateUserInfoPayload = {
-      gender: payload.gender !== undefined 
-        ? payload.gender 
-        : (currentUserInfo.gender === 'male' || currentUserInfo.gender === 'female' 
-            ? currentUserInfo.gender 
-            : undefined),
+      gender: payload.gender !== undefined
+        ? payload.gender
+        : (currentUserInfo.gender === 'male' || currentUserInfo.gender === 'female'
+          ? currentUserInfo.gender
+          : undefined),
       // 确保 birth_date 是 ISO 格式或 null
       birth_date: payload.birth_date !== undefined
         ? payload.birth_date // 来自 handleBirthDateConfirm 的已经是 ISO 格式
@@ -338,12 +280,12 @@ const ProfileDetailPage: React.FC = () => {
     // 检查日期是否真的改变了 (与 currentUserInfo 中的 ISO 格式比较)
     const currentIsoDate = ensureISOFormat(currentUserInfo?.birth_date);
     if (formattedDate !== currentIsoDate) {
-       // 只传递变化的字段
+      // 只传递变化的字段
       await handleUpdateUserInfo({ birth_date: formattedDate });
     } else {
       // 如果日期未变，可以给个提示或直接关闭选择器
-       setShowBirthDatePicker(false); // 关闭选择器
-       // Toast.show({ content: '日期未更改', position: 'center', duration: 1500 });
+      setShowBirthDatePicker(false); // 关闭选择器
+      // Toast.show({ content: '日期未更改', position: 'center', duration: 1500 });
     }
     console.log(formattedDate)
   };

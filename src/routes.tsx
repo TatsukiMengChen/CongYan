@@ -24,6 +24,7 @@ import { AccountSettingsPage } from "./pages/settings/account";
 import useAuthStore from "./store/auth";
 import TrainTextDetailPage from "./pages/features/train/trainTextDetail";
 import AnalysisPage from "./pages/features/analysis";
+import PatientsPage from "./pages/features/patients"; // 导入 PatientPage
 
 const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
   const { isAuthenticated } = useAuthStore();
@@ -137,6 +138,15 @@ const AnimatedRoutes = () => {
               element={
                 <ProtectedRoute>
                   <ProfileDetailPage />
+                </ProtectedRoute>
+              }
+            />
+            {/* 添加我的病人路由 */}
+            <Route
+              path="/patients"
+              element={
+                <ProtectedRoute>
+                  <PatientsPage />
                 </ProtectedRoute>
               }
             />

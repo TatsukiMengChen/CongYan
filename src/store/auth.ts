@@ -30,6 +30,8 @@ const useAuthStore = create<AuthState>((set) => ({
   logout: () => {
     localStorage.removeItem("token");
     localStorage.removeItem("tokenExpiry");
+    localStorage.removeItem("jwtToken");
+    localStorage.removeItem("userInfo");
     set({ isAuthenticated: false, userInfo: null, token: null, tokenExpiry: null }); // 清空 userInfo
   },
   checkAuth: () => {
