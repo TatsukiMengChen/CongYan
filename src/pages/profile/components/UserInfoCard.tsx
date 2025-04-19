@@ -67,7 +67,7 @@ const getAvatarSrc = (userInfo: UserInfo | null): string => {
 };
 
 // 辅助函数：计算年龄
-const calculateAge = (birthDateString?: string): string => {
+const calculateAge = (birthDateString?: string | null): string => {
   if (!birthDateString) return "未知年龄";
   try {
     const birthDate = new Date(birthDateString);

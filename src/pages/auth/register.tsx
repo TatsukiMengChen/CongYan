@@ -14,7 +14,7 @@ import useInputStore from "../../store/input";
 import { AuthCard } from "./components/AuthCard";
 import { AuthContainer } from "./components/AuthContainer";
 // 导入新的和更新的组件
-import { Dayjs } from "dayjs";
+import dayjs, { Dayjs } from "dayjs";
 import { AuthHeader } from "./components/AuthHeader";
 import { BirthDatePicker } from "./components/BirthDatePicker";
 import { GenderSelect } from "./components/GenderSelect";
@@ -181,7 +181,8 @@ export const RegisterPage = () => {
         setErrors(prev => ({ ...prev, birthDate: "请选择出生日期" }));
         return;
       }
-      const birthDateString = birthDate.toISOString(); // 直接使用 ISO 字符串
+      // 将日期格式化为YYYY-MM-DD格式，使用本地时间而非UTC
+      const birthDateString = dayjs(birthDate).hour(12).minute(0).second(0).millisecond(0).utc().format('YYYY-MM-DDT12:00:00Z');
 
       console.log("准备注册:", {
         phone_number: phoneNumber,

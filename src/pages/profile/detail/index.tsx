@@ -119,8 +119,8 @@ const formatBirthDateDisplay = (birthDateString?: string | null): string => {
 // 新增：将 Date 对象转换为后端需要的 ISO 字符串 (UTC)
 const formatBirthDateForAPI = (date: Date | null): string | null => {
   if (!date) return null;
-  // 确保转换为 UTC 时间的 ISO 字符串 YYYY-MM-DDTHH:mm:ssZ
-  return dayjs(date).utc().toISOString();
+  // 设置时间为当地时间中午12点，然后转换为UTC，确保日期不会因时区而变
+  return dayjs(date).hour(12).minute(0).second(0).millisecond(0).utc().format('YYYY-MM-DDT12:00:00Z');
 };
 
 // 辅助函数：确保日期字符串是 ISO 格式 (如果已经是，则不变；如果是 YYYYMMDD，则转换)
@@ -345,6 +345,7 @@ const ProfileDetailPage: React.FC = () => {
        setShowBirthDatePicker(false); // 关闭选择器
        // Toast.show({ content: '日期未更改', position: 'center', duration: 1500 });
     }
+    console.log(formattedDate)
   };
 
   // --- 病症编辑 ---
