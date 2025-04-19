@@ -1,0 +1,212 @@
+.profileDetailContainer {
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+  overflow-y: auto; // 允许内容滚动
+
+  :global(.adm-nav-bar) {
+    border-bottom: none; // 移除导航栏底部分割线，让头部区域更融合
+  }
+
+  // 自定义头部区域样式
+  .profileHeader {
+    display: flex;
+    align-items: center;
+    padding: 36px 24px; // 进一步增加内边距
+    background: linear-gradient(135deg, #e6f4fd 0%, #d4e4ff 100%); // 更浅的渐变背景组合
+    border-bottom: none;
+    margin-bottom: 20px;
+    box-shadow: 0 8px 20px rgba(31, 38, 135, 0.1); // 增强阴影效果
+    position: relative;
+    overflow: hidden;
+    border-radius: 0 0 30px 30px; // 更大的底部圆角效果
+    
+    // 更高级的装饰元素
+    &::before {
+      content: '';
+      position: absolute;
+      top: -50px;
+      right: -50px;
+      width: 180px;
+      height: 180px;
+      border-radius: 50%;
+      background: radial-gradient(circle, rgba(255,255,255,0.6) 0%, rgba(255,255,255,0) 70%);
+      z-index: 0;
+      opacity: 0.8;
+    }
+    
+    &::after {
+      content: '';
+      position: absolute;
+      bottom: -60px;
+      left: -40px;
+      width: 220px;
+      height: 220px;
+      border-radius: 50%;
+      background: radial-gradient(circle, rgba(255,255,255,0.5) 0%, rgba(255,255,255,0) 65%);
+      z-index: 0;
+      opacity: 0.7;
+    }
+    
+    // 添加薄雾效果层
+    &::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      right: 0;
+      bottom: 0;
+      left: 0;
+      background: linear-gradient(120deg, 
+        rgba(255,255,255,0.2) 0%, 
+        rgba(255,255,255,0.1) 40%, 
+        rgba(255,255,255,0) 100%);
+      z-index: 1;
+    }
+  }
+
+  .headerAvatar {
+    --size: 90px; // 略微增大头像
+    --border-radius: 50%;
+    margin-right: 26px;
+    border: 4px solid rgba(255, 255, 255, 0.85); // 半透明白色边框
+    box-shadow: 0 5px 15px rgba(0, 62, 144, 0.12), 0 0 0 1px rgba(255, 255, 255, 0.8), 0 0 0 6px rgba(255, 255, 255, 0.2); // 三层阴影效果增强质感
+    position: relative;
+    z-index: 3;
+    
+    // 添加微光效果
+    &::after {
+      content: '';
+      position: absolute;
+      top: -8px;
+      left: -8px;
+      right: -8px;
+      bottom: -8px;
+      border-radius: 50%;
+      background: radial-gradient(circle, rgba(255,255,255,0.3) 0%, rgba(255,255,255,0) 70%);
+      z-index: -1;
+    }
+  }
+
+  .headerInfo {
+    flex-grow: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+    position: relative;
+    z-index: 2;
+  }
+
+  .headerUsername {
+    font-size: 24px;
+    font-weight: 700;
+    color: #1a1a1a;
+    margin-bottom: 0;
+    letter-spacing: 0.5px;
+    text-shadow: 0 1px 1px rgba(255, 255, 255, 0.7); // 添加文字阴影提高可读性
+  }
+
+  .headerTags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+
+    .tag {
+      --border-radius: 20px; // 更圆润的标签
+      font-size: 13px;
+      padding: 5px 14px; // 增加内边距
+      font-weight: 500;
+      box-shadow: 0 3px 6px rgba(0, 0, 0, 0.07); // 更精致的阴影
+      backdrop-filter: blur(4px); // 毛玻璃效果
+      border: none; // 移除边框
+      
+      // 使用更现代的颜色方案
+      &:global(.adm-tag-primary) {
+        --adm-color-primary: #4285f4;
+        background-color: rgba(66, 133, 244, 0.15);
+        color: #4285f4;
+      }
+      
+      &:global(.adm-tag-success) {
+        --adm-color-success: #34a853;
+        background-color: rgba(52, 168, 83, 0.15);
+        color: #34a853;
+      }
+      
+      &:global(.adm-tag-warning) {
+        --adm-color-warning: #fbbc05;
+        background-color: rgba(251, 188, 5, 0.15);
+        color: #ea8c1e;
+      }
+      
+      &:global(.adm-tag-default) {
+        background-color: rgba(66, 133, 244, 0.08);
+        color: #4c6ef5;
+      }
+    }
+  }
+
+  .infoList {
+    margin: 0 16px 20px 16px; // 增加边距使列表更突出
+    border-radius: 16px; // 更大的圆角
+    overflow: hidden;
+    background-color: #ffffff;
+    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.05); // 添加精致阴影
+    border: 1px solid rgba(230, 230, 230, 0.5); // 添加微妙边框
+
+    :global(.adm-list-header),
+    :global(.adm-list-body) {
+       background-color: #ffffff;
+    }
+
+    :global(.adm-list-header) {
+      padding: 14px 18px;
+      font-size: 14px;
+      font-weight: 600;
+      color: #666666;
+      background-color: #f8f9fc; // 更柔和的背景色
+      margin: 0;
+      border-bottom: 1px solid rgba(240, 240, 240, 0.8);
+      letter-spacing: 0.3px; // 增加字间距
+    }
+
+    // 改进列表项样式
+    :global(.adm-list-item) {
+      padding-left: 18px;
+      padding-right: 18px;
+      background-color: #ffffff;
+      transition: background-color 0.2s ease; // 添加过渡效果
+      
+      &:active {
+        background-color: #f9fafc; // 点击时的背景色变化
+      }
+
+      &:not(:last-child)::after {
+         border-bottom: 1px solid rgba(240, 240, 240, 0.8);
+         left: 18px;
+         right: 0;
+      }
+       
+      &:last-child::after {
+         border-bottom: none;
+      }
+    }
+
+    :global(.adm-list-item-content-main) {
+      font-size: 15px;
+      color: #333333;
+      padding: 14px 0; // 增加内边距
+      font-weight: 500; // 稍微加粗
+    }
+
+    :global(.adm-list-item-content-extra) {
+      font-size: 15px;
+      color: #777777; // 更好的对比度
+      font-weight: 400;
+    }
+
+    // 为图标添加样式
+    :global(.adm-list-item-content-arrow) {
+      color: #bbc0cc; // 淡化箭头颜色
+    }
+  }
+}

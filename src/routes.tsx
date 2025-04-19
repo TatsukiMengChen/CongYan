@@ -17,6 +17,7 @@ import { ContactPage } from "./pages/contact";
 import TrainTextListPage from "./pages/features/train/trainTextList";
 import { HomePage } from "./pages/home";
 import { ProfilePage } from "./pages/profile";
+import ProfileDetailPage from "./pages/profile/detail"; // 引入 ProfileDetailPage
 import { SettingsPage } from "./pages/settings"; // 引入SettingsPage
 import { AboutSettingsPage } from "./pages/settings/about";
 import { AccountSettingsPage } from "./pages/settings/account";
@@ -128,6 +129,14 @@ const AnimatedRoutes = () => {
               element={
                 <ProtectedRoute>
                   <AccountSettingsPage />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/profile/detail" // 添加 profile detail 路由
+              element={
+                <ProtectedRoute>
+                  <ProfileDetailPage />
                 </ProtectedRoute>
               }
             />
