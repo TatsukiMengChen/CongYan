@@ -276,3 +276,32 @@ export type NewUserDetailReqBody = {
   gender: string;
   password?: string; // 密码字段根据后端要求添加
 }
+
+
+// 修改密码接口返回类型
+export type ChangePasswordAPIRes = {
+  status: number;
+  code: string; // 例如 "passwordChangedSuccessfully", "invalidRequest"
+  message?: string;
+}
+
+// 修改密码接口
+export const ChangePasswordAPI = async (
+  new_password: string
+): Promise<ChangePasswordAPIRes> => {
+  console.log("调用修改密码接口:", { new_password });
+  try {
+    // 注意：PUT 请求通常将数据放在 body 中，但根据要求放在 query 参数中
+    const res = await http.put<ChangePasswordAPIRes>('/password', null, { // body 为 null
+      params: { new_password } // 将 new_password 作为 query 参数
+    });
+    console.log("修改密码接口响应:", res.data);
+    return res.data;
+  } catch (error: any) {
+    console.error("修改密码接口错误:", error);
+    if (error.response && error.response.data) {
+      return error.response.data as ChangePasswordAPIRes;
+    }
+    throw new Error(error.message || "修改密码请求失败");
+  }
+};

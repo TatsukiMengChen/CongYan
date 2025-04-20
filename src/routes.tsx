@@ -21,6 +21,7 @@ import ProfileDetailPage from "./pages/profile/detail"; // 引入 ProfileDetailP
 import { SettingsPage } from "./pages/settings"; // 引入SettingsPage
 import { AboutSettingsPage } from "./pages/settings/about";
 import { AccountSettingsPage } from "./pages/settings/account";
+import { ChangePasswordPage } from "./pages/settings/changePassword"; // 导入修改密码页面
 import useAuthStore from "./store/auth";
 import TrainTextDetailPage from "./pages/features/train/trainTextDetail";
 import AnalysisPage from "./pages/features/analysis";
@@ -132,6 +133,15 @@ const AnimatedRoutes = () => {
               element={
                 <ProtectedRoute>
                   <AccountSettingsPage />
+                </ProtectedRoute>
+              }
+            />
+            {/* 添加修改密码路由 */}
+            <Route
+              path="/settings/change-password"
+              element={
+                <ProtectedRoute>
+                  <ChangePasswordPage />
                 </ProtectedRoute>
               }
             />
