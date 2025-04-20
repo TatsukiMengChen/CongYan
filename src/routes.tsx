@@ -28,6 +28,7 @@ import AnalysisPage from "./pages/features/analysis";
 import PatientsPage from "./pages/features/patients"; // 导入 PatientPage
 import PatientDetailPage from "./pages/features/patients/detail"; // 导入 PatientDetailPage
 import CorpusPage from "./pages/features/corpus"; // 导入 CorpusPage
+import TasksPage from "./pages/features/tasks"; // 导入 TasksPage
 
 const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
   const { isAuthenticated } = useAuthStore();
@@ -101,6 +102,15 @@ const AnimatedRoutes = () => {
               element={
                 <ProtectedRoute>
                   <TrainTextDetailPage />
+                </ProtectedRoute>
+              }
+            />
+            {/* 添加任务列表路由 */}
+            <Route
+              path="/tasks"
+              element={
+                <ProtectedRoute>
+                  <TasksPage />
                 </ProtectedRoute>
               }
             />
