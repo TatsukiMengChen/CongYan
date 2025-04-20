@@ -51,7 +51,7 @@ export const FunctionalArea = ({ text }: { text: string }) => {
     onError: (error) => {
         message.error(`录音出错: ${error.message}`);
         // Consider stopping WebSocket connection if recorder fails critically
-        // finishStreaming(); // Or call a specific cleanup function in WebSocket hook
+        finishStreaming(); // Or call a specific cleanup function in WebSocket hook
     },
     timeslice: 100,
   });
@@ -59,22 +59,31 @@ export const FunctionalArea = ({ text }: { text: string }) => {
   // Combined state for disabling controls during critical phases
   const isBusy = isRecording || isAnalyzing;
 
-  const handleRecordStart = useCallback(() => {
+  // Make handleRecordStart async
+  const handleRecordStart = useCallback(async () => {
     if (isBusy) {
       message.warning(isRecording ? "正在录音中..." : "正在连接或分析中...");
       return;
     }
     setDysarthriaResult({}); // Clear previous results
 
-    // Attempt to connect WebSocket first
-    const connectionStarted = connectAndStartStreaming();
+    try {
+      // Wait for WebSocket connection to be established and token sent
+      await connectAndStartStreaming();
+      // If connectAndStartStreaming resolves, connection is open and token is sent
+      message.success("连接成功，请开始说话"); // Show success message now
+      // Now start the recorder
+      await startRecording(); // Assuming startRecording might become async if needed, await it just in case
+      // If startRecording fails, the onError handler in useMediaRecorder should trigger cleanup
 
-    // If connection attempt begins, start the recorder (it will wait for WS open)
-    if (connectionStarted) {
-        startRecording(); // MediaRecorder hook handles getUserMedia etc.
+    } catch (error) {
+      // connectAndStartStreaming rejected (WebSocket error or closed before open)
+      // or startRecording failed (though its errors are handled in its hook)
+      console.error("Failed to start recording session:", error);
+      // Error messages are likely already shown by the hooks (WebSocket or MediaRecorder)
+      // Ensure isAnalyzing is false if connection failed (cleanupWebSocket in hook should handle this)
     }
-    // If connectAndStartStreaming returned false (e.g., no token), recorder won't start.
-  }, [isBusy, connectAndStartStreaming, startRecording, setDysarthriaResult, isRecording, isAnalyzing]);
+  }, [isBusy, connectAndStartStreaming, startRecording, setDysarthriaResult, isRecording, isAnalyzing]); // Added async
 
   const handleRecordEnd = useCallback(async () => {
     if (!isRecording) {
