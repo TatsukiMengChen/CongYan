@@ -1,0 +1,14 @@
+.progressCardBody {
+  padding: 16px 20px;
+  // 保留渐变背景，去除图案
+  background: linear-gradient(135deg, rgba(243, 229, 245, 0.8) 0%, rgba(225, 245, 254, 0.8) 100%);
+  background-color: #fff; // 确保有底色
+  transition: background 0.3s ease;
+  border-radius: inherit; // 继承 Card 的圆角
+
+  @media (prefers-color-scheme: dark) {
+    // 暗色模式背景，仅保留渐变
+    background: linear-gradient(135deg, rgba(84, 110, 122, 0.8) 0%, rgba(55, 71, 79, 0.8) 100%);
+    background-color: #263238; // 暗色底色
+  }
+}

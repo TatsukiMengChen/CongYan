@@ -46,11 +46,12 @@ export const FunctionButtons: React.FC = () => {
           title="我的收藏"
           onClick={() => navigator("/collections")} // 确保导航到正确的路径
         />
-        <FunctionButton
-          icon={<LibraryBooksOutlinedIcon />} // 使用语料图标
-          title="我的语料" // 修改标题
-          onClick={() => navigator("/corpus")} // 跳转到语料页面
-        />
+        {userInfo?.user_role === 'doctor' && (
+          <FunctionButton
+            icon={<LibraryBooksOutlinedIcon />} // 使用语料图标
+            title="我的语料" // 修改标题
+            onClick={() => navigator("/corpus")} // 跳转到语料页面
+          />)}
         {/* 条件渲染：只有医生角色显示 */}
         {userInfo?.user_role === 'doctor' && (
           <FunctionButton

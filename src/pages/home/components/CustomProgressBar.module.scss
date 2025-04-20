@@ -1,0 +1,15 @@
+.progressBarTrack {
+  width: 100%;
+  height: 8px;
+  background-color: #bbdefb; // 轨道背景色 (Material UI Blue 100)
+  border-radius: 5px;
+  overflow: hidden; // 确保内部元素不超出圆角
+  position: relative; // 用于可能的未来扩展，如添加动画或标签
+}
+
+.progressBarFill {
+  height: 100%;
+  border-radius: 5px; // 与轨道一致的圆角
+  transition: width 0.3s ease-in-out; // 平滑的宽度过渡
+  // 背景渐变将在组件内联样式中设置
+}
