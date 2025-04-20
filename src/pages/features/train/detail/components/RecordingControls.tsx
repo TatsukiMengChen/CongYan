@@ -6,13 +6,17 @@ interface RecordingControlsProps {
   isRecording: boolean;
   handleRecordStart: () => void;
   handleRecordEnd: () => void;
+  disabled?: boolean; // 在连接或录音后分析期间为 true
 }
 
 export const RecordingControls = ({
   isRecording,
   handleRecordStart,
   handleRecordEnd,
+  disabled,
 }: RecordingControlsProps) => {
+  const isDisabled = !!disabled;
+
   return (
     <IconButton
       className="!bg-white dark:!bg-dark-4"
@@ -23,11 +27,14 @@ export const RecordingControls = ({
         height: "60px",
         boxShadow: "rgba(99, 99, 99, 0.2) 0px 2px 8px 0px",
       }}
+      disabled={isDisabled} // 直接使用计算出的禁用状态
     >
       {isRecording ? (
-        <MicRoundedIcon color="primary" fontSize="large" />
+        // 正在录音，显示停止图标
+        <MicRoundedIcon color={isDisabled ? "disabled" : "primary"} fontSize="large" />
       ) : (
-        <MicNoneRoundedIcon color="action" fontSize="large" />
+        // 未录音，显示开始图标
+        <MicNoneRoundedIcon color={isDisabled ? "disabled" : "action"} fontSize="large" />
       )}
     </IconButton>
   );

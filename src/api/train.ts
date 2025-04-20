@@ -55,49 +55,75 @@ export const GetTrainTextByCategoryAPI = async (category: string) => {
   }
 }
 
-// --- TTS API and types moved to tts.ts ---
-
-// --- Dysarthria API ---
-// Old DysarthriaAPI might be deprecated or used differently now
-// export const DysarthriaAPI = async (text: string, audioFile: File) => { ... }
-// export const DysarthriaByBase64API = async (text: string, audioBase64: string) => { ... }
+// --- Practice Detail API (新的评分 API) ---
 
 /**
- * 使用录音 UUID 获取评分结果
- * @param recordingUuid ASR 服务返回的录音 UUID
- * @param text 原始训练文本
- * @returns 返回评分结果，结构同 DysarthriaResType
+ * PracticeDetailAPI 的请求体
  */
-export const ScoreRecordingAPI = async (recordingUuid: string, text: string): Promise<DysarthriaResType> => {
+export type PracticeDetailReqType = {
+  text_uuid: string;
+  user_text: string;
+  recording_uuid: string;
+}
+
+/**
+ * PracticeDetailAPI 的响应类型
+ */
+export type PracticeDetailResType = {
+  status?: number; // 假设 0 表示成功
+  uuid?: string; // 这似乎是结果 UUID，而不是录音 UUID
+  score?: number; // 总分
+  char_scores?: CharScore[];
+  message?: string; // 可选的错误消息
+  [property: string]: any;
+}
+
+/**
+ * 单个字符的分数详情
+ */
+export type CharScore = {
+  score?: number; // 字符分数 (0 到 1?)
+  sim_sa?: number; // 声母相似度?
+  sim_ya?: number; // 韵母相似度?
+  sim_sd?: number; // 声调相似度?
+  [property: string]: any;
+}
+
+/**
+ * 调用新的练习详情/评分 API。
+ * @param data 包含 text_uuid, user_text, recording_uuid 的请求体
+ * @returns 评分结果。
+ */
+export const PracticeDetailAPI = async (data: PracticeDetailReqType): Promise<PracticeDetailResType> => {
   try {
-    // TODO: 确认评分接口的实际 URL 和参数名
-    const response = await http<DysarthriaResType>({
-      url: '/score/getResultByUuid', // 假设的评分接口 URL
-      method: 'GET', // 或 'POST'，根据后端接口定义
-      params: {
-        recordingUuid, // 假设参数名为 recordingUuid
-        text,          // 假设需要传递原始文本
-      },
+    const response = await http<PracticeDetailResType>({
+      url: '/practice-detail', // 新的 API 端点
+      method: 'POST',
+      data,
     });
-    // 检查返回的数据结构
-    if (response.data && typeof response.data.code === 'number') {
-        return response.data;
+    // 根据示例检查响应结构
+    if (response.data && typeof response.data.status === 'number') {
+      return response.data;
     } else {
-        console.error("ScoreRecordingAPI invalid response format:", response.data);
-        return { code: 1, message: "评分接口返回格式错误" };
+      console.error("PracticeDetailAPI invalid response format:", response.data); // 保留错误日志
+      // 返回表示错误的结构
+      return { status: 1, message: "评分接口返回格式错误" };
     }
   } catch (error: any) {
-    console.error("Error calling ScoreRecordingAPI:", error);
+    console.error("Error calling PracticeDetailAPI:", error); // 保留错误日志
     if (error.response && error.response.data) {
-      return error.response.data as DysarthriaResType;
+      // 如果可用，尝试返回后端错误结构
+      return error.response.data as PracticeDetailResType;
     }
-    return { code: 1, message: error.message || "获取评分失败" };
+    // 返回通用错误结构
+    return { status: 1, message: error.message || "请求评分接口失败" };
   }
 }
 
+// --- Dysarthria API ---
 
 /**
- * 返回每个汉字的详细发音信息
+ * 返回每个汉字的详细发音信息 - 此结构可能需要根据新 API 更新
  *
  * RestBeanDysarthriaResult
  */
@@ -105,12 +131,12 @@ export type DysarthriaResType = {
   /**
    * 状态码
    */
-  code?: number;
+  code?: number; // 对应 PracticeDetailResType 中的 'status'
   /**
    * 响应数据
    */
   data?: DysarthriaResult;
-  id?: number;
+  id?: number; // 新 API 响应中不存在
   /**
    * 其他消息
    */
@@ -119,19 +145,21 @@ export type DysarthriaResType = {
 }
 
 /**
-* 响应数据
+* 响应数据 - 已调整以匹配从 PracticeDetailResType 派生的数据
 *
 * DysarthriaResult
 */
 export type DysarthriaResult = {
-  sd?: Sd[];
-  single_score?: number[];
-  sm?: Sm[];
-  total_score?: number;
-  ym?: Ym[];
+  // sd, sm, ym 不再由新 API 提供
+  sd?: any[]; // 保留为空数组或如果下游不需要则移除
+  single_score?: number[]; // 从 char_scores[*].score 映射而来
+  sm?: any[]; // 保留为空数组或移除
+  total_score?: number; // 从 score 映射而来
+  ym?: any[]; // 保留为空数组或移除
   [property: string]: any;
 }
 
+// 如果后端不再使用它们，枚举 Sd, Sm, Ym 可能已过时
 export enum Sd {
   SDDifferent = "SD_DIFFERENT",
   SDSame = "SD_SAME",
@@ -153,8 +181,6 @@ export enum Ym {
   YmSame = "YM_SAME",
   YmSameLike = "YM_SAME_LIKE",
 }
-
-// --- Pinyin API and types moved to hanzi.ts ---
 
 // --- User Data API ---
 
@@ -180,25 +206,29 @@ export type SaveUserTrainDataResType = {
   [property: string]: any;
 }
 
+// 更新的用于保存用户数据的请求类型
 export type SaveUserTrainDataReqType = {
-  sd: Sd[];
-  sm: Sm[];
-  text: string;
-  total_score: number;
-  ym: Ym[];
+  // 与后端确认 sd, sm, ym 是否仍是必需的。暂时传递空数组。
+  sd: any[];
+  sm: any[];
+  text: string; // 原始训练文本
+  total_score: number; // 来自 PracticeDetailAPI 的总分
+  ym: any[];
+  // 如果后端需要其他字段，例如来自 PracticeDetailAPI 的结果 UUID？
+  practice_detail_uuid?: string; // 示例：如果后端需要结果 UUID
   [property: string]: any;
 }
 
 export const SaveUserTrainDataAPI = async (data: SaveUserTrainDataReqType) => {
   try {
     const response = await http<SaveUserTrainDataResType>({
-      url: '/userData/saveUserTrainDta',
+      url: '/userData/saveUserTrainDta', // 如果更改，请验证端点
       method: 'POST',
       data,
     });
     return response.data;
   } catch (error) {
-    console.error(error);
+    console.error(error); // 保留错误日志
     throw error;
   }
 }
