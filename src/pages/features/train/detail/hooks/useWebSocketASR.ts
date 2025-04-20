@@ -1,7 +1,7 @@
 import { useState, useRef, useCallback, useEffect } from 'react';
 import { message } from 'antd';
 import useAuthStore from '../../../../../store/auth';
-import { PracticeDetailAPI, PracticeDetailReqType, DysarthriaResult, SaveUserTrainDataAPI } from '../../../../../api/train';
+import { PracticeDetailAPI, PracticeDetailReqType, DysarthriaResult, SaveUserTrainDataAPI, CharScore } from '../../../../../api/train';
 import { useTextContext } from '../context/TextContext';
 
 
@@ -102,11 +102,11 @@ export const useWebSocketASR = ({
             message.success("评分获取成功");
 
             // 将 PracticeDetailResType 映射到 DysarthriaResult
+            // single_score 现在直接存储 char_scores 数组
             const mappedResult: DysarthriaResult = {
-                total_score: scoreResponse.score,
-                // 将 char_scores[*].score 映射到 single_score 数组，处理可能的 undefined 分数
-                single_score: scoreResponse.char_scores.map(cs => cs.score ?? -1), // 对缺失分数使用 -1 或其他指示符
-                // sd, sm, ym 不再从此 API 提供
+                total_score: scoreResponse.score, // API 返回的总分 (0-100)
+                single_score: scoreResponse.char_scores, // 直接使用包含详细分数的对象数组
+                // sd, sm, ym 不再从此 API 提供，保持空数组或根据需要处理
                 sd: [],
                 sm: [],
                 ym: [],
@@ -146,8 +146,8 @@ export const useWebSocketASR = ({
             // console.error('[processScoreAndSave] Score API returned error or invalid data. Status:', scoreResponse.status, 'Response:', scoreResponse); // 移除日志
             message.error(`获取评分失败: ${scoreResponse.message || '评分接口返回错误'}`);
             console.error("Error getting score:", scoreResponse); // 保留错误日志
-            setDysarthriaResult({});
-            if (onScoreUpdate) onScoreUpdate({});
+            setDysarthriaResult({ single_score: [] }); // 清空结果，确保 single_score 是数组
+            if (onScoreUpdate) onScoreUpdate({ single_score: [] });
         }
 
       } catch (error: any) {
@@ -156,8 +156,8 @@ export const useWebSocketASR = ({
         message.destroy();
         message.error(`调用评分接口时出错: ${error.message || '网络错误'}`);
         console.error("Error processing score:", error); // 保留错误日志
-        setDysarthriaResult({});
-        if (onScoreUpdate) onScoreUpdate({});
+        setDysarthriaResult({ single_score: [] }); // 清空结果，确保 single_score 是数组
+        if (onScoreUpdate) onScoreUpdate({ single_score: [] });
       } finally {
          // console.log('[processScoreAndSave] Entering finally block.'); // 移除日志
          cleanupWebSocket(); // 评分尝试（成功或失败）后进行清理

@@ -150,36 +150,9 @@ export type DysarthriaResType = {
 * DysarthriaResult
 */
 export type DysarthriaResult = {
-  // sd, sm, ym 不再由新 API 提供
-  sd?: any[]; // 保留为空数组或如果下游不需要则移除
-  single_score?: number[]; // 从 char_scores[*].score 映射而来
-  sm?: any[]; // 保留为空数组或移除
+  single_score?: CharScore[]; // 更新：现在是 CharScore 对象数组
   total_score?: number; // 从 score 映射而来
-  ym?: any[]; // 保留为空数组或移除
   [property: string]: any;
-}
-
-// 如果后端不再使用它们，枚举 Sd, Sm, Ym 可能已过时
-export enum Sd {
-  SDDifferent = "SD_DIFFERENT",
-  SDSame = "SD_SAME",
-}
-
-export enum Sm {
-  SmDiffMethod = "SM_DIFF_METHOD",
-  SmDiffPart = "SM_DIFF_PART",
-  SmDifferent = "SM_DIFFERENT",
-  SmSame = "SM_SAME",
-}
-
-export enum Ym {
-  YmDiffShape = "YM_DIFF_SHAPE",
-  YmDiffShapeAndSmooth = "YM_DIFF_SHAPE_AND_SMOOTH",
-  YmDiffSmooth = "YM_DIFF_SMOOTH",
-  YmDiffStruct = "YM_DIFF_STRUCT",
-  YmDifferent = "YM_DIFFERENT",
-  YmSame = "YM_SAME",
-  YmSameLike = "YM_SAME_LIKE",
 }
 
 // --- User Data API ---
@@ -280,13 +253,7 @@ export type UserInfo = {
 * UserTrainDataJson
 */
 export type UserTrainDataJson = {
-  sd?: string[];
-  sd_enums?: Sd[];
-  sm?: string[];
-  sm_enums?: Sm[];
   total_score?: number;
-  ym?: string[];
-  ym_enums?: Ym[];
   [property: string]: any;
 }
 
