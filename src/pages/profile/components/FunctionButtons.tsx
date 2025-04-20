@@ -1,6 +1,7 @@
 import AutoGraphRoundedIcon from "@mui/icons-material/AutoGraphRounded";
-import BookOutlinedIcon from "@mui/icons-material/BookOutlined";
+import BookOutlinedIcon from "@mui/icons-material/BookOutlined"; // 确保引入收藏图标
 import PeopleAltOutlinedIcon from '@mui/icons-material/PeopleAltOutlined'; // 引入病人图标
+import LibraryBooksOutlinedIcon from '@mui/icons-material/LibraryBooksOutlined'; // 引入语料图标
 import { IconButton, Typography } from "@mui/material";
 import { Card } from "antd";
 import React from "react";
@@ -39,10 +40,16 @@ export const FunctionButtons: React.FC = () => {
           title="统计分析"
           onClick={() => navigator("/analysis")}
         />
+        {/* 重新添加我的收藏按钮 */}
         <FunctionButton
           icon={<BookOutlinedIcon />}
           title="我的收藏"
-          onClick={() => navigator("/collections")}
+          onClick={() => navigator("/collections")} // 确保导航到正确的路径
+        />
+        <FunctionButton
+          icon={<LibraryBooksOutlinedIcon />} // 使用语料图标
+          title="我的语料" // 修改标题
+          onClick={() => navigator("/corpus")} // 跳转到语料页面
         />
         {/* 条件渲染：只有医生角色显示 */}
         {userInfo?.user_role === 'doctor' && (

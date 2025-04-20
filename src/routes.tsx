@@ -26,6 +26,7 @@ import TrainTextDetailPage from "./pages/features/train/trainTextDetail";
 import AnalysisPage from "./pages/features/analysis";
 import PatientsPage from "./pages/features/patients"; // 导入 PatientPage
 import PatientDetailPage from "./pages/features/patients/detail"; // 导入 PatientDetailPage
+import CorpusPage from "./pages/features/corpus"; // 导入 CorpusPage
 
 const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
   const { isAuthenticated } = useAuthStore();
@@ -156,6 +157,15 @@ const AnimatedRoutes = () => {
               element={
                 <ProtectedRoute>
                   <PatientDetailPage />
+                </ProtectedRoute>
+              }
+            />
+            {/* 添加我的语料路由 */}
+            <Route
+              path="/corpus"
+              element={
+                <ProtectedRoute>
+                  <CorpusPage />
                 </ProtectedRoute>
               }
             />

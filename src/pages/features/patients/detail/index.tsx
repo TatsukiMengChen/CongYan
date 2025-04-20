@@ -1,55 +1,76 @@
-import { ExclamationCircleOutlined } from '@ant-design/icons';
-import { Button, Descriptions, message, Modal, Tag } from 'antd';
-import dayjs from 'dayjs';
-import React, { useState } from 'react';
+import { ExclamationCircleOutlined, PlusOutlined } from '@ant-design/icons';
+import { Button, message, Modal, Spin, Typography, Empty } from 'antd';
+import React, { useState, useEffect, useCallback } from 'react';
 import { useLocation, useNavigate } from 'react-router';
-import { PatientInfo, UnbindPatientAPI } from '../../../../api/patients'; // 引入 UnbindPatientAPI
+// 引入 DeletePracticeTaskAPI
+import { PatientInfo, UnbindPatientAPI, GetPracticeTasksAPI, PracticeTaskInfo, DeletePracticeTaskAPI } from '../../../../api/patients';
+import { GetCorpusAPI, CorpusInfo } from '../../../../api/text';
 import Navbar from '../../../../components/Navbar';
+import PatientInfoCard from './components/PatientInfoCard';
+import PatientTaskList from './components/PatientTaskList';
+import AssignTaskModal from './components/AssignTaskModal';
 
-// --- 辅助函数 (可以从 utils 导入) ---
-const calculateAge = (birthDateString?: string | null): string | null => {
-  if (!birthDateString) return null;
-  try {
-    const birthDate = dayjs(birthDateString);
-    if (!birthDate.isValid()) return null;
-    const today = dayjs();
-    const age = today.diff(birthDate, 'year');
-    return `${age}岁`;
-  } catch (e) {
-    console.error("Error calculating age:", e);
-    return null;
-  }
-};
-
-const mapGender = (gender: PatientInfo['gender']): string => {
-  switch (gender) {
-    case 'male': return '男';
-    case 'female': return '女';
-    default: return '未设置';
-  }
-};
-
-const formatDateTime = (dateString?: string | null): string => {
-  if (!dateString) return '未知';
-  try {
-    const date = dayjs(dateString);
-    return date.isValid() ? date.format('YYYY-MM-DD HH:mm') : '日期无效';
-  } catch (e) {
-    return '日期无效';
-  }
-};
-// --- 结束辅助函数 ---
+const { Paragraph } = Typography;
 
 const PatientDetailPage: React.FC = () => {
   const navigate = useNavigate();
   const location = useLocation();
-  const patient = location.state?.patient as PatientInfo | undefined; // 从 state 获取病人信息
+  const patient = location.state?.patient as PatientInfo | undefined;
   const [unbinding, setUnbinding] = useState(false);
+  const [isAssignModalVisible, setIsAssignModalVisible] = useState(false);
+  const [tasks, setTasks] = useState<PracticeTaskInfo[]>([]);
+  const [loadingTasks, setLoadingTasks] = useState(false);
+  const [tasksError, setTasksError] = useState<string | null>(null);
 
+  // --- 新增：语料详情模态框状态 ---
+  const [isTaskDetailVisible, setIsTaskDetailVisible] = useState(false);
+  const [selectedTaskForDetail, setSelectedTaskForDetail] = useState<PracticeTaskInfo | null>(null);
+  const [loadingCorpusDetail, setLoadingCorpusDetail] = useState(false);
+  const [corpusDetail, setCorpusDetail] = useState<CorpusInfo | null>(null);
+  const [corpusDetailError, setCorpusDetailError] = useState<string | null>(null);
+  // --- 结束：语料详情模态框状态 ---
+
+  const [deletingTask, setDeletingTask] = useState(false); // 添加删除任务加载状态
+
+  // 获取任务列表逻辑 (fetchTasks) 保持不变
+  const fetchTasks = useCallback(async () => {
+    if (!patient) return;
+    setLoadingTasks(true);
+    setTasksError(null);
+    try {
+      const res = await GetPracticeTasksAPI(patient.id);
+      if (res.status === 0 && res.tasks) {
+        // 注意：现在后端返回的任务列表不包含 practice_text 了
+        setTasks(res.tasks);
+      } else {
+        const errorMsg = res.message || "加载训练任务列表失败";
+        setTasksError(errorMsg);
+        message.error(errorMsg);
+      }
+    } catch (e) {
+      const errorMsg = "网络错误，无法加载训练任务列表";
+      setTasksError(errorMsg);
+      message.error(errorMsg);
+      console.error("获取任务错误:", e);
+    } finally {
+      setLoadingTasks(false);
+    }
+  }, [patient]);
+
+  // useEffect 获取任务列表逻辑保持不变
+  useEffect(() => {
+    if (patient) {
+      fetchTasks();
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [patient]);
+
+  // 返回处理 (handleBack) 保持不变
   const handleBack = () => {
-    navigate(-1); // 返回上一页
+    navigate(-1);
   };
 
+  // 解绑逻辑 (confirmUnbind, handleUnbind) 保持不变
   const confirmUnbind = () => {
     if (!patient) return;
     Modal.confirm({
@@ -71,8 +92,7 @@ const PatientDetailPage: React.FC = () => {
       const res = await UnbindPatientAPI(patient.id);
       if (res.status === 0) {
         message.success(res.message || '解绑成功');
-        // 解绑成功后，可能需要通知列表页刷新，或者直接返回
-        navigate('/patients', { replace: true, state: { refresh: true } }); // 返回列表页并标记刷新
+        navigate('/patients', { replace: true, state: { refresh: true } });
       } else {
         message.error(res.message || '解绑失败');
       }
@@ -84,8 +104,79 @@ const PatientDetailPage: React.FC = () => {
     }
   };
 
+  // 分配任务模态框控制 (showAssignModal, handleAssignModalClose, handleTaskAssigned) 保持不变
+  const showAssignModal = () => {
+    setIsAssignModalVisible(true);
+  };
+
+  const handleAssignModalClose = () => {
+    setIsAssignModalVisible(false);
+  };
+
+  const handleTaskAssigned = () => {
+    fetchTasks();
+  };
+
+  // --- 新增：处理任务点击和获取语料详情 ---
+  const fetchCorpusDetail = useCallback(async (textUuid: string) => {
+    setLoadingCorpusDetail(true);
+    setCorpusDetail(null);
+    setCorpusDetailError(null);
+    try {
+      const res = await GetCorpusAPI(textUuid);
+      if (res.status === 0 && res.texts && res.texts.length > 0) {
+        setCorpusDetail(res.texts[0]); // API 返回数组，取第一个
+      } else {
+        const errorMsg = res.message || "加载语料详情失败";
+        setCorpusDetailError(errorMsg);
+        message.error(errorMsg);
+      }
+    } catch (e) {
+      const errorMsg = "网络错误，无法加载语料详情";
+      setCorpusDetailError(errorMsg);
+      message.error(errorMsg);
+      console.error("获取语料详情错误:", e);
+    } finally {
+      setLoadingCorpusDetail(false);
+    }
+  }, []);
+
+  const handleTaskClick = (task: PracticeTaskInfo) => {
+    setSelectedTaskForDetail(task);
+    setIsTaskDetailVisible(true);
+    fetchCorpusDetail(task.text_uuid); // 获取语料详情
+  };
+
+  const handleTaskDetailCancel = () => {
+    setIsTaskDetailVisible(false);
+    setSelectedTaskForDetail(null);
+    setCorpusDetail(null);
+    setCorpusDetailError(null);
+  };
+  // --- 结束：处理任务点击和获取语料详情 ---
+
+  // --- 新增：处理删除任务 ---
+  const handleDeleteTask = async (taskUuid: string) => {
+    setDeletingTask(true); // 可以考虑为特定任务项添加加载状态，但全局状态更简单
+    try {
+      const res = await DeletePracticeTaskAPI(taskUuid);
+      if (res.status === 0) {
+        message.success(res.message || "删除任务成功");
+        fetchTasks(); // 刷新任务列表
+      } else {
+        message.error(res.message || "删除任务失败");
+      }
+    } catch (error) {
+      message.error("删除任务过程中发生错误");
+      console.error("删除任务失败:", error);
+    } finally {
+      setDeletingTask(false);
+    }
+  };
+  // --- 结束：处理删除任务 ---
+
+  // 处理病人信息不存在的情况 (不变)
   if (!patient) {
-    // 如果没有病人信息（例如直接访问URL），可以显示错误或重定向
     return (
       <>
         <Navbar onBack={handleBack}>病人详情</Navbar>
@@ -96,39 +187,67 @@ const PatientDetailPage: React.FC = () => {
     );
   }
 
-  // 计算显示信息
-  const age = calculateAge(patient.birth_date);
-  const displayGender = mapGender(patient.gender);
-  const registrationDate = formatDateTime(patient.created_at);
-  const displayDisease = patient.disease || '未设置';
-
+  // 主页面渲染
   return (
     <>
       <Navbar onBack={handleBack}>病人详情 - {patient.username}</Navbar>
-      <div style={{ padding: '15px' }}>
-        <Descriptions bordered column={1} size="small" title="基础信息">
-          <Descriptions.Item label="用户 ID">{patient.id}</Descriptions.Item>
-          <Descriptions.Item label="用户名">{patient.username}</Descriptions.Item>
-          <Descriptions.Item label="手机号">{patient.phone_number || '未提供'}</Descriptions.Item>
-          <Descriptions.Item label="性别">
-            {displayGender !== '未设置' ? (
-              <Tag color={patient.gender === 'female' ? 'warning' : 'success'}>{displayGender}</Tag>
-            ) : (
-              displayGender
-            )}
-          </Descriptions.Item>
-          <Descriptions.Item label="年龄">{age || '未设置'}</Descriptions.Item>
-          <Descriptions.Item label="病症">{displayDisease}</Descriptions.Item>
-          <Descriptions.Item label="注册时间">{registrationDate}</Descriptions.Item>
-          {/* 可以根据需要添加更多信息 */}
-        </Descriptions>
+      <div style={{ padding: '15px', paddingBottom: '80px' }}>
+        <PatientInfoCard patient={patient} />
 
-        <div style={{ marginTop: '30px', textAlign: 'center' }}>
+        {/* 传递 onDeleteTask 给任务列表组件 */}
+        <PatientTaskList
+          tasks={tasks}
+          // 可以传递 deletingTask 状态给列表项以显示加载指示，但目前省略
+          loading={loadingTasks || deletingTask} // 列表加载中或正在删除任务时显示 Spin
+          error={tasksError}
+          onTaskClick={handleTaskClick}
+          onDeleteTask={handleDeleteTask} // 传递删除处理函数
+        />
+
+        {/* 操作按钮区域 (不变) */}
+        <div style={{ marginTop: '30px', display: 'flex', flexDirection: 'column', gap: '15px' }}>
+          <Button
+            type="primary"
+            icon={<PlusOutlined />}
+            onClick={showAssignModal} // 打开分配任务模态框
+            block
+          >
+            分配新任务
+          </Button>
           <Button type="primary" danger onClick={confirmUnbind} loading={unbinding} block>
             解除绑定
           </Button>
         </div>
       </div>
+
+      {/* 分配任务模态框 (不变) */}
+      <AssignTaskModal
+        visible={isAssignModalVisible}
+        patient={patient}
+        onClose={handleAssignModalClose}
+        onTaskAssigned={handleTaskAssigned}
+      />
+
+      {/* 语料详情模态框 (不变) */}
+      <Modal
+        title={corpusDetail?.title || "语料详情"}
+        visible={isTaskDetailVisible}
+        onCancel={handleTaskDetailCancel}
+        footer={null} // 不需要底部按钮
+        destroyOnClose
+      >
+        {loadingCorpusDetail ? (
+          <div style={{ textAlign: 'center', padding: '20px' }}><Spin /></div>
+        ) : corpusDetailError ? (
+          <Empty description={corpusDetailError} />
+        ) : corpusDetail ? (
+          <Paragraph copyable={{ tooltips: ['复制', '已复制'] }} style={{ whiteSpace: 'pre-wrap' }}>
+            {corpusDetail.text}
+          </Paragraph>
+        ) : (
+          <Empty description="无法加载语料内容" /> // 理论上不应出现，除非API成功但没数据
+        )}
+      </Modal>
     </>
   );
 };
