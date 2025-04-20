@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { Modal, Select, Spin, message } from 'antd';
+// 引入 Input
+import { Modal, Select, Spin, message, Input } from 'antd';
 // GetCorpusAPI 和 CorpusInfo 仍然从 text.ts 导入
 import { CorpusInfo, GetCorpusAPI } from '../../../../../api/text';
 // 更新导入路径：从 patients.ts 导入任务相关 API 和类型
@@ -23,6 +24,11 @@ const AssignTaskModal: React.FC<AssignTaskModalProps> = ({
   const [selectedTextUuid, setSelectedTextUuid] = useState<string | null>(null);
   const [assigning, setAssigning] = useState(false);
   const [corpusError, setCorpusError] = useState<string | null>(null);
+  // --- 新增：任务标题和备注状态 ---
+  const [newTaskTitle, setNewTaskTitle] = useState<string>('');
+  const [newTaskRemark, setNewTaskRemark] = useState<string>('');
+  // --- 结束：任务标题和备注状态 ---
+
 
   // 获取语料列表的函数
   const fetchCorpus = useCallback(async () => {
@@ -70,6 +76,8 @@ const AssignTaskModal: React.FC<AssignTaskModalProps> = ({
       const res = await AssignPracticeTaskAPI({
         patient_id: patient.id,
         text_uuid: selectedTextUuid,
+        title: newTaskTitle.trim() || undefined, // 如果为空则不传或传 undefined
+        remark: newTaskRemark.trim() || undefined, // 如果为空则不传或传 undefined
       });
       if (res.status === 0) {
         message.success(res.message || "任务分配成功");
@@ -89,6 +97,8 @@ const AssignTaskModal: React.FC<AssignTaskModalProps> = ({
   // 处理取消或关闭
   const handleCancel = () => {
     setSelectedTextUuid(null); // 重置选择
+    setNewTaskTitle(''); // 重置标题
+    setNewTaskRemark(''); // 重置备注
     // 注意：不重置 corpusList 和 corpusError，以便下次打开时可能复用
     onClose(); // 调用关闭回调
   };
@@ -105,23 +115,39 @@ const AssignTaskModal: React.FC<AssignTaskModalProps> = ({
       return <div style={{ textAlign: 'center', padding: '20px' }}>暂无可用的语料</div>;
     }
     return (
-      <Select
-        showSearch
-        style={{ width: '100%' }}
-        placeholder="请搜索或选择语料"
-        optionFilterProp="children"
-        onChange={(value) => setSelectedTextUuid(value)}
-        value={selectedTextUuid}
-        filterOption={(input, option) =>
-          (option?.label ?? '').toLowerCase().includes(input.toLowerCase()) ||
-          (option?.data?.text ?? '').toLowerCase().includes(input.toLowerCase())
-        }
-        options={corpusList.map(corpus => ({
-            value: corpus.uuid,
-            label: corpus.title || `语料 ${corpus.uuid.substring(0, 8)}...`,
-            data: corpus
-        }))}
-      />
+      <>
+        <Select
+          showSearch
+          style={{ width: '100%', marginBottom: '1rem' }} // 添加底部边距
+          placeholder="请搜索或选择语料 *"
+          optionFilterProp="children"
+          onChange={(value) => setSelectedTextUuid(value)}
+          value={selectedTextUuid}
+          filterOption={(input, option) =>
+            (option?.label ?? '').toLowerCase().includes(input.toLowerCase()) ||
+            (option?.data?.text ?? '').toLowerCase().includes(input.toLowerCase())
+          }
+          options={corpusList.map(corpus => ({
+              value: corpus.uuid,
+              label: corpus.title || `语料 ${corpus.uuid.substring(0, 8)}...`,
+              data: corpus
+          }))}
+        />
+        {/* --- 新增：标题和备注输入框 --- */}
+        <Input
+            placeholder="请输入任务标题（可选）"
+            value={newTaskTitle}
+            onChange={(e) => setNewTaskTitle(e.target.value)}
+            style={{ marginBottom: '1rem' }}
+        />
+        <Input.TextArea
+            rows={2}
+            placeholder="请输入任务备注（可选）"
+            value={newTaskRemark}
+            onChange={(e) => setNewTaskRemark(e.target.value)}
+        />
+        {/* --- 结束：标题和备注输入框 --- */}
+      </>
     );
   };
 

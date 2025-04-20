@@ -137,6 +137,8 @@ export const UnbindPatientAPI = async (patientId: number): Promise<UnbindPatient
 export interface AssignTaskPayload {
   patient_id: number;
   text_uuid: string;
+  title?: string; // 添加：任务标题（可选）
+  remark?: string; // 添加：任务备注（可选）
 }
 
 // 分配训练任务响应类型 (假设返回简单状态和消息)
@@ -186,10 +188,12 @@ export interface PracticeTaskInfo {
   uuid: string; // 任务的唯一标识符
   patient_id: number; // 病人 ID
   text_uuid: string; // 关联的语料 UUID
+  title: string; // 添加：任务标题
+  remark: string; // 添加：任务备注
   finished: boolean; // 任务是否完成
   created_at: string; // 创建时间
   updated_at: string; // 更新时间
-  // 语料详细信息，如果需要前端组合
+  // 语料详细信息，如果需要前端组合 (现在可能不需要了，因为任务自带标题)
   practice_text?: CorpusInfo;
 }
 

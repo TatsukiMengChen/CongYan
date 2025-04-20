@@ -1,7 +1,7 @@
 import React, { useCallback, useEffect, useState } from "react";
 import { useNavigate } from "react-router";
-// 引入 Button, Popconfirm, DeleteOutlined
-import { Empty, FloatButton, Input, List, message, Modal, Spin, Typography, Button, Popconfirm } from "antd";
+// 引入 Select, Tag
+import { Empty, FloatButton, Input, List, message, Modal, Spin, Typography, Button, Popconfirm, Select, Tag } from "antd";
 // 引入 DeleteOutlined
 import { PlusOutlined, DeleteOutlined } from "@ant-design/icons";
 import Navbar from "../../../components/Navbar";
@@ -13,7 +13,21 @@ import {
 } from "../../../api/text";
 
 const { TextArea } = Input;
-const { Paragraph } = Typography; // 引入 Paragraph 用于显示详情
+const { Paragraph, Text } = Typography; // 引入 Text
+
+// 定义语料分类选项
+const corpusCategories = [
+  { value: 'prose', label: '散文' },
+  { value: 'ancient-poem', label: '古代诗词' },
+  { value: 'modern-poetry', label: '现代诗词' },
+  { value: 'other', label: '其他' }, // 添加一个“其他”选项
+];
+
+// 辅助函数：根据 value 获取 label
+const getCategoryLabel = (value: string): string => {
+    return corpusCategories.find(cat => cat.value === value)?.label || value;
+};
+
 
 const CorpusPage: React.FC = () => {
   const navigate = useNavigate();
@@ -24,6 +38,7 @@ const CorpusPage: React.FC = () => {
   const [isCreateModalVisible, setIsCreateModalVisible] = useState(false);
   const [newTitle, setNewTitle] = useState("");
   const [newText, setNewText] = useState("");
+  const [newCategory, setNewCategory] = useState<string>(corpusCategories[0].value); // 默认选中第一个分类
   const [creating, setCreating] = useState(false);
   // 详情模态框状态
   const [isDetailModalVisible, setIsDetailModalVisible] = useState(false);
@@ -75,17 +90,23 @@ const CorpusPage: React.FC = () => {
       message.warning("请输入语料内容");
       return;
     }
+    if (!newCategory) {
+        message.warning("请选择语料分类");
+        return;
+    }
     setCreating(true);
     try {
       const res = await CreateCorpusAPI({
         title: newTitle.trim(),
         text: newText.trim(),
+        category: newCategory, // 添加 category
       });
       if (res.status === 0) {
         message.success("创建成功");
         setIsCreateModalVisible(false);
         setNewTitle(""); // 清空输入
         setNewText(""); // 清空输入
+        setNewCategory(corpusCategories[0].value); // 重置分类
         await fetchCorpus(); // 刷新列表
       } else {
         message.error(res.message || "创建失败");
@@ -102,6 +123,7 @@ const CorpusPage: React.FC = () => {
     setIsCreateModalVisible(false);
     setNewTitle(""); // 清空输入
     setNewText(""); // 清空输入
+    setNewCategory(corpusCategories[0].value); // 重置分类
   };
   // --- 结束创建模态框相关函数 ---
 
@@ -195,7 +217,13 @@ const CorpusPage: React.FC = () => {
             {/* Meta 部分仍然可点击查看详情 */}
             <div onClick={() => showDetailModal(item)} style={{ flexGrow: 1, cursor: 'pointer' }}>
               <List.Item.Meta
-                title={item.title || "无标题"}
+                title={
+                    <>
+                        {item.title || "无标题"}
+                        {/* 显示分类 Tag */}
+                        <Tag style={{ marginLeft: 8 }}>{getCategoryLabel(item.category)}</Tag>
+                    </>
+                }
                 description={
                   // 使用 Typography.Paragraph 实现单行截断
                   <Typography.Paragraph ellipsis={{ rows: 1, tooltip: item.text }}>
@@ -239,9 +267,18 @@ const CorpusPage: React.FC = () => {
           onChange={(e) => setNewTitle(e.target.value)}
           style={{ marginBottom: "1rem" }}
         />
+        {/* --- 新增：分类选择 --- */}
+        <Select
+            placeholder="请选择语料分类 *"
+            value={newCategory}
+            onChange={(value) => setNewCategory(value)}
+            style={{ width: '100%', marginBottom: '1rem' }}
+            options={corpusCategories}
+        />
+        {/* --- 结束：分类选择 --- */}
         <TextArea
           rows={4}
-          placeholder="请输入语料内容"
+          placeholder="请输入语料内容 *"
           value={newText}
           onChange={(e) => setNewText(e.target.value)}
         />

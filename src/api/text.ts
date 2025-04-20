@@ -6,6 +6,7 @@ import http from "../utils/http"; // 更改导入为 http
 export interface CreateCorpusPayload {
   title: string;
   text: string;
+  category: string; // 添加：语料分类
 }
 
 // 创建语料响应类型
@@ -58,6 +59,7 @@ export interface CorpusInfo {
   uuid: string;
   title: string;
   text: string;
+  category: string; // 添加：语料分类
   add_by: string; // 'doctor' or 'patient' etc.
   add_by_id: number;
   createdAt: string;

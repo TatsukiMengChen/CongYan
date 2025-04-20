@@ -5,7 +5,7 @@ import { DeleteOutlined } from '@ant-design/icons';
 import dayjs from 'dayjs';
 import { PracticeTaskInfo } from '../../../../../api/patients';
 
-const { Title } = Typography;
+const { Title, Text } = Typography; // 引入 Text
 
 // --- 辅助函数 (如果需要，从父组件或 utils 移入/导入) ---
 const formatDateTime = (dateString?: string | null): string => {
@@ -72,9 +72,12 @@ const PatientTaskList: React.FC<PatientTaskListProps> = ({ tasks, loading, error
             {/* Meta 部分仍然可点击查看详情 */}
             <div onClick={() => onTaskClick(task)} style={{ flexGrow: 1, cursor: 'pointer' }}>
               <List.Item.Meta
-                title={task.practice_text?.title || `任务 ${task.uuid.substring(0, 8)}...`}
+                // 直接使用 task.title
+                title={task.title || `任务 ${task.uuid.substring(0, 8)}...`}
                 description={
                   <div>
+                    {/* 显示备注 */}
+                    {task.remark && <Text type="secondary" style={{ display: 'block', marginBottom: '4px' }}>备注: {task.remark}</Text>}
                     状态: <Tag color={task.finished ? 'green' : 'blue'}>{task.finished ? '已完成' : '待完成'}</Tag> |
                     分配时间: {formatDateTime(task.created_at)}
                   </div>

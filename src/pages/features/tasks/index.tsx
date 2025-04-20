@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router';
 import { DotLoading, ErrorBlock, PullToRefresh } from 'antd-mobile';
 import AccessTimeIcon from '@mui/icons-material/AccessTime';
 import EditIcon from '@mui/icons-material/Edit';
+import NotesIcon from '@mui/icons-material/Notes';
 import ArrowForwardIosRoundedIcon from '@mui/icons-material/ArrowForwardIosRounded';
 import Navbar from '../../../components/Navbar';
 import useTasksStore from '../../../store/tasks';
@@ -73,8 +74,8 @@ const TasksPage: React.FC = () => {
           >
             <div>
               <div className={styles.taskTitle}>
-                {/* 任务标题 */}
-                <span className={styles.titleText}>{task.practice_text?.title || `任务 ${task.uuid.substring(0, 6)}`}</span>
+                {/* 直接使用 task.title */}
+                <span className={styles.titleText}>{task.title || `任务 ${task.uuid.substring(0, 6)}`}</span>
                 {/* 将状态和箭头包裹在一个 div 中 */}
                 <div className={styles.statusArrowWrapper}>
                   <span className={`${styles.taskStatus} ${task.finished ? styles.finished : styles.unfinished}`}>
@@ -89,14 +90,22 @@ const TasksPage: React.FC = () => {
                 </div>
               </div>
               <div className={styles.taskMeta}>
+                {/* 添加备注显示 */}
+                {task.remark && (
+                  <span className={styles.taskRemark}>
+                    <NotesIcon sx={{ fontSize: 16, marginRight: 1, verticalAlign: 'bottom' }} />
+                    备注: {task.remark}
+                  </span>
+                )}
                 <span>
                   <AccessTimeIcon sx={{ fontSize: 16, marginRight: 1 }} />
                   创建: {formatDate(task.created_at)}
                 </span>
-                <span>
+                {/* 更新时间可能意义不大，可以考虑移除或保留 */}
+                {/* <span>
                   <EditIcon sx={{ fontSize: 16, marginRight: 1 }} />
                   更新: {formatDate(task.updated_at)}
-                </span>
+                </span> */}
               </div>
             </div>
           </div>
