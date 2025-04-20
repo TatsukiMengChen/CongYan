@@ -55,125 +55,45 @@ export const GetTrainTextByCategoryAPI = async (category: string) => {
   }
 }
 
+// --- TTS API and types moved to tts.ts ---
+
+// --- Dysarthria API ---
+// Old DysarthriaAPI might be deprecated or used differently now
+// export const DysarthriaAPI = async (text: string, audioFile: File) => { ... }
+// export const DysarthriaByBase64API = async (text: string, audioBase64: string) => { ... }
+
 /**
- * 音频文件base64编码，byte[]，mp3格式
- *
- * RestBeanTtsVO
+ * 使用录音 UUID 获取评分结果
+ * @param recordingUuid ASR 服务返回的录音 UUID
+ * @param text 原始训练文本
+ * @returns 返回评分结果，结构同 DysarthriaResType
  */
-export type GetTTSAPIResType = {
-  /**
-   * 状态码
-   */
-  code?: number;
-  /**
-   * 响应数据
-   */
-  data?: TtsVO;
-  id?: number;
-  /**
-   * 其他消息
-   */
-  message?: string;
-  [property: string]: any;
-}
-
-/**
-* 响应数据
-*
-* TtsVO
-*/
-export type TtsVO = {
-  audioBase64?: string;
-  [property: string]: any;
-}
-
-export const GetTTSAPI = async (text: string) => {
+export const ScoreRecordingAPI = async (recordingUuid: string, text: string): Promise<DysarthriaResType> => {
   try {
-    const response = await http<GetTTSAPIResType>({
-      url: '/dysarthria/getTTS',
-      method: 'POST',
-      data: {
-        text,
-      },
-    });
-    return response.data;
-  } catch (error) {
-    console.error(error);
-    throw error;
-  }
-}
-
-export const GetMicrosoftTTSAPI = async (text: string, language: string, voice: string) => {
-  try {
-    const response = await http({
-      url: `https://eastasia.tts.speech.microsoft.com/cognitiveservices/v1`,
-      method: 'POST',
-      headers: {
-        'Ocp-Apim-Subscription-Key': "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX",
-        'Content-Type': 'application/ssml+xml',
-        'X-Microsoft-OutputFormat': 'audio-16khz-128kbitrate-mono-mp3',
-      },
-      data: `
-        <speak version='1.0' xml:lang='${language}'>
-          <voice xml:lang='${language}' xml:gender='Female' name='${voice}'>
-            ${text}
-          </voice>
-        </speak>
-      `,
-      responseType: 'arraybuffer',
-    });
-    return response.data;
-  } catch (error) {
-    console.error(error);
-    throw error;
-  }
-}
-
-export const DysarthriaAPI = async (text: string, audioFile: File) => {
-  try {
-    const formData = new FormData();
-    formData.append('audioFile', audioFile);
+    // TODO: 确认评分接口的实际 URL 和参数名
     const response = await http<DysarthriaResType>({
-      url: '/dysarthria/getResult',
-      method: 'POST',
+      url: '/score/getResultByUuid', // 假设的评分接口 URL
+      method: 'GET', // 或 'POST'，根据后端接口定义
       params: {
-        text
-      },
-      data: formData,
-      headers: {
-        "Content-Type": "multipart/form-data",
+        recordingUuid, // 假设参数名为 recordingUuid
+        text,          // 假设需要传递原始文本
       },
     });
-    return response.data;
-  } catch (error) {
-    console.error(error);
-    throw error;
+    // 检查返回的数据结构
+    if (response.data && typeof response.data.code === 'number') {
+        return response.data;
+    } else {
+        console.error("ScoreRecordingAPI invalid response format:", response.data);
+        return { code: 1, message: "评分接口返回格式错误" };
+    }
+  } catch (error: any) {
+    console.error("Error calling ScoreRecordingAPI:", error);
+    if (error.response && error.response.data) {
+      return error.response.data as DysarthriaResType;
+    }
+    return { code: 1, message: error.message || "获取评分失败" };
   }
 }
-
-
-
-
-export const DysarthriaByBase64API = async (text: string, audioBase64: string) => {
-  try {
-    const response = await http({
-      url: '/dysarthria/getResultByBase64',
-      method: 'POST',
-      data: {
-        audioBase64,
-        text
-      },
-      headers: {
-        "Content-Type": "application/json",
-      },
-    });
-    return response.data;
-  } catch (error) {
-    console.error(error);
-    throw error;
-  }
-}
-
 
 
 /**
@@ -234,142 +154,9 @@ export enum Ym {
   YmSameLike = "YM_SAME_LIKE",
 }
 
-/**
- * 每个汉字的拼音，不包括声母韵母列表
- *
- * RestBeanPinyinVO
- */
-export type GetPinYinResType = {
-  /**
-   * 状态码
-   */
-  code?: number;
-  /**
-   * 响应数据
-   */
-  data?: PinyinVO;
-  id?: number;
-  /**
-   * 其他消息
-   */
-  message?: string;
-  [property: string]: any;
-}
+// --- Pinyin API and types moved to hanzi.ts ---
 
-/**
-* 响应数据
-*
-* PinyinVO
-*/
-export type PinyinVO = {
-  pinyin?: string[];
-  text?: string;
-  [property: string]: any;
-}
-
-export const GetPinyinAPI = async (text: string) => {
-  try {
-    const response = await http<GetPinYinResType>({
-      url: '/dysarthria/getPinyin',
-      method: 'GET',
-      params: {
-        text,
-      },
-    });
-    return response.data;
-  } catch (error) {
-    console.error(error);
-    throw error;
-  }
-}
-
-/**
- * 每个汉字的拼音声母韵母列表
- *
- * RestBeanPinyinDetailVO
- */
-export type GetPinyinDetailResType = {
-  /**
-   * 状态码
-   */
-  code?: number;
-  /**
-   * 响应数据
-   */
-  data?: PinyinDetail;
-  id?: number;
-  /**
-   * 其他消息
-   */
-  message?: string;
-  [property: string]: any;
-}
-
-/**
-* 响应数据
-*
-* PinyinDetail
-*/
-export type PinyinDetail = {
-  sm_detail?: Initial[];
-  textPinyin?: TextPinyin;
-  ym_detail?: Vowel[];
-  [property: string]: any;
-}
-
-/**
-* com.congyan.entity.dto.Initial
-*
-* Initial
-*/
-export type Initial = {
-  articulationPoint?: string;
-  id?: number;
-  letter?: string;
-  pronunciationMethod?: string;
-  [property: string]: any;
-}
-
-/**
-* TextPinyin
-*/
-export type TextPinyin = {
-  sd?: string[];
-  sm?: string[];
-  text?: string;
-  ym?: string[];
-  [property: string]: any;
-}
-
-/**
-* com.congyan.entity.dto.Vowel
-*
-* Vowel
-*/
-export type Vowel = {
-  id?: number;
-  letter?: string;
-  pronunciationType?: string;
-  roughStructure?: string;
-  smoothStructure?: string;
-  [property: string]: any;
-}
-
-export const GetPinyinDetailAPI = async (text: string) => {
-  try {
-    const response = await http<GetPinyinDetailResType>({
-      url: '/dysarthria/getPinyinDetail',
-      method: 'GET',
-      params: {
-        text,
-      },
-    });
-    return response.data;
-  } catch (error) {
-    console.error(error);
-    throw error;
-  }
-}
+// --- User Data API ---
 
 /**
  * 成功保存

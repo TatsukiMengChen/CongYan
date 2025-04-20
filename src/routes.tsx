@@ -23,7 +23,7 @@ import { AboutSettingsPage } from "./pages/settings/about";
 import { AccountSettingsPage } from "./pages/settings/account";
 import { ChangePasswordPage } from "./pages/settings/changePassword"; // 导入修改密码页面
 import useAuthStore from "./store/auth";
-import TrainTextDetailPage from "./pages/features/train/trainTextDetail";
+import TrainDetailPage from "./pages/features/train/detail";
 import AnalysisPage from "./pages/features/analysis";
 import PatientsPage from "./pages/features/patients"; // 导入 PatientPage
 import PatientDetailPage from "./pages/features/patients/detail"; // 导入 PatientDetailPage
@@ -101,7 +101,7 @@ const AnimatedRoutes = () => {
               path="/train/detail"
               element={
                 <ProtectedRoute>
-                  <TrainTextDetailPage />
+                  <TrainDetailPage />
                 </ProtectedRoute>
               }
             />

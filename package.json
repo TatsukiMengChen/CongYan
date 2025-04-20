@@ -54,6 +54,7 @@
     "@eslint/js": "^9.18.0",
     "@iconify/json": "^2.2.298",
     "@tauri-apps/cli": "^2",
+    "@types/node": "^22.14.1",
     "@types/react": "^18.3.1",
     "@types/react-dom": "^18.3.1",
     "@unocss/eslint-config": "^65.4.2",
