@@ -8,7 +8,7 @@ import {
   DataZoomComponent,
 } from "echarts/components";
 import { CanvasRenderer } from "echarts/renderers";
-import { useEffect, useRef } from "react";
+import { useEffect, useMemo, useRef } from "react"; // 引入 useMemo
 import { useTheme } from "@mui/material";
 import { PracticeHistory } from "../../../../api/train";
 import styles from "../index.module.scss"; // 复用样式
@@ -25,11 +25,34 @@ echarts.use([
 interface LineChartCardProps {
   history: PracticeHistory[];
   isLoading: boolean;
+  // 更新 context 属性类型
+  context: {
+    patientId: string | null;
+    patientName: string | null; // 添加 patientName
+    textUuid: string | null;
+    taskTitle: string | null; // 添加 taskTitle
+  };
 }
 
-export const LineChartCard = ({ history, isLoading }: LineChartCardProps) => {
+export const LineChartCard = ({ history, isLoading, context }: LineChartCardProps) => {
   const theme = useTheme();
   const lineChartRef = useRef<HTMLDivElement>(null);
+
+  // 更新 cardTitle 逻辑以使用 name 和 title
+  const cardTitle = useMemo(() => {
+    if (context.patientName && context.taskTitle) {
+      // 同时有病人和任务信息
+      return `任务 "${context.taskTitle}" 得分趋势`;
+    } else if (context.patientName) {
+       // 只有病人信息
+      return `病人 ${context.patientName} 得分趋势`;
+    } else if (context.taskTitle) {
+        // 只有任务信息
+        return `任务 "${context.taskTitle}" 得分趋势`;
+    }
+    // 默认标题
+    return "得分趋势";
+  }, [context]);
 
   useEffect(() => {
     if (!lineChartRef.current || history.length === 0 || isLoading) return; // 仅在有数据且加载完成时渲染
@@ -394,10 +417,11 @@ export const LineChartCard = ({ history, isLoading }: LineChartCardProps) => {
       window.removeEventListener('resize', resizeHandler);
       chartInstance?.dispose(); // 组件卸载时销毁实例
     };
-  }, [history, theme, isLoading]); // 依赖项
+  }, [history, theme, isLoading, context]); // 将 context 加入依赖项
 
   return (
-    <Card className={styles.card} title="得分趋势">
+    // 使用动态标题
+    <Card className={styles.card} title={cardTitle}>
       {isLoading ? (
         <Typography color="text.secondary" style={{ textAlign: 'center', padding: '16px' }}>加载中...</Typography>
       ) : history.length > 0 ? (

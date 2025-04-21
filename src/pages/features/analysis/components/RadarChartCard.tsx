@@ -3,7 +3,7 @@ import { RadarChart } from "echarts/charts";
 import * as echarts from "echarts/core";
 import { TooltipComponent } from "echarts/components";
 import { CanvasRenderer } from "echarts/renderers";
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useMemo } from "react";
 import { useTheme } from "@mui/material";
 // import { LabelLayout } from 'echarts/features/LabelLayout'; // LabelLayout might be included or handled differently
 import styles from "../index.module.scss"; // 复用样式
@@ -21,11 +21,34 @@ interface RadarChartCardProps {
   data: SummaryDataType;
   isLoading: boolean;
   hasHistory: boolean; // 是否有历史数据
+  // 更新 context 属性类型
+  context: {
+    patientId: string | null;
+    patientName: string | null; // 添加 patientName
+    textUuid: string | null;
+    taskTitle: string | null; // 添加 taskTitle
+  };
 }
 
-export const RadarChartCard = ({ data, isLoading, hasHistory }: RadarChartCardProps) => {
+export const RadarChartCard = ({ data, isLoading, hasHistory, context }: RadarChartCardProps) => {
   const theme = useTheme();
   const radarChartRef = useRef<HTMLDivElement>(null);
+
+  // 更新 cardTitle 逻辑以使用 name 和 title
+  const cardTitle = useMemo(() => {
+    if (context.patientName && context.taskTitle) {
+      // 同时有病人和任务信息
+      return `任务 "${context.taskTitle}" 总体分析`;
+    } else if (context.patientName) {
+       // 只有病人信息
+      return `病人 ${context.patientName} 总体分析`;
+    } else if (context.taskTitle) {
+        // 只有任务信息 (例如病人自己查看特定任务)
+        return `任务 "${context.taskTitle}" 总体分析`;
+    }
+    // 默认标题
+    return "总体分析 (加权平均)";
+  }, [context]);
 
   useEffect(() => {
     if (!radarChartRef.current || !hasHistory || isLoading) return; // 仅在有数据且加载完成时渲染
@@ -259,10 +282,11 @@ export const RadarChartCard = ({ data, isLoading, hasHistory }: RadarChartCardPr
       window.removeEventListener('resize', resizeHandler);
       chartInstance?.dispose();
     };
-  }, [data, theme, hasHistory, isLoading]);
+  }, [data, theme, hasHistory, isLoading, context]); // 将 context 加入依赖项
 
   return (
-    <Card className={styles.card} title="总体分析 (加权平均)" hoverable>
+    // 使用动态标题
+    <Card className={styles.card} title={cardTitle} hoverable>
       {isLoading ? (
         <Typography color="text.secondary" style={{ textAlign: 'center', padding: '24px' }}>
           <div className={styles.loadingIndicator}>加载中...</div>

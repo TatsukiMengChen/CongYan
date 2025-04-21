@@ -8,7 +8,7 @@ import TimelineSeparator from "@mui/lab/TimelineSeparator";
 import { Card, Empty, Typography } from "antd";
 import { PracticeHistory } from "../../../../api/train";
 import styles from "../index.module.scss"; // 复用样式
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react"; // 引入 useMemo
 import { useTheme } from "@mui/material";
 
 // 改进版 HistoryItem 组件，使用更明亮的颜色
@@ -91,11 +91,34 @@ const HistoryItem = ({ data }: { data: PracticeHistory }) => {
 interface HistoryTimelineCardProps {
   history: PracticeHistory[];
   isLoading: boolean;
+  // 更新 context 属性类型
+  context: {
+    patientId: string | null;
+    patientName: string | null; // 添加 patientName
+    textUuid: string | null;
+    taskTitle: string | null; // 添加 taskTitle
+  };
 }
 
-export const HistoryTimelineCard = ({ history, isLoading }: HistoryTimelineCardProps) => {
+export const HistoryTimelineCard = ({ history, isLoading, context }: HistoryTimelineCardProps) => {
   const theme = useTheme();
   const [isMobile, setIsMobile] = useState(window.innerWidth < 600);
+
+  // 更新 cardTitle 逻辑以使用 name 和 title
+  const cardTitle = useMemo(() => {
+    if (context.patientName && context.taskTitle) {
+      // 同时有病人和任务信息
+      return `任务 "${context.taskTitle}" 历史记录`;
+    } else if (context.patientName) {
+       // 只有病人信息
+      return `病人 ${context.patientName} 历史记录`;
+    } else if (context.taskTitle) {
+        // 只有任务信息
+        return `任务 "${context.taskTitle}" 历史记录`;
+    }
+    // 默认标题
+    return "历史记录";
+  }, [context]);
   
   // 监听窗口大小变化以响应式调整
   useEffect(() => {
@@ -110,7 +133,8 @@ export const HistoryTimelineCard = ({ history, isLoading }: HistoryTimelineCardP
   return (
     <Card 
       className={styles.card} 
-      title="历史记录"
+      // 使用动态标题
+      title={cardTitle}
       bodyStyle={{ maxHeight: '60vh', overflowY: 'auto' }} // 添加滚动，防止内容过多
     >
       {isLoading ? (

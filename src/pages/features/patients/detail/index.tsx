@@ -1,4 +1,4 @@
-import { ExclamationCircleOutlined, PlusOutlined } from '@ant-design/icons';
+import { ExclamationCircleOutlined, PlusOutlined, LineChartOutlined } from '@ant-design/icons'; // 引入 LineChartOutlined
 import { Button, message, Modal, Spin, Typography, Empty } from 'antd';
 import React, { useState, useEffect, useCallback } from 'react';
 import { useLocation, useNavigate } from 'react-router';
@@ -175,6 +175,31 @@ const PatientDetailPage: React.FC = () => {
   };
   // --- 结束：处理删除任务 ---
 
+  // --- 修改：导航到统计分析页面，传递更多参数 ---
+  const navigateToPatientAnalysis = () => {
+    if (patient) {
+      // 传递 patientId 和 patientName
+      navigate(`/analysis?patientId=${patient.id}&patientName=${encodeURIComponent(patient.username)}`);
+    }
+  };
+
+  const navigateToTaskAnalysis = () => {
+    // 确保 patient, selectedTaskForDetail 和 corpusDetail (包含 title) 都存在
+    if (patient && selectedTaskForDetail && corpusDetail?.title) {
+      // 传递 patientId, patientName, textUuid 和 taskTitle
+      navigate(`/analysis?patientId=${patient.id}&patientName=${encodeURIComponent(patient.username)}&textUuid=${selectedTaskForDetail.text_uuid}&taskTitle=${encodeURIComponent(corpusDetail.title)}`);
+      handleTaskDetailCancel(); // 关闭模态框
+    } else if (patient && selectedTaskForDetail) {
+       // 如果 corpusDetail 或 title 不可用，只传递基础信息
+       navigate(`/analysis?patientId=${patient.id}&patientName=${encodeURIComponent(patient.username)}&textUuid=${selectedTaskForDetail.text_uuid}`);
+       handleTaskDetailCancel(); // 关闭模态框
+       // 可以考虑给用户一个提示，说明任务标题未能传递
+       message.warning("未能获取任务标题，部分信息可能缺失");
+    }
+  };
+  // --- 结束：导航到统计分析页面 ---
+
+
   // 处理病人信息不存在的情况 (不变)
   if (!patient) {
     return (
@@ -204,8 +229,17 @@ const PatientDetailPage: React.FC = () => {
           onDeleteTask={handleDeleteTask} // 传递删除处理函数
         />
 
-        {/* 操作按钮区域 (不变) */}
+        {/* 操作按钮区域 (修改：添加查看统计分析按钮) */}
         <div style={{ marginTop: '30px', display: 'flex', flexDirection: 'column', gap: '15px' }}>
+          {/* 新增：查看病人整体统计分析按钮 */}
+          <Button
+            type="default" // 或者 primary，根据设计调整
+            icon={<LineChartOutlined />}
+            onClick={navigateToPatientAnalysis}
+            block
+          >
+            查看统计分析
+          </Button>
           <Button
             type="primary"
             icon={<PlusOutlined />}
@@ -228,12 +262,28 @@ const PatientDetailPage: React.FC = () => {
         onTaskAssigned={handleTaskAssigned}
       />
 
-      {/* 语料详情模态框 (不变) */}
+      {/* 语料详情模态框 (修改：添加页脚按钮) */}
       <Modal
-        title={corpusDetail?.title || "语料详情"}
+        title={corpusDetail?.title || (selectedTaskForDetail ? `任务 ${selectedTaskForDetail.text_uuid.substring(0, 8)}...` : "语料详情")}
         visible={isTaskDetailVisible}
         onCancel={handleTaskDetailCancel}
-        footer={null} // 不需要底部按钮
+        // 添加页脚
+        footer={[
+          <Button key="back" onClick={handleTaskDetailCancel}>
+            关闭
+          </Button>,
+          // 新增：查看该任务的统计分析按钮
+          <Button
+            key="analysis"
+            type="primary"
+            icon={<LineChartOutlined />}
+            onClick={navigateToTaskAnalysis}
+            // 仅当语料加载完成时启用
+            disabled={loadingCorpusDetail || !!corpusDetailError || !corpusDetail}
+          >
+            查看任务统计分析
+          </Button>,
+        ]}
         destroyOnClose
       >
         {loadingCorpusDetail ? (
