@@ -128,7 +128,7 @@ export const HistoryTimelineCard = ({ history, isLoading }: HistoryTimelineCardP
           }}
         >
           {/* 注意：传入的 history 已经是升序 */}
-          {history.map((item) => (
+          {history.reverse().map((item) => (
             <HistoryItem key={item.uuid} data={item} />
           ))}
         </Timeline>

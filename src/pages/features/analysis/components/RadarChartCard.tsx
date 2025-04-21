@@ -109,27 +109,45 @@ export const RadarChartCard = ({ data, isLoading, hasHistory }: RadarChartCardPr
         borderWidth: 1, // 调整为 1px，更接近折线图效果
         formatter: (params: any) => {
           let value = params.value;
-          // Define the rating logic based on score thresholds
-          let getRating = (score: number): string => {
-            if (score >= 95) { // Added threshold for 95+
-              return "卓越"; // New rating for 95+
+
+          // 定义评分等级及其对应的颜色
+            const ratingColors: { [key: string]: string } = {
+            "卓越": "#52c41a", // Green (Best)
+            "极佳": "#a0d911", // Lime
+            "优秀": "#fadb14", // Yellow
+            "良好": "#faad14", // Orange
+            "一般": "#ff4d4f", // Red
+            "较差": "#cf1322", // Dark Red (Worst)
+            };
+
+          // 定义评分逻辑，返回评分文字和颜色
+          let getRating = (score: number): { text: string; color: string } => {
+            let ratingText = "";
+            if (score >= 95) {
+              ratingText = "卓越";
             } else if (score >= 90) {
-              return "极佳"; // 90-94.9
+              ratingText = "极佳";
             } else if (score >= 80) {
-              return "优秀"; // 80-89.9
+              ratingText = "优秀";
             } else if (score >= 60) {
-              return "良好"; // 60-79.9
-            } else if (score >= 40) { // Assuming 40-59.9 is "一般"
-              return "一般";
-            } else { // Assuming below 40 is "较差"
-              return "较差";
+              ratingText = "良好";
+            } else if (score >= 40) {
+              ratingText = "一般";
+            } else {
+              ratingText = "较差";
             }
+            return { text: ratingText, color: ratingColors[ratingText] || '#333' }; // 默认黑色
           };
 
+          const saRating = getRating(value[0]);
+          const yaRating = getRating(value[1]);
+          const sdRating = getRating(value[2]);
+
+          // 使用评分对应的颜色
           return `<div style="font-weight:bold;margin-bottom:5px">总体表现分析</div>` +
-            `声母: ${value[0].toFixed(1)} <span style="color:${colors.sa}">（${getRating(value[0])}）</span><br/>` +
-            `韵母: ${value[1].toFixed(1)} <span style="color:${colors.ya}">（${getRating(value[1])}）</span><br/>` +
-            `声调: ${value[2].toFixed(1)} <span style="color:${colors.sd}">（${getRating(value[2])}）</span>`;
+            `声母: ${value[0].toFixed(1)} <span style="color:${saRating.color}; font-weight: bold;">（${saRating.text}）</span><br/>` +
+            `韵母: ${value[1].toFixed(1)} <span style="color:${yaRating.color}; font-weight: bold;">（${yaRating.text}）</span><br/>` +
+            `声调: ${value[2].toFixed(1)} <span style="color:${sdRating.color}; font-weight: bold;">（${sdRating.text}）</span>`;
         },
         textStyle: {
           color: '#333', // 与折线图一致
