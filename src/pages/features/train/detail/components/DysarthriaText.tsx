@@ -309,20 +309,20 @@ export const DysarthriaText = ({
             <Typography variant="body1">
               <strong>总得分：</strong>
               {/* 显示来自 detail state 的主分数 (0-100) */}
-              {detail.score.toFixed(1)}
+              {detail.score !== null ? detail.score.toFixed(1) : "无"}
             </Typography>
             {/* 显示声母、韵母、声调相似度得分 */}
             <Typography variant="body1">
               <strong>声母得分：</strong>
-              {detail.sim_sa !== null ? detail.sim_sa.toFixed(1) : "N/A"}
+              {detail.sim_sa !== null ? detail.sim_sa.toFixed(1) : "无"}
             </Typography>
             <Typography variant="body1">
               <strong>韵母得分：</strong>
-              {detail.sim_ya !== null ? detail.sim_ya.toFixed(1) : "N/A"}
+              {detail.sim_ya !== null ? detail.sim_ya.toFixed(1) : "无"}
             </Typography>
             <Typography variant="body1">
               <strong>声调得分：</strong>
-              {detail.sim_sd !== null ? detail.sim_sd.toFixed(1) : "N/A"}
+              {detail.sim_sd !== null ? detail.sim_sd.toFixed(1) : "无"}
             </Typography>
             {isFetchingPhonetics ? (
               <>
