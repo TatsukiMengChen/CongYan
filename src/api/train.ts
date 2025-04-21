@@ -82,10 +82,10 @@ export type PracticeDetailResType = {
  * 单个字符的分数详情
  */
 export type CharScore = {
-  score?: number; // 字符分数 (0 到 1?)
-  sim_sa?: number; // 声母相似度?
-  sim_ya?: number; // 韵母相似度?
-  sim_sd?: number; // 声调相似度?
+  score?: number; // 字符分数 (0 到 1)
+  sim_sa?: number; // 声母相似度 (0 到 1)
+  sim_ya?: number; // 韵母相似度 (0 到 1)
+  sim_sd?: number; // 声调相似度 (0 到 1)
   [property: string]: any;
 }
 
@@ -206,69 +206,98 @@ export const SaveUserTrainDataAPI = async (data: SaveUserTrainDataReqType) => {
   }
 }
 
+// --- Practice Histories API (新的历史记录 API) ---
+
+/**
+ * GetPracticeHistoriesAPI 的请求参数类型
+ */
+export type GetPracticeHistoriesReqType = {
+  text_uuid?: string;
+  patient_id?: string; // 注意：API 文档是 string，但示例是 number，这里用 string
+}
+
+/**
+ * GetPracticeHistoriesAPI 的响应类型
+ */
+export type GetPracticeHistoriesResType = {
+  status?: number; // 假设 0 表示成功
+  histories?: PracticeHistory[];
+  message?: string; // 可选的错误消息
+  [property: string]: any;
+}
+
+/**
+ * 单条练习历史记录
+ */
+export type PracticeHistory = {
+  uuid?: string;
+  patient_id?: number;
+  text_uuid?: string;
+  patient_text?: string; // 用户读出的文本
+  score?: number; // 总分 (0-100)
+  char_scores?: CharScore[]; // 详细字符分数
+  created_at?: string; // ISO 8601 格式时间戳
+  updated_at?: string; // ISO 8601 格式时间戳
+  [property: string]: any;
+}
+
+/**
+ * 获取练习历史记录。
+ * @param params 包含可选的 text_uuid 和 patient_id
+ * @returns 历史记录列表。
+ */
+export const GetPracticeHistoriesAPI = async (params?: GetPracticeHistoriesReqType): Promise<GetPracticeHistoriesResType> => {
+  try {
+    const response = await http<GetPracticeHistoriesResType>({
+      url: '/practice-histories', // 新的 API 端点
+      method: 'GET',
+      params, // 将参数传递给请求
+    });
+    // 根据示例检查响应结构
+    if (response.data && typeof response.data.status === 'number') {
+      return response.data;
+    } else {
+      console.error("GetPracticeHistoriesAPI invalid response format:", response.data); // 保留错误日志
+      // 返回表示错误的结构
+      return { status: 1, message: "获取历史记录接口返回格式错误" };
+    }
+  } catch (error: any) {
+    console.error("Error calling GetPracticeHistoriesAPI:", error); // 保留错误日志
+    if (error.response && error.response.data) {
+      // 如果可用，尝试返回后端错误结构
+      return error.response.data as GetPracticeHistoriesResType;
+    }
+    // 返回通用错误结构
+    return { status: 1, message: error.message || "请求历史记录接口失败" };
+  }
+}
+
+// --- 旧的历史记录 API (GetUserTrainHistoryAPI) ---
+// 可以注释掉或删除以下与旧 API 相关的类型和函数
+
 /**
  * 用户记录
  *
  * RestBeanUserTrainDataVO[]
  */
-export type GetUserTrainHistoryResType = {
-  /**
-   * 状态码
-   */
-  code?: number;
-  /**
-   * 响应数据
-   */
-  data?: UserTrainData[];
-  id?: number;
-  /**
-   * 其他消息
-   */
-  message?: string;
-  [property: string]: any;
-}
+// export type GetUserTrainHistoryResType = { ... }
 
 /**
 * UserTrainData[]
 */
-export type UserTrainData = {
-  id?: number;
-  time?: string;
-  userId?: number;
-  userInfoVO?: UserInfo;
-  userTrainData?: UserTrainDataJson;
-  [property: string]: any;
-}
+// export type UserTrainData = { ... }
 
 /**
 * UserInfo
 */
-export type UserInfo = {
-  email?: string;
-  username?: string;
-  [property: string]: any;
-}
+// export type UserInfo = { ... }
 
 /**
 * UserTrainDataJson
 */
-export type UserTrainDataJson = {
-  total_score?: number;
-  [property: string]: any;
-}
+// export type UserTrainDataJson = { ... }
 
-export const GetUserTrainHistoryAPI = async () => {
-  try {
-    const response = await http<GetUserTrainHistoryResType>({
-      url: '/userData/getUserTrainHistory',
-      method: 'GET',
-    });
-    return response.data;
-  } catch (error) {
-    console.error(error);
-    throw error;
-  }
-}
+// export const GetUserTrainHistoryAPI = async () => { ... }
 
 /**
  * 返回一个根据时间指数衰减得到的分析数据结构
@@ -331,9 +360,23 @@ export const GetSummaryAnalysisAPI = async () => {
       url: '/userData/getSummaryAnalysis',
       method: 'GET',
     });
-    return response.data;
-  } catch (error) {
-    console.error(error);
-    throw error;
+    // 假设此 API 也遵循 status: 0 的模式
+    if (response.data && typeof response.data.status === 'number') {
+        return response.data;
+    } else if (response.data && typeof (response.data as any).code === 'number') {
+        // 兼容旧的 code 模式 (如果需要)
+        // 将 code 映射到 status
+        return { ...response.data, status: (response.data as any).code === 200 ? 0 : (response.data as any).code };
+    }
+     else {
+      console.error("GetSummaryAnalysisAPI invalid response format:", response.data);
+      return { status: 1, message: "获取总结分析接口返回格式错误" };
+    }
+  } catch (error: any) {
+    console.error("Error calling GetSummaryAnalysisAPI:", error);
+     if (error.response && error.response.data) {
+      return error.response.data as GetSummaryAnalysisResType;
+    }
+    return { status: 1, message: error.message || "请求总结分析接口失败" };
   }
 }

@@ -1,165 +1,129 @@
-import Timeline from "@mui/lab/Timeline";
-import TimelineConnector from "@mui/lab/TimelineConnector";
-import TimelineContent from "@mui/lab/TimelineContent";
-import TimelineDot from "@mui/lab/TimelineDot";
-import TimelineItem from "@mui/lab/TimelineItem";
-import TimelineOppositeContent from "@mui/lab/TimelineOppositeContent";
-import TimelineSeparator from "@mui/lab/TimelineSeparator";
 import {
-  Typography,
-  useTheme
+  // Typography, // 可以移除，如果只在子组件中使用
+  useTheme // 保留 useTheme 如果子组件没用到
 } from "@mui/material";
-import { Card } from "antd";
-import { RadarChart } from "echarts/charts";
-import * as echarts from "echarts/core";
-import { CanvasRenderer } from "echarts/renderers";
-import { useEffect, useRef, useState } from "react";
+// import { Card, Empty } from "antd"; // 移除，已移到子组件
+// import { RadarChart, LineChart } from "echarts/charts"; // 移除
+// import * as echarts from "echarts/core"; // 移除
+// import {
+//   TooltipComponent,
+//   LegendComponent,
+//   GridComponent,
+//   DataZoomComponent,
+// } from "echarts/components"; // 移除
+// import { CanvasRenderer } from "echarts/renderers"; // 移除
+import { useEffect, useMemo, useState } from "react"; // 移除 useRef
 import { useNavigate } from "react-router";
 import {
-  GetSummaryAnalysisAPI,
-  GetUserTrainHistoryAPI,
-  UserTrainData,
+  GetPracticeHistoriesAPI,
+  PracticeHistory,
+  CharScore,
 } from "../../../api/train";
 import Navbar from "../../../components/Navbar";
 import styles from "./index.module.scss";
+import useAuthStore from "../../../store/auth";
+// 引入新组件
+import { RadarChartCard } from "./components/RadarChartCard";
+import { LineChartCard } from "./components/LineChartCard";
+import { HistoryTimelineCard } from "./components/HistoryTimelineCard";
 
-echarts.use([RadarChart, CanvasRenderer]);
+// 移除 ECharts 注册
+// echarts.use([...]);
 
-type dataType = {
-  method_score: number;
-  part_score: number;
-  struct_score: number;
-  shape_score: number;
+// SummaryDataType 定义可以保留，因为它用于 state 和计算
+type SummaryDataType = {
+  sa_score: number;
+  ya_score: number;
   sd_score: number;
-  total_score: number;
 };
 
-const HistoryItem = ({ data }: { data: UserTrainData }) => {
-  const getColor = (score: number) => {
-    if (score >= 90) {
-      return "success";
-    } else if (score >= 80) {
-      return "primary";
-    } else if (score >= 60) {
-      return "warning";
-    } else if (score == -1) {
-      return "inherit";
-    } else {
-      return "error";
-    }
-  };
-
-  return (
-    // <ListItem className="!p-0">
-    //   <ListItemButton>
-    //     <ListItemText
-    //       primary={
-    //         <Typography
-    //           style={{ color: getColor(data.userTrainData!.total_score!) }}
-    //         >
-    //           <strong>{data.userTrainData!.total_score}</strong>
-    //         </Typography>
-    //       }
-    //       secondary={data.time}
-    //     />
-    //   </ListItemButton>
-    // </ListItem>
-    <TimelineItem>
-      <TimelineOppositeContent color="text.secondary">
-        {data.time}
-      </TimelineOppositeContent>
-      <TimelineSeparator>
-        <TimelineDot color={getColor(data.userTrainData!.total_score!)} />
-        <TimelineConnector />
-      </TimelineSeparator>
-      <TimelineContent color={getColor(data.userTrainData!.total_score!)}>
-        <strong>{data.userTrainData!.total_score}</strong>
-      </TimelineContent>
-    </TimelineItem>
-  );
-};
+// 移除 HistoryItem 组件定义，已移到 HistoryTimelineCard.tsx
 
 const AnalysisPage = () => {
   const navigator = useNavigate();
-  const theme = useTheme();
-  const [data, setData] = useState<dataType>({
-    method_score: 0,
-    part_score: 0,
-    struct_score: 0,
-    shape_score: 0,
+  // const theme = useTheme(); // 如果子组件都用了自己的 useTheme，这里可以移除
+  const { userInfo } = useAuthStore();
+  const [data, setData] = useState<SummaryDataType>({
+    sa_score: 0,
+    ya_score: 0,
     sd_score: 0,
-    total_score: -1,
   });
-  const chartRef = useRef<HTMLDivElement>(null);
-  const [history, setHistory] = useState<UserTrainData[]>([]);
+  // 移除 chart refs
+  // const radarChartRef = useRef<HTMLDivElement>(null);
+  // const lineChartRef = useRef<HTMLDivElement>(null);
+  const [history, setHistory] = useState<PracticeHistory[]>([]);
+  const [isLoadingHistory, setIsLoadingHistory] = useState(true);
 
-  const getColor = (score: number) => {
-    if (score >= 90) {
-      return theme.palette.success.main;
-    } else if (score >= 80) {
-      return theme.palette.primary.main;
-    } else if (score >= 60) {
-      return theme.palette.warning.main;
-    } else if (score == -1) {
-      return theme.palette.text.primary;
-    } else {
-      return theme.palette.error.main;
-    }
-  };
+  // 移除 getColor，已移到 HistoryItem
 
-  useEffect(() => {
-    GetSummaryAnalysisAPI().then((res) => {
-      if (res.code === 200) {
-        for (const key in data) {
-          res.data![key] = parseFloat((res.data![key] * 100).toFixed(2));
+  // --- 计算加权平均分 (保持不变) ---
+  const calculatedScores = useMemo(() => {
+    // ...existing calculation logic...
+    let totalWeight = 0;
+    let weightedSaSum = 0;
+    let weightedYaSum = 0;
+    let weightedSdSum = 0;
+    let validCharCount = 0;
+
+    const reversedHistory = [...history].reverse();
+
+    reversedHistory.forEach((record, index) => {
+      if (!record.char_scores || record.char_scores.length === 0) return;
+      const weight = index + 1;
+      record.char_scores.forEach((charScore: CharScore) => {
+        if (charScore.score !== undefined && charScore.score > 0) {
+          validCharCount++;
+          totalWeight += weight;
+          if (typeof charScore.sim_sa === 'number') weightedSaSum += charScore.sim_sa * weight;
+          if (typeof charScore.sim_ya === 'number') weightedYaSum += charScore.sim_ya * weight;
+          if (typeof charScore.sim_sd === 'number') weightedSdSum += charScore.sim_sd * weight;
         }
-        setData(res.data as dataType);
-      }
+      });
     });
-    GetUserTrainHistoryAPI().then((res) => {
-      if (res.code === 200) {
-        setHistory(res.data!);
-      }
-    });
-  }, []);
 
-  useEffect(() => {
-    const chartInstance = echarts.init(chartRef.current!);
-    const option = {
-      radar: {
-        indicator: [
-          { name: "方法", max: 100 },
-          { name: "部位", max: 100 },
-          { name: "结构", max: 100 },
-          { name: "口型", max: 100 },
-          { name: "声调", max: 100 },
-        ],
-        center: ["50%", "55%"],
-      },
-      series: [
-        {
-          type: "radar",
-          data: [
-            {
-              value: [
-                data.method_score,
-                data.part_score,
-                data.struct_score,
-                data.shape_score,
-                data.sd_score,
-              ],
-              name: "得分",
-              itemStyle: {
-                color: theme.palette.primary.main,
-              },
-              areaStyle: {},
-            },
-          ],
-        },
-      ],
+    const avgSa = totalWeight > 0 ? (weightedSaSum / totalWeight) * 100 : 0;
+    const avgYa = totalWeight > 0 ? (weightedYaSum / totalWeight) * 100 : 0;
+    const avgSd = totalWeight > 0 ? (weightedSdSum / totalWeight) * 100 : 0;
+
+    return {
+      sa_score: parseFloat(avgSa.toFixed(1)),
+      ya_score: parseFloat(avgYa.toFixed(1)),
+      sd_score: parseFloat(avgSd.toFixed(1)),
     };
-    chartInstance.setOption(option);
-  }, [data]);
+  }, [history]);
+
+  // --- 获取历史记录 (保持不变) ---
+  useEffect(() => {
+    // ...existing data fetching logic...
+    setIsLoadingHistory(true);
+    const params: { patient_id?: string } = {};
+    GetPracticeHistoriesAPI(params).then((res) => {
+      if (res.status === 0 && res.histories) {
+        const sortedHistories = res.histories.sort((a, b) =>
+          new Date(a.created_at!).getTime() - new Date(b.created_at!).getTime()
+        );
+        setHistory(sortedHistories);
+      } else {
+        console.error("Failed to fetch practice histories:", res.message);
+        setHistory([]);
+      }
+      setIsLoadingHistory(false);
+    }).catch(() => {
+      setIsLoadingHistory(false);
+      setHistory([]);
+    });
+  }, [userInfo]);
+
+  // --- 更新 data state (保持不变) ---
+  useEffect(() => {
+    setData(calculatedScores);
+  }, [calculatedScores]);
+
+  // --- 移除渲染雷达图的 useEffect ---
+  // useEffect(() => { ... radar chart logic ... }, [...]);
+
+  // --- 移除渲染折线图的 useEffect ---
+  // useEffect(() => { ... line chart logic ... }, [...]);
 
   return (
     <div className="h-100vh flex flex-col">
@@ -167,26 +131,24 @@ const AnalysisPage = () => {
         <div>统计分析</div>
       </Navbar>
       <div className="h-full overflow-y-auto p-4">
-        <Card className={styles.card} title="总体分析">
-          <div className="h-full flex-around">
-            <div className="w-25% pl-4">
-              <Typography variant="h4" color={getColor(data.total_score)}>
-                {data.total_score != -1 && data.total_score}
-              </Typography>
-            </div>
-            <div className="h-full min-h-240px w-75%" ref={chartRef}></div>
-          </div>
-        </Card>
-        <Card className={styles.card} title="历史记录">
-          <Timeline position="alternate">
-            {history
-              .slice(0)
-              .reverse()
-              .map((item, index) => (
-                <HistoryItem key={index} data={item} />
-              ))}
-          </Timeline>
-        </Card>
+        {/* 使用 RadarChartCard 组件 */}
+        <RadarChartCard
+          data={data}
+          isLoading={isLoadingHistory}
+          hasHistory={history.length > 0}
+        />
+
+        {/* 使用 LineChartCard 组件 */}
+        <LineChartCard
+          history={history}
+          isLoading={isLoadingHistory}
+        />
+
+        {/* 使用 HistoryTimelineCard 组件 */}
+        <HistoryTimelineCard
+          history={history}
+          isLoading={isLoadingHistory}
+        />
       </div>
     </div>
   );
