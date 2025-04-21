@@ -1,13 +1,14 @@
 import Alert from "@mui/material/Alert";
 import CampaignOutlinedIcon from '@mui/icons-material/CampaignOutlined'; // 导入图标
 import { PullToRefresh } from "antd-mobile"; // 1. 导入 PullToRefresh
-import { ScrollView } from "../../components/ScrollView";
+// import { ScrollView } from "../../components/ScrollView"; // 不再需要 ScrollView
 import useAuthStore from "../../store/auth"; // 2. 导入 auth store
 import useTasksStore from "../../store/tasks"; // 2. 导入 tasks store
 import { PracticeArea } from "./components/PracticeArea";
 import { ProgressArea } from "./components/ProgressArea"; // 导入 ProgressArea
 import { SearchBar } from "./components/SearchBar";
 import { SwiperArea } from "./components/SwiperArea";
+import { PersonalizedTrainingArea } from "./components/PersonalizedTrainingArea"; // 导入 PersonalizedTrainingArea
 
 export const HomePage = () => {
   // 3. 获取 store 中的方法和用户信息
@@ -34,10 +35,11 @@ export const HomePage = () => {
   return (
     <div className="h-full flex flex-col">
       <SearchBar />
-      {/* 5. 将 PullToRefresh 包裹在 ScrollView 内部，并传入 onRefresh */}
-      <ScrollView className="flex-1"> {/* 让 ScrollView 占据剩余空间 */}
+      {/* 添加一个 div 作为可滚动容器 */}
+      <div className="flex-1 overflow-y-auto">
         <PullToRefresh onRefresh={handleRefresh}>
-          <div className="pb-4 px-4"> {/* 将内边距移到 PullToRefresh 的子元素上 */}
+          {/* 内容区域 */}
+          <div className="pb-4 px-4">
             <Alert
               severity="info"
               variant="outlined"
@@ -56,10 +58,11 @@ export const HomePage = () => {
               title: "语言发育迟缓需要做哪些康复训练"
             }]} />
             <ProgressArea className="mt-4" />
+            <PersonalizedTrainingArea className="mt-4" /> {/* 添加个性化训练入口 */}
             <PracticeArea className="mt-4" />
           </div>
         </PullToRefresh>
-      </ScrollView>
+      </div>
     </div>
   );
 };

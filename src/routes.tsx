@@ -22,7 +22,6 @@ import { SettingsPage } from "./pages/settings"; // 引入SettingsPage
 import { AboutSettingsPage } from "./pages/settings/about";
 import { AccountSettingsPage } from "./pages/settings/account";
 import { ChangePasswordPage } from "./pages/settings/changePassword"; // 导入修改密码页面
-import VoiceSettingsPage from "./pages/settings/voice"; // 导入语音设置页面
 import useAuthStore from "./store/auth";
 import TrainDetailPage from "./pages/features/train/detail";
 import AnalysisPage from "./pages/features/analysis";
@@ -30,7 +29,8 @@ import PatientsPage from "./pages/features/patients"; // 导入 PatientPage
 import PatientDetailPage from "./pages/features/patients/detail"; // 导入 PatientDetailPage
 import CorpusPage from "./pages/features/corpus"; // 导入 CorpusPage
 import TasksPage from "./pages/features/tasks"; // 导入 TasksPage
-import FavoritePage from "./pages/features/favorite"; // 导入 FavoritePage
+import PersonalizedTrainingPage from "./pages/features/personalized";
+import FavoritePage from "./pages/features/favorite";
 
 const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
   const { isAuthenticated } = useAuthStore();
@@ -117,10 +117,26 @@ const AnimatedRoutes = () => {
               }
             />
             <Route
+              path="/personalized"
+              element={
+                <ProtectedRoute>
+                  <PersonalizedTrainingPage />
+                </ProtectedRoute>
+              }
+            />
+            <Route
               path="/analysis"
               element={
                 <ProtectedRoute>
                   <AnalysisPage />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/favorite"
+              element={
+                <ProtectedRoute>
+                  <FavoritePage />
                 </ProtectedRoute>
               }
             />
@@ -157,15 +173,6 @@ const AnimatedRoutes = () => {
                 </ProtectedRoute>
               }
             />
-             {/* 添加语音设置路由 */}
-            <Route
-              path="/settings/voice"
-              element={
-                <ProtectedRoute>
-                  <VoiceSettingsPage />
-                </ProtectedRoute>
-              }
-            />
             <Route
               path="/profile/detail" // 添加 profile detail 路由
               element={
@@ -197,15 +204,6 @@ const AnimatedRoutes = () => {
               element={
                 <ProtectedRoute>
                   <CorpusPage />
-                </ProtectedRoute>
-              }
-            />
-            {/* 添加收藏夹路由 */}
-            <Route
-              path="/favorite"
-              element={
-                <ProtectedRoute>
-                  <FavoritePage />
                 </ProtectedRoute>
               }
             />

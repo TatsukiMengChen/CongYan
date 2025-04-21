@@ -183,6 +183,7 @@ export type PracticeHistory = {
   uuid?: string;
   patient_id?: number;
   text_uuid?: string;
+  target_text?: string; // 目标文本
   patient_text?: string; // 用户读出的文本
   score?: number; // 总分 (0-100)
   char_scores?: CharScore[]; // 详细字符分数
@@ -221,6 +222,61 @@ export const GetPracticeHistoriesAPI = async (params?: GetPracticeHistoriesReqTy
     return { status: 1, message: error.message || "请求历史记录接口失败" };
   }
 }
+
+// --- Personalized Practice Text API ---
+
+/**
+ * GetPersonalizedPracticeTextAPI 的请求参数类型
+ */
+export type GetPersonalizedPracticeTextReqType = {
+  practice_pinyin: string; // e.g., "yu1,lin2,fei2,a1"
+}
+
+/**
+ * GetPersonalizedPracticeTextAPI 的响应类型
+ */
+export type GetPersonalizedPracticeTextResType = {
+  status: number; // 0 for success
+  uuid?: string; // The UUID of the generated practice text
+  message?: string;
+}
+
+/**
+ * 根据提供的拼音列表生成个性化练习文本。
+ * @param params 包含 practice_pinyin 的参数对象
+ * @returns 包含生成文本 UUID 的响应。
+ */
+export const GetPersonalizedPracticeTextAPI = async (
+  params: GetPersonalizedPracticeTextReqType
+): Promise<GetPersonalizedPracticeTextResType> => {
+  console.log("调用生成个性化练习文本接口, params:", params);
+  try {
+    const response = await http.get<GetPersonalizedPracticeTextResType>(
+      '/personalize-practice-text',
+      { params }
+    );
+    console.log("生成个性化练习文本接口响应:", response.data);
+    if (response.data && typeof response.data.status === 'number') {
+      return response.data;
+    } else {
+      console.error("生成个性化练习文本接口返回数据格式错误:", response.data);
+      return {
+        status: 1,
+        message: "生成个性化练习文本接口返回数据格式错误"
+      };
+    }
+  } catch (error: any) {
+    console.error("生成个性化练习文本接口错误:", error);
+    if (error.response && error.response.data) {
+      return error.response.data as GetPersonalizedPracticeTextResType;
+    }
+    return {
+      status: 1,
+      message: error.message || "生成个性化练习文本失败"
+    };
+  }
+};
+
 
 // --- 旧的历史记录 API (GetUserTrainHistoryAPI) ---
 // 可以注释掉或删除以下与旧 API 相关的类型和函数

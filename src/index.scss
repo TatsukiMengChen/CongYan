@@ -43,4 +43,9 @@ img {
 .adm-pull-to-refresh {
   height: 100%;
   overflow: hidden;
+
+  .adm-pull-to-refresh-content {
+    height: 100%;
+    overflow-y: auto;
+  }
 }
