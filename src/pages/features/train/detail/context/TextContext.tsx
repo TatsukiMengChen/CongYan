@@ -84,7 +84,7 @@ export const TextProvider: React.FC<{ children: React.ReactNode }> = ({
       try {
         // Call API imported from tts.ts
         const voice = localStorage.getItem("sentenceTTSVoice") || "longwan"; // 默认值
-        const res = await GetTTSAPI(text);
+        const res = await GetTTSAPI(text, voice);
         // 更新检查逻辑以匹配新的 API 响应
         if (res.status === 0 && res.audio) {
           // 假设 res.audio 是一个 Base64 编码的音频数据
