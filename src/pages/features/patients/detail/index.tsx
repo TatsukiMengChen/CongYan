@@ -1,11 +1,11 @@
-import { ExclamationCircleOutlined, PlusOutlined, LineChartOutlined } from '@ant-design/icons'; // 引入 LineChartOutlined
+import { ExclamationCircleOutlined, PlusOutlined, LineChartOutlined } from '@ant-design/icons';
 import { Button, message, Modal, Spin, Typography, Empty } from 'antd';
 import React, { useState, useEffect, useCallback } from 'react';
 import { useLocation, useNavigate } from 'react-router';
-// 引入 DeletePracticeTaskAPI
 import { PatientInfo, UnbindPatientAPI, GetPracticeTasksAPI, PracticeTaskInfo, DeletePracticeTaskAPI } from '../../../../api/patients';
 import { GetCorpusAPI, CorpusInfo } from '../../../../api/text';
 import Navbar from '../../../../components/Navbar';
+import { ScrollView } from '../../../../components/ScrollView';
 import PatientInfoCard from './components/PatientInfoCard';
 import PatientTaskList from './components/PatientTaskList';
 import AssignTaskModal from './components/AssignTaskModal';
@@ -214,44 +214,48 @@ const PatientDetailPage: React.FC = () => {
 
   // 主页面渲染
   return (
-    <>
+    // 使用 flex 布局使内容区域填充剩余空间
+    <div className="flex flex-col h-screen">
       <Navbar onBack={handleBack}>病人详情 - {patient.username}</Navbar>
-      <div style={{ padding: '15px', paddingBottom: '80px' }}>
-        <PatientInfoCard patient={patient} />
+      {/* 添加一个 div 来控制 ScrollView 的高度 */}
+      <div className="flex-grow overflow-hidden"> {/* flex-grow 使其填充剩余空间, overflow-hidden 防止内容溢出 */}
+        <ScrollView className="py-4 px-4"> {/* ScrollView 内部可以滚动 */}
+          <PatientInfoCard patient={patient} />
 
-        {/* 传递 onDeleteTask 给任务列表组件 */}
-        <PatientTaskList
-          tasks={tasks}
-          // 可以传递 deletingTask 状态给列表项以显示加载指示，但目前省略
-          loading={loadingTasks || deletingTask} // 列表加载中或正在删除任务时显示 Spin
-          error={tasksError}
-          onTaskClick={handleTaskClick}
-          onDeleteTask={handleDeleteTask} // 传递删除处理函数
-        />
+          {/* 传递 onDeleteTask 给任务列表组件 */}
+          <PatientTaskList
+            tasks={tasks}
+            // 可以传递 deletingTask 状态给列表项以显示加载指示，但目前省略
+            loading={loadingTasks || deletingTask} // 列表加载中或正在删除任务时显示 Spin
+            error={tasksError}
+            onTaskClick={handleTaskClick}
+            onDeleteTask={handleDeleteTask} // 传递删除处理函数
+          />
 
-        {/* 操作按钮区域 (修改：添加查看统计分析按钮) */}
-        <div style={{ marginTop: '30px', display: 'flex', flexDirection: 'column', gap: '15px' }}>
-          {/* 新增：查看病人整体统计分析按钮 */}
-          <Button
-            type="default" // 或者 primary，根据设计调整
-            icon={<LineChartOutlined />}
-            onClick={navigateToPatientAnalysis}
-            block
-          >
-            查看统计分析
-          </Button>
-          <Button
-            type="primary"
-            icon={<PlusOutlined />}
-            onClick={showAssignModal} // 打开分配任务模态框
-            block
-          >
-            分配新任务
-          </Button>
-          <Button type="primary" danger onClick={confirmUnbind} loading={unbinding} block>
-            解除绑定
-          </Button>
-        </div>
+          {/* 操作按钮区域 (修改：添加查看统计分析按钮) */}
+          <div style={{ marginTop: '30px', display: 'flex', flexDirection: 'column', gap: '15px' }}>
+            {/* 新增：查看病人整体统计分析按钮 */}
+            <Button
+              type="default" // 或者 primary，根据设计调整
+              icon={<LineChartOutlined />}
+              onClick={navigateToPatientAnalysis}
+              block
+            >
+              查看统计分析
+            </Button>
+            <Button
+              type="primary"
+              icon={<PlusOutlined />}
+              onClick={showAssignModal} // 打开分配任务模态框
+              block
+            >
+              分配新任务
+            </Button>
+            <Button type="primary" danger onClick={confirmUnbind} loading={unbinding} block>
+              解除绑定
+            </Button>
+          </div>
+        </ScrollView>
       </div>
 
       {/* 分配任务模态框 (不变) */}
@@ -298,7 +302,7 @@ const PatientDetailPage: React.FC = () => {
           <Empty description="无法加载语料内容" /> // 理论上不应出现，除非API成功但没数据
         )}
       </Modal>
-    </>
+    </div> // 关闭 flex 容器
   );
 };
 
