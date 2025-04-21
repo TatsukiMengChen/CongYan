@@ -67,9 +67,9 @@ export const TextProvider: React.FC<{ children: React.ReactNode }> = ({
     }
     setCurrentAudio(audio);
     audio.play().catch(err => {
-        console.error("Error playing audio:", err);
-        setIsPlaying(false); // 如果播放失败，重置状态
-        message.error("播放音频失败");
+      console.error("Error playing audio:", err);
+      setIsPlaying(false); // 如果播放失败，重置状态
+      message.error("播放音频失败");
     });
     setIsPlaying(true);
   }, [currentAudio]); // 依赖 currentAudio
@@ -83,6 +83,7 @@ export const TextProvider: React.FC<{ children: React.ReactNode }> = ({
       setIsFetchingAudio(true); // 开始获取音频
       try {
         // Call API imported from tts.ts
+        const voice = localStorage.getItem("sentenceTTSVoice") || "longwan"; // 默认值
         const res = await GetTTSAPI(text);
         // 更新检查逻辑以匹配新的 API 响应
         if (res.status === 0 && res.audio) {
@@ -122,7 +123,8 @@ export const TextProvider: React.FC<{ children: React.ReactNode }> = ({
       setIsFetchingAudio(true); // 开始获取音频
       try {
         // Call API imported from tts.ts
-        const res = await GetTTSAPI(char);
+        const voice = localStorage.getItem("characterTTSVoice") || "longwan"; // 默认值
+        const res = await GetTTSAPI(char, voice);
         // 更新检查逻辑以匹配新的 API 响应
         if (res.status === 0 && res.audio) {
           // 假设 res.audio 是一个 Base64 编码的音频数据

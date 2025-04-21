@@ -45,6 +45,8 @@ export const SettingsPage = () => {
       <ScrollView >
         <OptionButton title="账号管理" onClick={() => navigator("account")} />
         <Divider />
+        <OptionButton title="语音模型选择" onClick={() => navigator("voice")} /> {/* 新增 */}
+        <Divider />
         <OptionButton title="关于聪言" onClick={() => navigator("about")} />
         <div className="px-5 py-2 color-gray">隐私</div>
         <OptionButton title="个人信息收集清单" />

@@ -1,0 +1,22 @@
+[
+  { "name": "龙婉", "model": "cosyvoice-v1", "voice": "longwan", "useCase": "语音助手、导航播报、聊天数字人", "language": "中文普通话", "sampleRate": 22050, "format": "mp3", "audioPreviewUrl": "/voice/龙婉.mp3" },
+  { "name": "龙橙", "model": "cosyvoice-v1", "voice": "longcheng", "useCase": "语音助手、导航播报、聊天数字人", "language": "中文普通话", "sampleRate": 22050, "format": "mp3", "audioPreviewUrl": "/voice/龙橙.wav" },
+  { "name": "龙华", "model": "cosyvoice-v1", "voice": "longhua", "useCase": "语音助手、导航播报、聊天数字人", "language": "中文普通话", "sampleRate": 22050, "format": "mp3", "audioPreviewUrl": "/voice/龙华.wav" },
+  { "name": "龙小淳", "model": "cosyvoice-v1", "voice": "longxiaochun", "useCase": "语音助手、导航播报、聊天数字人", "language": "中文+英文", "sampleRate": 22050, "format": "mp3", "audioPreviewUrl": "/voice/龙小淳.mp3" },
+  { "name": "龙小夏", "model": "cosyvoice-v1", "voice": "longxiaoxia", "useCase": "语音助手、聊天数字人", "language": "中文", "sampleRate": 22050, "format": "mp3", "audioPreviewUrl": "/voice/龙小夏.mp3" },
+  { "name": "龙小诚", "model": "cosyvoice-v1", "voice": "longxiaocheng", "useCase": "语音助手、导航播报、聊天数字人", "language": "中文+英文", "sampleRate": 22050, "format": "mp3", "audioPreviewUrl": "/voice/龙小诚.mp3" },
+  { "name": "龙小白", "model": "cosyvoice-v1", "voice": "longxiaobai", "useCase": "聊天数字人、有声书、语音助手", "language": "中文", "sampleRate": 22050, "format": "mp3", "audioPreviewUrl": "/voice/龙小白.mp3" },
+  { "name": "龙老铁", "model": "cosyvoice-v1", "voice": "longlaotie", "useCase": "新闻播报、有声书、语音助手、直播带货、导航播报", "language": "中文东北口音", "sampleRate": 22050, "format": "mp3", "audioPreviewUrl": "/voice/龙老铁.mp3" },
+  { "name": "龙书", "model": "cosyvoice-v1", "voice": "longshu", "useCase": "有声书、语音助手、导航播报、新闻播报、智能客服", "language": "中文", "sampleRate": 22050, "format": "mp3", "audioPreviewUrl": "/voice/龙书.mp3" },
+  { "name": "龙硕", "model": "cosyvoice-v1", "voice": "longshuo", "useCase": "语音助手、导航播报、新闻播报、客服催收", "language": "中文", "sampleRate": 22050, "format": "mp3", "audioPreviewUrl": "/voice/龙硕.mp3" },
+  { "name": "龙婧", "model": "cosyvoice-v1", "voice": "longjing", "useCase": "语音助手、导航播报、新闻播报、客服催收", "language": "中文", "sampleRate": 22050, "format": "mp3", "audioPreviewUrl": "/voice/龙婧.mp3" },
+  { "name": "龙妙", "model": "cosyvoice-v1", "voice": "longmiao", "useCase": "客服催收、导航播报、有声书、语音助手", "language": "中文", "sampleRate": 22050, "format": "mp3", "audioPreviewUrl": "/voice/龙妙.mp3" },
+  { "name": "龙悦", "model": "cosyvoice-v1", "voice": "longyue", "useCase": "语音助手、诗词朗诵、有声书朗读、导航播报、新闻播报、客服催收", "language": "中文", "sampleRate": 22050, "format": "mp3", "audioPreviewUrl": "/voice/龙悦.mp3" },
+  { "name": "龙媛", "model": "cosyvoice-v1", "voice": "longyuan", "useCase": "有声书、语音助手、聊天数字人", "language": "中文", "sampleRate": 22050, "format": "mp3", "audioPreviewUrl": "/voice/龙媛.mp3" },
+  { "name": "龙飞", "model": "cosyvoice-v1", "voice": "longfei", "useCase": "会议播报、新闻播报、有声书", "language": "中文", "sampleRate": 22050, "format": "mp3", "audioPreviewUrl": "/voice/龙飞.mp3" },
+  { "name": "龙杰力豆", "model": "cosyvoice-v1", "voice": "longjielidou", "useCase": "新闻播报、有声书、聊天助手", "language": "中文+英文", "sampleRate": 22050, "format": "mp3", "audioPreviewUrl": "/voice/龙杰力豆.mp3" },
+  { "name": "龙彤", "model": "cosyvoice-v1", "voice": "longtong", "useCase": "有声书、导航播报、聊天数字人", "language": "中文", "sampleRate": 22050, "format": "mp3", "audioPreviewUrl": "/voice/龙彤.mp3" },
+  { "name": "龙祥", "model": "cosyvoice-v1", "voice": "longxiang", "useCase": "新闻播报、有声书、导航播报", "language": "中文", "sampleRate": 22050, "format": "mp3", "audioPreviewUrl": "/voice/龙祥.mp3" },
+  { "name": "Stella", "model": "cosyvoice-v1", "voice": "loongstella", "useCase": "语音助手、直播带货、导航播报、客服催收、有声书", "language": "中文+英文", "sampleRate": 22050, "format": "mp3", "audioPreviewUrl": "/voice/Stella.mp3" },
+  { "name": "Bella", "model": "cosyvoice-v1", "voice": "loongbella", "useCase": "语音助手、客服催收、新闻播报、导航播报", "language": "中文", "sampleRate": 22050, "format": "mp3", "audioPreviewUrl": "/voice/Bella.mp3" }
+]

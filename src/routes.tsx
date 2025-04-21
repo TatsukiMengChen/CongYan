@@ -22,6 +22,7 @@ import { SettingsPage } from "./pages/settings"; // 引入SettingsPage
 import { AboutSettingsPage } from "./pages/settings/about";
 import { AccountSettingsPage } from "./pages/settings/account";
 import { ChangePasswordPage } from "./pages/settings/changePassword"; // 导入修改密码页面
+import VoiceSettingsPage from "./pages/settings/voice"; // 导入语音设置页面
 import useAuthStore from "./store/auth";
 import TrainDetailPage from "./pages/features/train/detail";
 import AnalysisPage from "./pages/features/analysis";
@@ -153,6 +154,15 @@ const AnimatedRoutes = () => {
               element={
                 <ProtectedRoute>
                   <ChangePasswordPage />
+                </ProtectedRoute>
+              }
+            />
+             {/* 添加语音设置路由 */}
+            <Route
+              path="/settings/voice"
+              element={
+                <ProtectedRoute>
+                  <VoiceSettingsPage />
                 </ProtectedRoute>
               }
             />

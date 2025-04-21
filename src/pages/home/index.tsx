@@ -46,7 +46,15 @@ export const HomePage = () => {
             >
               公告内容
             </Alert>
-            <SwiperArea className="mt-4" />
+            <SwiperArea className="mt-4" items={[{
+              imageUrl: "/images/cover-1.png",
+              linkUrl: "https://mbd.baidu.com/newspage/data/dtlandingsuper?nid=dt_3823228988348180275&sourceFrom=search_s",
+              title: "儿童语言障碍康复训练全攻略"
+            }, {
+              imageUrl: "/images/cover-2.png",
+              linkUrl: "https://v.youku.com/video?vid=XNjE1NzY5MjgzMg",
+              title: "语言发育迟缓需要做哪些康复训练"
+            }]} />
             <ProgressArea className="mt-4" />
             <PracticeArea className="mt-4" />
           </div>

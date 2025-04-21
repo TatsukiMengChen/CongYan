@@ -35,7 +35,7 @@ export type GetTTSRequest = {
  * @param voice 发音人，默认为 "longxiaochun"
  * @returns 返回 API 的原始响应或错误对象
  */
-export const GetTTSAPI = async (text: string, voice: string = "longxiaochun"): Promise<GetTTSResponse> => {
+export const GetTTSAPI = async (text: string, voice: string = "longwan"): Promise<GetTTSResponse> => {
   try {
     const requestData: GetTTSRequest = {
       text: text,
