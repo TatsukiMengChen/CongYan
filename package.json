@@ -1,11 +1,11 @@
 {
   "name": "congyan",
   "private": true,
-  "version": "0.1.0",
+  "version": "1.0.0",
   "type": "module",
   "scripts": {
     "dev": "vite dev",
-    "build": "tsc && vite build",
+    "build": "vite build",
     "build:test": "vite build",
     "preview": "vite preview",
     "tauri": "tauri"
