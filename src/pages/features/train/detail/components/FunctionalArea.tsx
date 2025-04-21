@@ -77,7 +77,7 @@ export const FunctionalArea = ({ text, textUuid, isTaskFinished }: FunctionalAre
       // 等待 WebSocket 连接建立并发送令牌
       await connectAndStartStreaming();
       // 如果 connectAndStartStreaming 解析成功，则连接已打开且令牌已发送
-      message.success("连接成功，请开始说话"); // 现在显示成功消息
+      message.success("请开始说话"); // 现在显示成功消息
       // 现在启动录音器
       await startRecording();
       // 如果 startRecording 失败，useMediaRecorder 中的 onError 处理程序应触发清理

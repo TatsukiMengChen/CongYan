@@ -259,15 +259,15 @@ export const DysarthriaText = ({
 
 
       {/* Import Tooltip at the top of the file: import { Tooltip } from 'antd'; */}
-      <Tooltip title="该评分仅适用于中风、脑瘫等患者">
+      <Tooltip title="AI 评估，仅供参考">
         <span
           className="absolute right-1 bottom-0 cursor-help" // Added cursor-help for better UX
         >
-          AI 评估：
+          清晰度：
           <strong
         style={{ color: getColor(result.intelligibility_score ?? 0) }}>
         {/* Show calculated score (0.0 if calculated), or N/A if no text selected */}
-        {result.intelligibility_score ? result.intelligibility_score.toFixed(2) : "0.00"} {/* Ensure score is formatted */}
+        {result.intelligibility_score >= 0 ? result.intelligibility_score.toFixed(2) : "无"} {/* Ensure score is formatted */}
           </strong>
         </span>
       </Tooltip>

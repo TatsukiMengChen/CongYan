@@ -179,7 +179,7 @@ export const useWebSocketASR = ({
         wsRef.current = new WebSocket(wsUrl);
         wsRef.current.binaryType = 'arraybuffer'; // 确保接收和发送的是 ArrayBuffer
       } catch (error) {
-        message.error("创建 WebSocket 连接失败");
+        message.error("语音服务连接失败");
         setIsAnalyzing(false);
         connectionPromiseRef.current = null;
         reject(error);
@@ -302,7 +302,7 @@ export const useWebSocketASR = ({
       currentWs.onerror = (event) => {
         // ... (onerror 逻辑不变) ...
         message.destroy();
-        message.error("WebSocket 连接出错");
+        message.error("语音服务连接出错");
         console.error("WebSocket error:", event); // 保留错误日志
         if (connectionPromiseRef.current) {
           connectionPromiseRef.current.reject(new Error("WebSocket connection error"));
@@ -316,7 +316,7 @@ export const useWebSocketASR = ({
         // console.log("WebSocket connection closed. Code:", event.code, "Reason:", event.reason, "wasAnalyzing:", isAnalyzing); // 移除日志
         message.destroy();
         if (connectionPromiseRef.current) {
-          message.error("WebSocket 连接意外关闭");
+          message.error("语音服务连接意外中断");
           connectionPromiseRef.current.reject(new Error(`WebSocket closed before opening: ${event.code} ${event.reason}`));
           connectionPromiseRef.current = null;
         }
@@ -376,7 +376,7 @@ export const useWebSocketASR = ({
         // 注意: cleanupWebSocket 将由 onmessage (recording-saved/task-failed) 或 onclose/onerror 调用
       } catch (error) {
         console.error("Error sending 'finish' message:", error); // 保留错误日志
-        message.error("发送结束信号时出错");
+        message.error("网络连接异常");
         cleanupWebSocket(); // 如果发送 'finish' 失败，立即清理
       }
     } else {
