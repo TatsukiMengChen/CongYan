@@ -1,22 +1,15 @@
-import PauseCircleIcon from "@mui/icons-material/PauseCircle";
-import PlayCircleIcon from "@mui/icons-material/PlayCircle";
 import {
-  CircularProgress,
-  Divider,
-  IconButton,
-  Typography,
-  useTheme,
+  useTheme
 } from "@mui/material";
 import { message } from "antd";
-import { Skeleton } from "antd-mobile";
-import Popup from "antd-mobile/es/components/popup";
-import { useState, useMemo } from "react";
+import { useMemo, useState } from "react";
 import {
   GetHanziPhoneticsAPI,
   HanziPhonetics,
 } from "../../../../../api/hanzi";
-import { DysarthriaResult, CharScore } from "../../../../../api/train"; // 引入 CharScore
+import { DysarthriaResult } from "../../../../../api/train"; // 引入 CharScore
 import { useTextContext } from "../context/TextContext";
+import { CharacterDetailPopup } from "./CharacterDetailPopup"; // Import the new component
 
 // Helper function to extract Chinese characters
 const getChineseChars = (text: string): string[] => {
@@ -57,7 +50,7 @@ export const DysarthriaText = ({
   selectedText: string;
 }) => {
   const theme = useTheme();
-  const [visible, setVisible] = useState(false);
+  const [isPopupVisible, setIsPopupVisible] = useState(false);
   // 更新 detail state 的初始值
   const [detail, setDetail] = useState<DetailState>({
     char: "",
@@ -143,8 +136,18 @@ export const DysarthriaText = ({
     }
   };
 
+  // Get audio functions/state from context
+  const {
+    isPlaying,
+    setIsPlaying,
+    playAudio,
+    getCharAudio,
+    currentAudio,
+    isFetchingAudio,
+  } = useTextContext();
+
   const handleShowDetail = (char: string, indexInSelected: number) => {
-    setVisible(true);
+    setIsPopupVisible(true);
     let displayScore = 0;
     let sim_sa: number | null = null;
     let sim_ya: number | null = null;
@@ -186,25 +189,35 @@ export const DysarthriaText = ({
     });
   };
 
-  const {
-    isPlaying,
-    setIsPlaying,
-    playAudio,
-    getCharAudio,
-    currentAudio,
-    isFetchingAudio,
-  } = useTextContext();
-
-  const handlePlayCharAudio = () => {
-    if (isFetchingAudio) return;
+  // Define handlers to pass to the popup
+  const handlePlayRequest = () => {
+    if (!detail.char || isFetchingAudio) return; // Prevent playing if no char or already fetching
     getCharAudio(detail.char).then((audio) => {
       if (audio) {
-        playAudio(audio);
+        playAudio(audio); // playAudio handles setting isPlaying=true
       } else {
-        console.error("Failed to get audio for char:", detail.char);
+        // Error handled within getCharAudio/playAudio, maybe reset state here if needed
         setIsPlaying(false);
       }
     });
+  };
+
+  const handleStopRequest = () => {
+    if (currentAudio) {
+      currentAudio.pause();
+    }
+    setIsPlaying(false);
+  };
+
+  const handleClosePopup = () => {
+    setIsPopupVisible(false);
+    // Optionally reset phonetics info when closing
+    // setPhoneticsInfo(null);
+    // Stop audio if playing when popup closes
+    if (isPlaying && currentAudio) {
+        currentAudio.pause();
+        setIsPlaying(false);
+    }
   };
 
   return (
@@ -243,158 +256,20 @@ export const DysarthriaText = ({
           {calculatedTotalScore !== null ? calculatedTotalScore.toFixed(1) : "N/A"}
         </strong>
       </span>
-      <Popup
-        visible={visible}
-        onMaskClick={() => {
-          setVisible(false);
-          setPhoneticsInfo(null);
-        }}
-        bodyStyle={{
-          borderTopLeftRadius: "12px",
-          borderTopRightRadius: "12px",
-          minHeight: "40vh",
-        }}
-      >
-        {visible && (
-          <div className="p-4">
-            <Typography variant="h5">
-              <div className="mb--1">
-                <strong>
-                  {isFetchingPhonetics ? (
-                    <Skeleton.Title animated />
-                  ) : (
-                    phoneticsInfo?.pinyin_with_tone_mark ?? "..."
-                  )}
-                </strong>
-              </div>
-              <div>
-                <strong>
-                  <span>{detail.char}</span>
-                  <IconButton
-                    className="!bg-white dark:!bg-dark-4"
-                    color="primary"
-                    disabled={isFetchingAudio || isFetchingPhonetics}
-                    onClick={() => {
-                      if (isPlaying) {
-                        setIsPlaying(false);
-                        currentAudio?.pause();
-                      } else {
-                        handlePlayCharAudio();
-                      }
-                    }}
-                    sx={{
-                      width: "8px",
-                      height: "8px",
-                      marginLeft: "10px",
-                      marginBottom: "5px",
-                      boxShadow: "rgba(99, 99, 99, 0.2) 0px 2px 8px 0px",
-                      padding: isFetchingAudio ? '4px' : '8px'
-                    }}
-                  >
-                    {isFetchingAudio ? (
-                      <CircularProgress size={20} />
-                    ) : isPlaying ? (
-                      <PauseCircleIcon color="primary" fontSize="large" />
-                    ) : (
-                      <PlayCircleIcon color="action" fontSize="large" />
-                    )}
-                  </IconButton>
-                </strong>
-              </div>
-            </Typography>
-            <Divider />
-            <Typography variant="h6">
-              <strong>分析结果：</strong>
-            </Typography>
-            <Typography variant="body1">
-              <strong>总得分：</strong>
-              {/* 显示来自 detail state 的主分数 (0-100) */}
-              {detail.score !== null ? detail.score.toFixed(1) : "无"}
-            </Typography>
-            {/* 显示声母、韵母、声调相似度得分 */}
-            <Typography variant="body1">
-              <strong>声母得分：</strong>
-              {detail.sim_sa !== null ? detail.sim_sa.toFixed(1) : "无"}
-            </Typography>
-            <Typography variant="body1">
-              <strong>韵母得分：</strong>
-              {detail.sim_ya !== null ? detail.sim_ya.toFixed(1) : "无"}
-            </Typography>
-            <Typography variant="body1">
-              <strong>声调得分：</strong>
-              {detail.sim_sd !== null ? detail.sim_sd.toFixed(1) : "无"}
-            </Typography>
-            {isFetchingPhonetics ? (
-              <>
-                <Skeleton.Paragraph lineCount={3} animated />
-              </>
-            ) : phoneticsInfo ? (
-              <>
-                {/* 标准发音信息部分保持不变 */}
-                <Typography variant="body1">
-                  <strong>标准声母：</strong>
-                  {phoneticsInfo.shengmu || "无"}
-                </Typography>
-                <Typography variant="body1">
-                  <strong>标准韵母：</strong>
-                  {phoneticsInfo.yunmu || "无"}
-                </Typography>
-                <Typography variant="body1">
-                  <strong>标准声调：</strong>
-                  {phoneticsInfo.yindiao !== undefined ? `第 ${phoneticsInfo.yindiao} 声` : "N/A"}
-                </Typography>
-              </>
-            ) : (
-              <Typography variant="body2" color="textSecondary">
-                未能加载标准发音信息。
-              </Typography>
-            )}
-            <Divider />
-            <Typography variant="h6">
-              <strong>发音详情：</strong>
-            </Typography>
-            {isFetchingPhonetics ? (
-              <Skeleton.Paragraph lineCount={5} animated />
-            ) : phoneticsInfo ? (
-              <div>
-                <Typography variant="body1">
-                  <strong>声母：</strong>
-                  {phoneticsInfo.shengmu || "无"}
-                </Typography>
-                {phoneticsInfo.shengmu_fayin_buwei && (
-                  <Typography variant="body2">
-                    <strong>发音部位：</strong>
-                    {phoneticsInfo.shengmu_fayin_buwei}
-                  </Typography>
-                )}
-                {phoneticsInfo.shengmu_fayin_fangshi && (
-                  <Typography variant="body2">
-                    <strong>发音方法：</strong>
-                    {phoneticsInfo.shengmu_fayin_fangshi}
-                  </Typography>
-                )}
-                <Typography variant="body1">
-                  <strong>韵母：</strong>
-                  {phoneticsInfo.yunmu || "无"}
-                </Typography>
-                {phoneticsInfo.yunmu_jiegou && (
-                  <Typography variant="body2">
-                    <strong>韵母结构：</strong>
-                    {phoneticsInfo.yunmu_jiegou}
-                  </Typography>
-                )}
-                <Typography variant="body1">
-                  <strong>音调：</strong>第 {phoneticsInfo.yindiao} 声
-                </Typography>
-              </div>
-            ) : (
-              <Typography variant="body2" color="textSecondary">
-                未能加载发音详情。
-              </Typography>
-            )}
-          </div>
-        )}
-      </Popup>
+
+      {/* Render the CharacterDetailPopup component */}
+      <CharacterDetailPopup
+        visible={isPopupVisible}
+        onClose={handleClosePopup}
+        detail={detail}
+        phoneticsInfo={phoneticsInfo}
+        isFetchingPhonetics={isFetchingPhonetics}
+        // Pass audio state and handlers from context/local functions
+        isAudioPlaying={isPlaying}
+        isAudioLoading={isFetchingAudio}
+        onPlayAudio={handlePlayRequest}
+        onStopAudio={handleStopRequest}
+      />
     </div>
   );
 };

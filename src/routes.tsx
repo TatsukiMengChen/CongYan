@@ -29,6 +29,7 @@ import PatientsPage from "./pages/features/patients"; // 导入 PatientPage
 import PatientDetailPage from "./pages/features/patients/detail"; // 导入 PatientDetailPage
 import CorpusPage from "./pages/features/corpus"; // 导入 CorpusPage
 import TasksPage from "./pages/features/tasks"; // 导入 TasksPage
+import FavoritePage from "./pages/features/favorite"; // 导入 FavoritePage
 
 const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
   const { isAuthenticated } = useAuthStore();
@@ -186,6 +187,15 @@ const AnimatedRoutes = () => {
               element={
                 <ProtectedRoute>
                   <CorpusPage />
+                </ProtectedRoute>
+              }
+            />
+            {/* 添加收藏夹路由 */}
+            <Route
+              path="/favorite"
+              element={
+                <ProtectedRoute>
+                  <FavoritePage />
                 </ProtectedRoute>
               }
             />

@@ -44,7 +44,7 @@ export const FunctionButtons: React.FC = () => {
         <FunctionButton
           icon={<BookOutlinedIcon />}
           title="我的收藏"
-          onClick={() => navigator("/collections")} // 确保导航到正确的路径
+          onClick={() => navigator("/favorite")} // 确保导航到正确的路径
         />
         {userInfo?.user_role === 'doctor' && (
           <FunctionButton
