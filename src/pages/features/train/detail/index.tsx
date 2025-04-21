@@ -1,11 +1,12 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useMemo } from "react"; // Add useMemo
 import { useLocation } from "react-router";
 import { TextProvider } from "./context/TextContext";
 import { NavArea } from "./components/NavArea";
 import { TextArea } from "./components/TextArea";
 import { FunctionalArea } from "./components/FunctionalArea";
-import { GetCorpusAPI } from "../../../../api/text"; // 假设 CorpusInfo 包含 uuid
+import { GetCorpusAPI } from "../../../../api/text";
 import { Skeleton } from "antd-mobile";
+import useTasksStore from "../../../../store/tasks"; // Import tasks store
 
 type TextInfoType = {
   title: string;
@@ -16,13 +17,22 @@ type TextInfoType = {
 
 const TrainDetailPage = () => {
   const location = useLocation();
-  // 确保 locationState 类型包含 text_uuid
   const locationState = location.state as { text?: TextInfoType; text_uuid?: string; task_uuid?: string } | undefined;
+  const { tasks } = useTasksStore(); // Get tasks from store
   const [textData, setTextData] = useState<string[]>([]);
   const [textInfo, setTextInfo] = useState<TextInfoType | null>(null);
-  const [currentTextUuid, setCurrentTextUuid] = useState<string | null>(locationState?.text_uuid || null); // 存储 UUID
+  const [currentTextUuid, setCurrentTextUuid] = useState<string | null>(locationState?.text_uuid || null);
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
+
+  // Find the task and determine if it's finished
+  const isTaskFinished = useMemo(() => {
+    if (!locationState?.task_uuid) {
+      return false; // Not navigated from a task
+    }
+    const currentTask = tasks.find(task => task.uuid === locationState.task_uuid);
+    return currentTask?.finished ?? false; // Return true if task exists and is finished, otherwise false
+  }, [locationState?.task_uuid, tasks]);
 
   useEffect(() => {
     const fetchTextData = async (uuid: string) => {
@@ -77,7 +87,8 @@ const TrainDetailPage = () => {
       setIsLoading(false);
       console.error("Invalid location state:", locationState); // 保留错误日志
     }
-  }, [locationState, currentTextUuid]); // 添加 currentTextUuid 到依赖项以避免潜在问题
+    // No changes needed inside useEffect for task status, handled by useMemo
+  }, [locationState]); // Removed currentTextUuid from dependency array as it might cause re-fetches unnecessarily
 
   if (isLoading) {
     return (
@@ -102,8 +113,12 @@ const TrainDetailPage = () => {
         <NavArea title={textInfo.title} author={textInfo.author} />
         <div className="relative h-full flex flex-col overflow-hidden">
           <TextArea textData={textData} />
-          {/* 将存储的 currentTextUuid 传递给 FunctionalArea */}
-          <FunctionalArea text={textInfo.text} textUuid={currentTextUuid} />
+          {/* Pass isTaskFinished to FunctionalArea */}
+          <FunctionalArea
+            text={textInfo.text}
+            textUuid={currentTextUuid}
+            isTaskFinished={isTaskFinished} // Pass down the task finished status
+          />
         </div>
       </div>
     </TextProvider>

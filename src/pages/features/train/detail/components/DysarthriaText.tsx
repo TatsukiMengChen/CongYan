@@ -1,7 +1,7 @@
 import {
   useTheme
 } from "@mui/material";
-import { message } from "antd";
+import { message, Tooltip } from "antd";
 import { useMemo, useState } from "react";
 import {
   GetHanziPhoneticsAPI,
@@ -80,8 +80,8 @@ export const DysarthriaText = ({
           const charScore = result.single_score[scoreIndex].score; // 获取 0-1 范围的分数
           // 仅累加有效的数字分数 (包括 0)
           if (!isNaN(charScore)) {
-             totalScoreSum += charScore;
-             validScoreCount++;
+            totalScoreSum += charScore;
+            validScoreCount++;
           }
         }
       }
@@ -93,8 +93,8 @@ export const DysarthriaText = ({
         calcTotalScore = 0;
       }
     } else if (selectedTextChars.length > 0) {
-       // 如果选择了文本，但分数缺失或 startIdx 为 -1，则默认为 0
-       calcTotalScore = 0;
+      // 如果选择了文本，但分数缺失或 startIdx 为 -1，则默认为 0
+      calcTotalScore = 0;
     }
     // 如果 selectedTextChars.length 为 0，calcTotalScore 保持为 null
 
@@ -115,7 +115,7 @@ export const DysarthriaText = ({
     }
     const rawScore = result.single_score[scoreIndexInFull].score; // 获取 0-1 分数
     if (isNaN(rawScore)) {
-        return -1; // 无效数字
+      return -1; // 无效数字
     }
     return rawScore * 100; // 转换为 0-100
   };
@@ -155,17 +155,17 @@ export const DysarthriaText = ({
 
     // 获取详细分数对象
     if (startIndex !== -1 && Array.isArray(result.single_score)) {
-        const scoreIndexInFull = startIndex + indexInSelected;
-        if (scoreIndexInFull < result.single_score.length && result.single_score[scoreIndexInFull]) {
-            const scoreObj = result.single_score[scoreIndexInFull];
-            if (typeof scoreObj.score === 'number' && !isNaN(scoreObj.score)) {
-                displayScore = scoreObj.score * 100; // 主分数 0-100
-            }
-            // 转换相似度分数 (0-100)，如果无效则为 null
-            sim_sa = (typeof scoreObj.sim_sa === 'number' && !isNaN(scoreObj.sim_sa)) ? scoreObj.sim_sa * 100 : null;
-            sim_ya = (typeof scoreObj.sim_ya === 'number' && !isNaN(scoreObj.sim_ya)) ? scoreObj.sim_ya * 100 : null;
-            sim_sd = (typeof scoreObj.sim_sd === 'number' && !isNaN(scoreObj.sim_sd)) ? scoreObj.sim_sd * 100 : null;
+      const scoreIndexInFull = startIndex + indexInSelected;
+      if (scoreIndexInFull < result.single_score.length && result.single_score[scoreIndexInFull]) {
+        const scoreObj = result.single_score[scoreIndexInFull];
+        if (typeof scoreObj.score === 'number' && !isNaN(scoreObj.score)) {
+          displayScore = scoreObj.score * 100; // 主分数 0-100
         }
+        // 转换相似度分数 (0-100)，如果无效则为 null
+        sim_sa = (typeof scoreObj.sim_sa === 'number' && !isNaN(scoreObj.sim_sa)) ? scoreObj.sim_sa * 100 : null;
+        sim_ya = (typeof scoreObj.sim_ya === 'number' && !isNaN(scoreObj.sim_ya)) ? scoreObj.sim_ya * 100 : null;
+        sim_sd = (typeof scoreObj.sim_sd === 'number' && !isNaN(scoreObj.sim_sd)) ? scoreObj.sim_sd * 100 : null;
+      }
     }
 
     setDetail({
@@ -215,8 +215,8 @@ export const DysarthriaText = ({
     // setPhoneticsInfo(null);
     // Stop audio if playing when popup closes
     if (isPlaying && currentAudio) {
-        currentAudio.pause();
-        setIsPlaying(false);
+      currentAudio.pause();
+      setIsPlaying(false);
     }
   };
 
@@ -253,9 +253,24 @@ export const DysarthriaText = ({
       >
         <strong>
           {/* Show calculated score (0.0 if calculated), or N/A if no text selected */}
-          {calculatedTotalScore !== null ? calculatedTotalScore.toFixed(1) : "N/A"}
+          {calculatedTotalScore !== null ? calculatedTotalScore.toFixed(2) : "N/A"}
         </strong>
       </span>
+
+
+      {/* Import Tooltip at the top of the file: import { Tooltip } from 'antd'; */}
+      <Tooltip title="该评分仅适用于中风、脑瘫等患者">
+        <span
+          className="absolute right-1 bottom-0 cursor-help" // Added cursor-help for better UX
+        >
+          AI 评估：
+          <strong
+        style={{ color: getColor(result.intelligibility_score ?? 0) }}>
+        {/* Show calculated score (0.0 if calculated), or N/A if no text selected */}
+        {result.intelligibility_score ? result.intelligibility_score.toFixed(2) : "0.00"} {/* Ensure score is formatted */}
+          </strong>
+        </span>
+      </Tooltip>
 
       {/* Render the CharacterDetailPopup component */}
       <CharacterDetailPopup

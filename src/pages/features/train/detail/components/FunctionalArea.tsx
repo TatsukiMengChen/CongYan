@@ -13,9 +13,10 @@ import { useWebSocketASR } from "../hooks/useWebSocketASR"; // 导入 WebSocket 
 interface FunctionalAreaProps {
   text: string; // 用于显示和选择的文本内容 (完整文本)
   textUuid: string; // 用于评分 API 的文本 UUID
+  isTaskFinished: boolean; // 新增：任务是否已完成
 }
 
-export const FunctionalArea = ({ text, textUuid }: FunctionalAreaProps) => {
+export const FunctionalArea = ({ text, textUuid, isTaskFinished }: FunctionalAreaProps) => {
   // console.log("[FunctionalArea] Received props - textUuid:", textUuid); // 移除日志
 
   const {
@@ -45,6 +46,8 @@ export const FunctionalArea = ({ text, textUuid }: FunctionalAreaProps) => {
       isEvaluationMode,
       selectedText: selectedText || "", // 传递选中的文本
       textUuid: textUuid, // 传递文本 UUID
+      originalFullText: text, // 传递原始完整文本
+      isTaskFinished: isTaskFinished, // Pass down the task finished status
       // onTranscriptionUpdate: (text) => {}, // 可选回调
       // onScoreUpdate: (score) => {}, // 可选回调
   });

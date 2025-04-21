@@ -209,19 +209,19 @@ export const CharacterDetailPopup = ({
               <Typography variant="body1">
                 <strong>总得分：</strong>
                 {/* Score is guaranteed non-null here by the condition */}
-                {detail.score.toFixed(1)}
+                {detail.score.toFixed(0)}
               </Typography>
               <Typography variant="body1">
                 <strong>声母得分：</strong>
-                {detail.sim_sa !== null ? detail.sim_sa.toFixed(1) : "无"}
+                {detail.sim_sa !== null ? detail.sim_sa.toFixed(0) : "无"}
               </Typography>
               <Typography variant="body1">
                 <strong>韵母得分：</strong>
-                {detail.sim_ya !== null ? detail.sim_ya.toFixed(1) : "无"}
+                {detail.sim_ya !== null ? detail.sim_ya.toFixed(0) : "无"}
               </Typography>
               <Typography variant="body1">
                 <strong>声调得分：</strong>
-                {detail.sim_sd !== null ? detail.sim_sd.toFixed(1) : "无"}
+                {detail.sim_sd !== null ? detail.sim_sd.toFixed(0) : "无"}
               </Typography>
             </>
           )}

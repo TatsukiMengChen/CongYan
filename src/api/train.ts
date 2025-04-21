@@ -62,8 +62,11 @@ export const GetTrainTextByCategoryAPI = async (category: string) => {
  */
 export type PracticeDetailReqType = {
   text_uuid: string;
-  user_text: string;
-  recording_uuid: string;
+  user_text: string; // 用户读出的文本 (ASR 结果)
+  recording_uuid?: string;
+  target_text: string; // 用户当前选中的目标文本
+  save: boolean; // 是否保存 (对应测评模式)
+  finished?: boolean; // 是否为全文练习 (可选)
 }
 
 /**
@@ -73,6 +76,7 @@ export type PracticeDetailResType = {
   status?: number; // 假设 0 表示成功
   uuid?: string; // 这似乎是结果 UUID，而不是录音 UUID
   score?: number; // 总分
+  intelligibility_score?: number;
   char_scores?: CharScore[];
   message?: string; // 可选的错误消息
   [property: string]: any;
@@ -91,7 +95,7 @@ export type CharScore = {
 
 /**
  * 调用新的练习详情/评分 API。
- * @param data 包含 text_uuid, user_text, recording_uuid 的请求体
+ * @param data 包含 text_uuid, user_text, recording_uuid, target_text, save, finished 的请求体
  * @returns 评分结果。
  */
 export const PracticeDetailAPI = async (data: PracticeDetailReqType): Promise<PracticeDetailResType> => {
@@ -99,7 +103,7 @@ export const PracticeDetailAPI = async (data: PracticeDetailReqType): Promise<Pr
     const response = await http<PracticeDetailResType>({
       url: '/practice-detail', // 新的 API 端点
       method: 'POST',
-      data,
+      data, // 发送更新后的请求体
     });
     // 根据示例检查响应结构
     if (response.data && typeof response.data.status === 'number') {
