@@ -44,8 +44,8 @@ export const PracticeArea = ({ className }: { className?: string }) => {
       {/* 调整按钮容器的间距 */}
       <div className="flex justify-between gap-3"> {/* 增加 gap */}
         <TextCard title="散文" type="prose" />
-        <TextCard title="古代诗词" type="ancient poetry" />
-        <TextCard title="现代诗词" type="modern poetry" />
+        <TextCard title="古代诗词" type="ancient-poem" />
+        <TextCard title="现代诗词" type="modern-poetry" />
       </div>
     </Card>
   );

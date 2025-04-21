@@ -1,60 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import http from '../utils/http';
 
-/**
- * 此文本标签下的所有文章
- *
- * RestBeanListTrainText
- */
-export type GetTrainTextByCategoryResType = {
-  /**
-   * 状态码
-   */
-  code?: number;
-  /**
-   * 响应数据
-   */
-  data?: TrainText[];
-  id?: number;
-  /**
-   * 其他消息
-   */
-  message?: string;
-  [property: string]: any;
-}
-
-/**
-* com.example.entity.vo.response.TrainText
-*
-* TrainText
-*/
-export type TrainText = {
-  applicablePeople?: string;
-  author?: string;
-  category?: string;
-  grade?: string;
-  suggestedDuration?: string;
-  text?: string;
-  title?: string;
-  [property: string]: any;
-}
-
-export const GetTrainTextByCategoryAPI = async (category: string) => {
-  try {
-    const response = await http<GetTrainTextByCategoryResType>({
-      url: '/trainText/getTrainTextByCategory',
-      method: 'GET',
-      params: {
-        category,
-      },
-    });
-    return response.data;
-  } catch (error) {
-    console.error(error);
-    throw error;
-  }
-}
-
 // --- Practice Detail API (新的评分 API) ---
 
 /**
