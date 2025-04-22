@@ -7,7 +7,7 @@ import { useTextContext } from '../context/TextContext';
 
 
 interface UseWebSocketASRProps {
-  onTranscriptionUpdate?: (text: string) => void;
+  // onTranscriptionUpdate?: (text: string) => void; // 移除此 prop
   onScoreUpdate?: (score: DysarthriaResult) => void; // 类型保持 DysarthriaResult
   isEvaluationMode: boolean;
   selectedText: string; // 当前选中的目标文本 (用于 target_text)
@@ -17,7 +17,7 @@ interface UseWebSocketASRProps {
 }
 
 export const useWebSocketASR = ({
-  onTranscriptionUpdate,
+  // onTranscriptionUpdate, // 移除
   onScoreUpdate,
   isEvaluationMode,
   selectedText, // 这个现在是 target_text
@@ -32,7 +32,7 @@ export const useWebSocketASR = ({
   const [recordingUuid, setRecordingUuid] = useState<string | null>(null);
   const wsRef = useRef<WebSocket | null>(null);
   const { token } = useAuthStore();
-  const { setDysarthriaResult } = useTextContext(); // 获取 context setter 用于评分
+  const { setDysarthriaResult, setAsrTranscription } = useTextContext(); // 获取 context setter 用于评分和实时转录
   const connectionPromiseRef = useRef<{ resolve: () => void; reject: (reason?: any) => void } | null>(null); // 用于存储 promise 处理程序的 Ref
   const audioBufferRef = useRef<ArrayBuffer[]>([]); // 音频块缓冲区
   const sendIntervalRef = useRef<NodeJS.Timeout | null>(null); // 发送间隔计时器
@@ -63,9 +63,10 @@ export const useWebSocketASR = ({
     if (!keepAnalyzingState) { // 仅在未明确要求保留时重置分析状态
       setIsAnalyzing(false);
     }
+    setAsrTranscription(""); // 清理时重置实时转录文本
     // setTranscription(""); // 不再需要在此处清除 transcription
     setRecordingUuid(null);
-  }, []);
+  }, [setAsrTranscription]); // 添加 setAsrTranscription 依赖
 
   // 修改 processScoreAndSave 以构造新请求体并移除保存逻辑
   const processScoreAndSave = useCallback(async (recUuid: string) => {
@@ -144,6 +145,7 @@ export const useWebSocketASR = ({
     originalFullText, // 依赖 originalFullText
     isTaskFinished, // 添加 isTaskFinished 作为依赖
     // latestTranscriptionRef // ref 不需要作为依赖项
+    // setAsrTranscription 不直接在此函数中使用，但在 cleanupWebSocket 中使用
   ]);
 
 
@@ -166,6 +168,7 @@ export const useWebSocketASR = ({
       // 为新会话重置状态和 ref
       setTranscription("");
       latestTranscriptionRef.current = ""; // 重置 ref
+      setAsrTranscription(""); // 重置 context 中的转录文本
       setRecordingUuid(null);
       setDysarthriaResult({});
       audioBufferRef.current = []; // 在开始时清除缓冲区
@@ -260,7 +263,8 @@ export const useWebSocketASR = ({
               const newTranscription = data.text || "";
               setTranscription(newTranscription); // 更新状态以供显示
               latestTranscriptionRef.current = newTranscription; // 更新 ref
-              if (onTranscriptionUpdate) onTranscriptionUpdate(newTranscription);
+              setAsrTranscription(newTranscription); // 更新 Context 中的实时转录文本
+              // if (onTranscriptionUpdate) onTranscriptionUpdate(newTranscription); // 移除回调调用
               break;
             case "task-finished":
               // console.log("Received 'task-finished' event:", data); // 移除日志
@@ -328,7 +332,7 @@ export const useWebSocketASR = ({
         }
       };
     });
-  }, [token, cleanupWebSocket, setDysarthriaResult, processScoreAndSave, onTranscriptionUpdate]); // 移除 isAnalyzing 和 transcription 依赖
+  }, [token, cleanupWebSocket, setDysarthriaResult, processScoreAndSave, setAsrTranscription]); // 添加 setAsrTranscription 依赖
 
   // ... (sendAudioData 和 finishStreaming 保持不变) ...
   // 修改 sendAudioData 以缓冲数据

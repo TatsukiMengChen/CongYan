@@ -6,6 +6,7 @@ import { DysarthriaText } from "./DysarthriaText";
 import { EvaluationModeSwitch } from "./EvaluationModeSwitch";
 import { PlaybackControls } from "./PlaybackControls";
 import { RecordingControls } from "./RecordingControls";
+import { AsrDisplay } from "./AsrDisplay"; // 导入 AsrDisplay
 import { useMediaRecorder } from "../hooks/useMediaRecorder"; // 导入 MediaRecorder hook
 import { useWebSocketASR } from "../hooks/useWebSocketASR"; // 导入 WebSocket hook
 
@@ -32,6 +33,7 @@ export const FunctionalArea = ({ text, textUuid, isTaskFinished }: FunctionalAre
     dysarthriaResult, // 从 context 获取评分结果
     setDysarthriaResult, // 保留 setter 用于文本更改时清除
     isFetchingAudio,
+    setIsRecording: setContextIsRecording, // 从 context 获取 setIsRecording
   } = useTextContext();
 
   const [isEvaluationMode, setIsEvaluationMode] = useState(false);
@@ -43,22 +45,23 @@ export const FunctionalArea = ({ text, textUuid, isTaskFinished }: FunctionalAre
     sendAudioData, // 这个函数现在接收 ArrayBuffer
     finishStreaming,
   } = useWebSocketASR({
-      isEvaluationMode,
-      selectedText: selectedText || "", // 传递选中的文本
-      textUuid: textUuid, // 传递文本 UUID
-      originalFullText: text, // 传递原始完整文本
-      isTaskFinished: isTaskFinished, // Pass down the task finished status
-      // onTranscriptionUpdate: (text) => {}, // 可选回调
-      // onScoreUpdate: (score) => {}, // 可选回调
+    isEvaluationMode,
+    selectedText: selectedText || "", // 传递选中的文本
+    textUuid: textUuid, // 传递文本 UUID
+    originalFullText: text, // 传递原始完整文本
+    isTaskFinished: isTaskFinished, // Pass down the task finished status
+    // onTranscriptionUpdate: (text) => {}, // 可选回调
+    // onScoreUpdate: (score) => {}, // 可选回调
   });
 
   // MediaRecorder Hook
   const { isRecording, startRecording, stopRecording } = useMediaRecorder({
     onDataAvailable: sendAudioData, // 将 MP3 ArrayBuffer 传递给 WebSocket hook
     onError: (error) => {
-        message.error(`录音出错: ${error.message}`);
-        // 如果录音出错，也尝试清理 WebSocket 连接
-        finishStreaming(); // 调用 finishStreaming 会触发 cleanupWebSocket
+      message.error(`录音出错: ${error.message}`);
+      setContextIsRecording(false); // 录音出错时设置 context 状态为 false
+      // 如果录音出错，也尝试清理 WebSocket 连接
+      finishStreaming(); // 调用 finishStreaming 会触发 cleanupWebSocket
     },
   });
 
@@ -72,6 +75,7 @@ export const FunctionalArea = ({ text, textUuid, isTaskFinished }: FunctionalAre
       return;
     }
     setDysarthriaResult({}); // 清除之前的结果
+    setContextIsRecording(true); // 在尝试开始录音时立即设置状态（或在成功后？）- 决定在成功后设置
 
     try {
       // 等待 WebSocket 连接建立并发送令牌
@@ -80,29 +84,32 @@ export const FunctionalArea = ({ text, textUuid, isTaskFinished }: FunctionalAre
       message.success("请开始说话"); // 现在显示成功消息
       // 现在启动录音器
       await startRecording();
-      // 如果 startRecording 失败，useMediaRecorder 中的 onError 处理程序应触发清理
+      // 只有在 startRecording 成功后才确认录音状态
+      // setContextIsRecording(true); // 移动到这里？ - 不，useMediaRecorder 会更新 isRecording 状态，我们依赖它
+      // 但是我们需要在成功启动后更新 context
+      setContextIsRecording(true);
 
     } catch (error) {
       // connectAndStartStreaming 被拒绝 (WebSocket 错误或在打开前关闭)
       // 或 startRecording 失败 (尽管其错误在其 hook 中处理)
       console.error("Failed to start recording session:", error); // 保留错误日志
+      setContextIsRecording(false); // 如果启动失败，重置 context 状态
       // 错误消息可能已由 hooks (WebSocket 或 MediaRecorder) 显示
     }
-  }, [isBusy, connectAndStartStreaming, startRecording, setDysarthriaResult, isRecording, isAnalyzing]);
+  }, [isBusy, connectAndStartStreaming, startRecording, setDysarthriaResult, isRecording, isAnalyzing, setContextIsRecording]); // 添加 setContextIsRecording 依赖
 
   const handleRecordEnd = useCallback(async () => {
     if (!isRecording) {
-      // console.log("Not recording, cannot stop."); // 移除日志
       return;
     }
-    // console.log("handleRecordEnd called."); // 移除日志
     // 1. 停止录音器 (会触发最后的 onDataAvailable 发送 final MP3 chunk)
     stopRecording(); // 这个函数现在是同步的
+    setContextIsRecording(false); // 停止录音时设置 context 状态为 false
 
     // 2. 告诉 WebSocket 服务器流结束 (发送 "finish")
     await finishStreaming();
 
-  }, [isRecording, stopRecording, finishStreaming]);
+  }, [isRecording, stopRecording, finishStreaming, setContextIsRecording]); // 添加 setContextIsRecording 依赖
 
 
   const getChineseCharacters = (text: string) => {
@@ -130,16 +137,20 @@ export const FunctionalArea = ({ text, textUuid, isTaskFinished }: FunctionalAre
 
   // 如果用户在忙碌时切换文本，执行清理函数
   const handleTextSwitchCleanup = useCallback(() => {
-      if (isRecording) {
-          stopRecording();
-      }
-      // finishStreaming 包含 WebSocket 清理
-      finishStreaming();
-  }, [isRecording, stopRecording, finishStreaming]);
+    if (isRecording) {
+      stopRecording();
+      setContextIsRecording(false); // 切换文本停止录音时更新 context
+    }
+    // finishStreaming 包含 WebSocket 清理
+    finishStreaming();
+  }, [isRecording, stopRecording, finishStreaming, setContextIsRecording]); // 添加 setContextIsRecording 依赖
 
 
   return (
     <div className="box-border w-full flex flex-col px-4 pb-8">
+      {/* 在 DysarthriaText 上方添加 AsrDisplay */}
+      <AsrDisplay />
+
       {/* 将 selectedText 的字符、完整评分结果、完整文本和选中片段传递给 DysarthriaText */}
       <DysarthriaText
         selectedTextChars={getChineseCharacters(selectedText || "")}
@@ -154,7 +165,7 @@ export const FunctionalArea = ({ text, textUuid, isTaskFinished }: FunctionalAre
             isPlaying={isPlaying}
             isFetchingAudio={isFetchingAudio}
             handlePlay={handlePlay}
-            // disabled={isBusy} // 禁用播放按钮
+          // disabled={isBusy} // 禁用播放按钮
           />
           <Button
             variant="outlined"
@@ -168,7 +179,7 @@ export const FunctionalArea = ({ text, textUuid, isTaskFinished }: FunctionalAre
                 setIsPlaying(false);
               }
               if (isBusy) {
-                 handleTextSwitchCleanup(); // 如果忙碌，停止录音/WS
+                handleTextSwitchCleanup(); // 如果忙碌，停止录音/WS
               }
             }}
             disabled={isBusy} // 禁用全文练习按钮
@@ -187,7 +198,7 @@ export const FunctionalArea = ({ text, textUuid, isTaskFinished }: FunctionalAre
         <EvaluationModeSwitch
           isEvaluationMode={isEvaluationMode}
           setIsEvaluationMode={setIsEvaluationMode}
-          // disabled={isBusy} // 禁用模式切换
+        // disabled={isBusy} // 禁用模式切换
         />
       </div>
     </div>

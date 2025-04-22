@@ -16,10 +16,14 @@ type TextContextType = {
   setCurrentAudio: (audio: HTMLAudioElement | null) => void;
   isPlaying: boolean;
   setIsPlaying: (isPlaying: boolean) => void;
+  isRecording: boolean; // 新增：录音状态
+  setIsRecording: (isRecording: boolean) => void; // 新增：设置录音状态
   isFetchingAudio: boolean;
   setIsFetchingAudio: (isFetching: boolean) => void;
   dysarthriaResult: DysarthriaResult;
   setDysarthriaResult: (result: DysarthriaResult) => void;
+  asrTranscription: string; // 新增：实时 ASR 结果
+  setAsrTranscription: (text: string) => void; // 新增：设置 ASR 结果
   getAudio: (text: string, index: number) => Promise<HTMLAudioElement | null>;
   getCharAudio: (char: string) => Promise<HTMLAudioElement | null>;
   playAudio: (audio: HTMLAudioElement | null) => void;
@@ -46,10 +50,12 @@ export const TextProvider: React.FC<{ children: React.ReactNode }> = ({
     null,
   );
   const [isPlaying, setIsPlaying] = useState<boolean>(false);
+  const [isRecording, setIsRecording] = useState<boolean>(false); // 新增状态
   const [isFetchingAudio, setIsFetchingAudio] = useState<boolean>(false);
   const [dysarthriaResult, setDysarthriaResult] = useState<DysarthriaResult>(
     {},
   );
+  const [asrTranscription, setAsrTranscription] = useState<string>(""); // 新增状态
   const [pendingRequests, setPendingRequests] = useState<{
     [key: string]: boolean;
   }>({});
@@ -166,10 +172,14 @@ export const TextProvider: React.FC<{ children: React.ReactNode }> = ({
         setCurrentAudio,
         isPlaying,
         setIsPlaying,
+        isRecording, // 提供状态
+        setIsRecording, // 提供 setter
         isFetchingAudio,
         setIsFetchingAudio,
         dysarthriaResult,
         setDysarthriaResult,
+        asrTranscription, // 提供状态
+        setAsrTranscription, // 提供 setter
         getAudio,
         getCharAudio,
         playAudio,

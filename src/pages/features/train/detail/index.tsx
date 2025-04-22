@@ -4,6 +4,7 @@ import { TextProvider } from "./context/TextContext";
 import { NavArea } from "./components/NavArea";
 import { TextArea } from "./components/TextArea";
 import { FunctionalArea } from "./components/FunctionalArea";
+// import { AsrDisplay } from "./components/AsrDisplay"; // 移除导入
 import { GetCorpusAPI } from "../../../../api/text";
 import { Skeleton } from "antd-mobile";
 import useTasksStore from "../../../../store/tasks"; // Import tasks store
@@ -112,6 +113,7 @@ const TrainDetailPage = () => {
       <div className="h-100vh flex flex-col">
         <NavArea title={textInfo.title} author={textInfo.author} />
         <div className="relative h-full flex flex-col overflow-hidden">
+          {/* 移除 AsrDisplay */}
           <TextArea textData={textData} />
           {/* Pass isTaskFinished to FunctionalArea */}
           <FunctionalArea

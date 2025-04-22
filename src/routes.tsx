@@ -32,6 +32,7 @@ import TasksPage from "./pages/features/tasks"; // 导入 TasksPage
 import PersonalizedTrainingPage from "./pages/features/personalized";
 import FavoritePage from "./pages/features/favorite";
 import RelativeManagementPage from "./pages/features/relative/management"; // 导入家属管理页面
+import VoiceSettingsPage from "./pages/settings/voice";
 
 const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
   const { isAuthenticated } = useAuthStore();
@@ -162,6 +163,14 @@ const AnimatedRoutes = () => {
               element={
                 <ProtectedRoute>
                   <AccountSettingsPage />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/settings/voice"
+              element={
+                <ProtectedRoute>
+                  <VoiceSettingsPage />
                 </ProtectedRoute>
               }
             />

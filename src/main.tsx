@@ -13,12 +13,9 @@ import { getTheme } from "mdui/functions/getTheme.js";
 console.log(getTheme());
 const { darkAlgorithm, defaultAlgorithm } = theme;
 
-setColorScheme("#4FC3F7");
-
-// const isAndroid = /Android/i.test(navigator.userAgent);
-// if (isAndroid) {
-//   Android.showToast("Hello, Android!");
-// }
+// 设置默认颜色
+const primaryColor = "#4FC3F7";
+setColorScheme(primaryColor);
 
 const Root = () => {
   const [prefersDarkMode, setPrefersDarkMode] = useState(
@@ -52,6 +49,9 @@ const Root = () => {
 
   const antdTheme = {
     algorithm: prefersDarkMode ? darkAlgorithm : defaultAlgorithm,
+    token: {
+      colorPrimary: lightBlue[300],
+    },
   };
 
   return (
