@@ -401,7 +401,7 @@ const ProfileDetailPage: React.FC = () => {
         {/* Birth Date - Editable */}
         <List.Item extra={displayBirthDate} onClick={() => setShowBirthDatePicker(true)} arrow className={styles.editableItem}>出生日期</List.Item>
         {/* Disease - Editable */}
-        <List.Item extra={displayDisease} onClick={startEditDisease} arrow className={styles.editableItem}>病症</List.Item>
+        {currentUserInfo.user_role === 'patient' && <List.Item extra={displayDisease} onClick={startEditDisease} arrow className={styles.editableItem}>病症</List.Item>}
         <List.Item extra={currentUserInfo.created_at ? new Date(currentUserInfo.created_at).toLocaleDateString() : '未知'}>注册时间</List.Item>
         {currentUserInfo.bind_doctor_id && <List.Item extra={currentUserInfo.bind_doctor_id}>绑定医生ID</List.Item>}
         {currentUserInfo.practice_duration_minutes !== undefined && <List.Item extra={`${currentUserInfo.practice_duration_minutes} 分钟`}>练习时长</List.Item>}

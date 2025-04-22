@@ -58,8 +58,13 @@ export const HomePage = () => {
               title: "语言发育迟缓需要做哪些康复训练"
             }]} />
             <ProgressArea className="mt-4" />
-            <PersonalizedTrainingArea className="mt-4" /> {/* 添加个性化训练入口 */}
-            <PracticeArea className="mt-4" />
+            {/* 仅当用户不是家属时显示个性化训练区域 */}
+            {userInfo?.user_role !== 'relative' && (
+              <>
+                <PersonalizedTrainingArea className="mt-4" /> {/* 添加个性化训练入口 */}
+                <PracticeArea className="mt-4" />
+              </>
+            )}
           </div>
         </PullToRefresh>
       </div>

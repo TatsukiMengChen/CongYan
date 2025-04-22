@@ -145,7 +145,7 @@ export const CharacterDetailPopup = ({
             </div>
             <div className="flex items-center">
               <strong>
-                <span>{detail.char}</span>
+                <span className='hanzi-kaiti text-4xl'>{detail.char}</span>
                 <IconButton
                   className="!bg-white dark:!bg-dark-4"
                   color="primary"
@@ -240,13 +240,13 @@ export const CharacterDetailPopup = ({
                 {phoneticsInfo.shengmu || "无"}
               </Typography>
               {phoneticsInfo.shengmu_fayin_buwei && (
-                <Typography variant="body2">
+                <Typography variant="body2" className="!ml-2">
                   <strong>发音部位：</strong>
                   {phoneticsInfo.shengmu_fayin_buwei}
                 </Typography>
               )}
               {phoneticsInfo.shengmu_fayin_fangshi && (
-                <Typography variant="body2">
+                <Typography variant="body2" className="!ml-2">
                   <strong>发音方法：</strong>
                   {phoneticsInfo.shengmu_fayin_fangshi}
                 </Typography>
@@ -256,7 +256,7 @@ export const CharacterDetailPopup = ({
                 {phoneticsInfo.yunmu || "无"}
               </Typography>
               {phoneticsInfo.yunmu_jiegou && (
-                <Typography variant="body2">
+                <Typography variant="body2" className="!ml-2">
                   <strong>韵母结构：</strong>
                   {phoneticsInfo.yunmu_jiegou}
                 </Typography>

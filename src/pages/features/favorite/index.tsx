@@ -289,7 +289,7 @@ const FavoritePage: React.FC = () => {
             onClick={() => handleItemClick(fav.character)}
           >
             {/* 汉字 */}
-            <span>{fav.character}</span> 
+            <span className='hanzi-kaiti'>{fav.character}</span> 
             {/* 收藏日期 - 显示年月日 */}
             <span className={styles.gridItemDate}>
               {new Date(fav.created_at).toLocaleDateString('zh-CN', { year: 'numeric', month: '2-digit', day: '2-digit' })} 

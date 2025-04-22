@@ -52,7 +52,7 @@ export const FunctionButtons: React.FC = () => {
         {userInfo?.user_role === 'doctor' && (
           <FunctionButton
             icon={<LibraryBooksOutlinedIcon />} // 使用语料图标
-            title="我的语料" // 修改标题
+            title="语料管理" // 修改标题为语料管理
             onClick={() => navigator("/corpus")} // 跳转到语料页面
           />)}
         {/* 我的病人按钮 (仅医生可见) */}

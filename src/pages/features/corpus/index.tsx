@@ -240,7 +240,7 @@ const CorpusPage: React.FC = () => {
 
   return (
     <div className="h-100vh flex flex-col">
-      <Navbar onBack={handleBack}>我的语料</Navbar>
+      <Navbar onBack={handleBack}>语料管理</Navbar>
       <div className={`flex-1 p-4 overflow-auto pb-20 ${loading || deleting ? 'blur-sm' : ''}`}>
         {renderContent()}
       </div>
