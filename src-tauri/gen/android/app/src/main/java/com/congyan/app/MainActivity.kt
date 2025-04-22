@@ -2,11 +2,16 @@ package com.congyan.app
 
 import android.annotation.SuppressLint
 import android.content.res.Configuration
+import android.content.pm.PackageInfo
+import android.content.pm.PackageManager
+import android.os.Build
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
+import android.util.Log
 import android.view.KeyEvent
 import android.view.View
+import android.webkit.WebSettings
 import android.webkit.WebView
 import android.widget.Toast
 
@@ -42,7 +47,30 @@ class MainActivity : TauriActivity() {
       else -> 0xFFFCFCFF.toInt()
     }
     webView.setBackgroundColor(color)
-    webView.settings.javaScriptEnabled = true
+    val settings: WebSettings = webView.settings // Get settings
+    settings.javaScriptEnabled = true
+
+    // --- Modify User Agent ---
+    try {
+      val packageInfo: PackageInfo = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+        packageManager.getPackageInfo(packageName, PackageManager.PackageInfoFlags.of(0))
+      } else {
+        @Suppress("DEPRECATION") packageManager.getPackageInfo(packageName, 0)
+      }
+      val appVersion = packageInfo.versionName
+      val defaultUserAgent = settings.userAgentString
+      val customUserAgent = "$defaultUserAgent CongYan/$appVersion"
+      settings.userAgentString = customUserAgent
+      Log.d("MainActivity", "User Agent set to: $customUserAgent") // Optional logging
+    } catch (e: PackageManager.NameNotFoundException) {
+      Log.e("MainActivity", "Failed to get package info for User Agent", e)
+      // Fallback or just use default if needed
+      val defaultUserAgent = settings.userAgentString
+      val customUserAgent = "$defaultUserAgent CongYan/unknown" // Fallback version
+      settings.userAgentString = customUserAgent
+    }
+    // --- End Modify User Agent ---
+
     webView.addJavascriptInterface(WebAppInterface(this), "Android")
   }
 

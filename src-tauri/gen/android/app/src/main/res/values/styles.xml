@@ -1,0 +1,29 @@
+<resources>
+
+  <!-- Custom Style for the Popup Menu -->
+  <style name="CustomPopupMenu" parent="@style/Widget.AppCompat.PopupMenu.Overflow">
+    <item name="android:popupBackground">@drawable/popup_menu_background
+    </item> <!-- Use custom background -->
+    <item name="android:textColor">?android:attr/textColorPrimary
+    </item> <!-- Use theme's primary text color -->
+    <item name="android:textSize">16sp</item> <!-- Adjust text size -->
+    <!-- Add padding to prevent text touching the edges -->
+    <item name="android:paddingStart">12dp</item>
+    <item name="android:paddingEnd">12dp</item>
+    <item name="android:paddingTop">8dp</item>
+    <item name="android:paddingBottom">8dp</item>
+  </style>
+
+  <!-- You might need a specific theme overlay if the parent theme interferes -->
+  <!-- <style name="ThemeOverlay.App.PopupMenu" parent="">
+      <item name="android:popupMenuStyle">@style/CustomPopupMenu</item>
+  </style> -->
+
+  <!-- Style for Toolbar Title Text -->
+  <style name="ToolbarTitleTextAppearance" parent="TextAppearance.Widget.AppCompat.Toolbar.Title">
+    <item name="android:textSize">16sp</item> <!-- Adjust this value as needed -->
+    <!-- Use a theme attribute for text color that adapts to light/dark mode -->
+    <item name="android:textColor">?android:attr/textColorPrimary</item>
+  </style>
+
+</resources>

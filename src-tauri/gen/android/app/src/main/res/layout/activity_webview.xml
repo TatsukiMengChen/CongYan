@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+  xmlns:app="http://schemas.android.com/apk/res-auto"
+  xmlns:tools="http://schemas.android.com/tools"
+  android:layout_width="match_parent"
+  android:layout_height="match_parent"
+  tools:context=".WebviewActivity">
+
+  <androidx.appcompat.widget.Toolbar
+    android:id="@+id/toolbar_webview"
+    android:layout_width="match_parent"
+    android:layout_height="?attr/actionBarSize"
+    android:elevation="4dp"
+    android:theme="@style/ThemeOverlay.AppCompat.ActionBar"
+    app:layout_constraintTop_toTopOf="parent"
+    app:navigationIcon="@drawable/round_keyboard_arrow_left_24"
+    app:popupTheme="@style/ThemeOverlay.AppCompat.Light"
+    app:titleTextAppearance="@style/ToolbarTitleTextAppearance">
+
+    <ImageButton
+      android:id="@+id/button_more_options"
+      android:layout_width="wrap_content"
+      android:layout_height="wrap_content"
+      android:layout_gravity="end"
+      android:background="?attr/selectableItemBackgroundBorderless"
+      android:contentDescription="@string/more_options"
+      android:padding="12dp"
+      android:src="@drawable/baseline_more_horiz_24"
+      tools:layout_editor_absoluteX="355dp" />
+
+  </androidx.appcompat.widget.Toolbar>
+
+  <WebView
+    android:id="@+id/webview"
+    android:layout_width="0dp"
+    android:layout_height="0dp"
+    app:layout_constraintBottom_toBottomOf="parent"
+    app:layout_constraintEnd_toEndOf="parent"
+    app:layout_constraintStart_toStartOf="parent"
+    app:layout_constraintTop_toBottomOf="@+id/toolbar_webview" />
+
+</androidx.constraintlayout.widget.ConstraintLayout>

@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+  <item
+    android:id="@+id/menu_refresh"
+    android:icon="@drawable/round_refresh_24"
+    android:title="@string/menu_refresh" />
+  <item
+    android:id="@+id/menu_copy_link"
+    android:icon="@drawable/round_content_copy_24"
+    android:title="@string/menu_copy_link" />
+  <item
+    android:id="@+id/menu_open_in_browser"
+    android:icon="@drawable/round_open_in_new_24"
+    android:title="@string/menu_open_in_browser" />
+  <item
+    android:id="@+id/menu_share"
+    android:icon="@drawable/round_share_24"
+    android:title="@string/menu_share" />
+</menu>

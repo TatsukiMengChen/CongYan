@@ -4,6 +4,7 @@ import "swiper/css/navigation";
 import "swiper/css/pagination";
 import { Navigation, Pagination } from "swiper/modules";
 import { Swiper, SwiperSlide } from "swiper/react";
+import { openLink } from "../../../utils/link";
 
 interface SwiperItemData {
   imageUrl: string;
@@ -13,7 +14,7 @@ interface SwiperItemData {
 
 const SwiperItem = ({ item }: { item: SwiperItemData }) => {
   return (
-    <a href={item.linkUrl} target="_blank" rel="noopener noreferrer" style={{ display: 'block', width: '100%', height: '100%' }}>
+    <div onClick={() => { openLink(item.linkUrl) }} rel="noopener noreferrer" style={{ display: 'block', width: '100%', height: '100%' }}>
       <img
         src={item.imageUrl}
         alt={item.title}
@@ -21,7 +22,7 @@ const SwiperItem = ({ item }: { item: SwiperItemData }) => {
       />
       {/* Optionally display the title */}
       {/* <div style={{ position: 'absolute', bottom: 0, left: 0, right: 0, background: 'rgba(0,0,0,0.5)', color: 'white', padding: '8px' }}>{item.title}</div> */}
-    </a>
+    </div>
   );
 };
 

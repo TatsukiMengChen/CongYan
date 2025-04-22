@@ -23,6 +23,11 @@ android {
         targetSdk = 34
         versionCode = tauriProperties.getProperty("tauri.android.versionCode", "1").toInt()
         versionName = tauriProperties.getProperty("tauri.android.versionName", "1.0")
+
+        // Add this block to specify the ABIs to include using Kotlin DSL
+//         ndk {
+//             abiFilters.addAll(listOf("x86_64", "arm64-v8a", "armeabi-v7a")) // Add x86 if needed too
+//         }
     }
     buildTypes {
         getByName("debug") {

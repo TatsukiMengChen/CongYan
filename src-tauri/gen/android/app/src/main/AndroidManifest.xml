@@ -31,6 +31,13 @@
       </intent-filter>
     </activity>
 
+    <!-- Declare the new WebviewActivity -->
+    <activity
+        android:name=".WebviewActivity"
+        android:exported="false"
+        android:label="@string/title_activity_webview"
+        android:theme="@style/Theme.AppCompat.Light.NoActionBar" />
+
     <provider
       android:name="androidx.core.content.FileProvider"
       android:authorities="${applicationId}.fileprovider"
