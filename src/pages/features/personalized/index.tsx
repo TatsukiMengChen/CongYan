@@ -9,6 +9,7 @@ import { GetPersonalizedPracticeTextAPI, GetPracticeHistoriesAPI, PracticeHistor
 import Navbar from '../../../components/Navbar';
 import useAuthStore from '../../../store/auth'; // 导入 auth store
 import styles from './index.module.scss';
+import useTasksStore from '../../../store/tasks';
 
 // 汉字及其分数信息
 interface CharScoreInfo {
@@ -255,6 +256,7 @@ const PersonalizedTrainingPage: React.FC = () => {
         setGeneratedTextUuid(null);
         setTaskTitle('');
         setTaskRemark('');
+        useTasksStore.getState().fetchTasks(userInfo.id); // 刷新任务列表
       } else {
         const errorMsg = assignRes.message || '分配任务失败';
         message.error(errorMsg);

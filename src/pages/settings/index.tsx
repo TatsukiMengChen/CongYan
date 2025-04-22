@@ -34,6 +34,7 @@ export const SettingsPage = () => {
           logout();
           navigator(-1);
           message.success({ content: "退出登录成功", key: "logout" });
+          window.location.reload(); // 刷新页面
         }
       },
     });
