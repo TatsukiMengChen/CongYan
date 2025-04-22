@@ -31,6 +31,7 @@ import CorpusPage from "./pages/features/corpus"; // 导入 CorpusPage
 import TasksPage from "./pages/features/tasks"; // 导入 TasksPage
 import PersonalizedTrainingPage from "./pages/features/personalized";
 import FavoritePage from "./pages/features/favorite";
+import RelativeManagementPage from "./pages/features/relative/management"; // 导入家属管理页面
 
 const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
   const { isAuthenticated } = useAuthStore();
@@ -204,6 +205,15 @@ const AnimatedRoutes = () => {
               element={
                 <ProtectedRoute>
                   <CorpusPage />
+                </ProtectedRoute>
+              }
+            />
+            {/* 添加家属绑定管理路由 */}
+            <Route
+              path="/relative/management"
+              element={
+                <ProtectedRoute>
+                  <RelativeManagementPage />
                 </ProtectedRoute>
               }
             />

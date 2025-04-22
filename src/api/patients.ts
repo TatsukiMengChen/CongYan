@@ -47,20 +47,23 @@ export const GetPatientsAPI = async (): Promise<PatientsListAPIRes> => {
   }
 };
 
-// 绑定病人接口返回类型 (假设返回简单状态和消息)
+// 绑定病人接口返回类型 (供医生和家属共用)
 export type BindPatientAPIRes = {
   status: number;
   code?: string;
   message?: string;
+  // 绑定成功时，后端可能会返回病人信息，尤其是对家属
+  patient_info?: PatientInfo;
 }
 
-// 绑定病人接口
+// 绑定病人接口 (供医生和家属共用)
+// 医生: POST /bind-id?bind_id={patient_bind_id}
+// 家属: POST /bind-id?bind_id={patient_bind_id} (假设后端能区分角色)
 export const BindPatientAPI = async (bindId: string): Promise<BindPatientAPIRes> => {
-  console.log("调用绑定病人接口, bind_id:", bindId);
+  console.log("调用绑定病人接口 (通用), bind_id:", bindId);
   try {
-    // 注意：POST 请求通常将数据放在请求体中，但题目要求放在 query 参数
-    // axios 的 post 方法第三个参数是 config，可以设置 params
-    const res = await http.post<BindPatientAPIRes>('/bind-id', null, { // 第一个参数是 url, 第二个是 data (null), 第三个是 config
+    // 使用 POST 方法，并将 bind_id 作为 query 参数传递
+    const res = await http.post<BindPatientAPIRes>('/bind-id', null, {
       params: {
         bind_id: bindId
       }
@@ -89,16 +92,21 @@ export const BindPatientAPI = async (bindId: string): Promise<BindPatientAPIRes>
   }
 };
 
-// 解绑病人接口返回类型 (假设返回简单状态和消息)
+// 解绑病人接口返回类型 (供医生和家属共用)
 export type UnbindPatientAPIRes = {
   status: number;
   code?: string;
   message?: string;
 }
 
-// 解绑病人接口 (DELETE /patient-bind-id?unbind_id={patient_id})
+// 解绑病人接口 (供医生和家属共用)
+// 医生: DELETE /patient-bind-id?unbind_id={patient_id}
+// 家属: DELETE /patient-bind-id (假设后端知道要解绑哪个病人，或者家属只能解绑自己绑定的那个)
+// 注意：如果家属解绑不需要传 ID，需要调整调用方式。这里暂时假设家属解绑也需要传病人 ID (虽然家属通常只绑定一个)
+// 或者后端提供一个单独的无参数 DELETE /relative/unbind-patient 接口。
+// --> 为了兼容医生，保留 unbind_id 参数。家属调用时，需要传入其绑定的病人的 ID。
 export const UnbindPatientAPI = async (patientId: number): Promise<UnbindPatientAPIRes> => {
-  console.log("调用解绑病人接口, unbind_id:", patientId);
+  console.log("调用解绑病人接口 (通用), unbind_id:", patientId);
   try {
     // 使用 DELETE 方法，并将 ID 作为 query 参数传递
     const res = await http.delete<UnbindPatientAPIRes>('/patient-bind-id', {

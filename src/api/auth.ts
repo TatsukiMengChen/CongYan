@@ -271,12 +271,11 @@ export type NewUserDetailAPIRes = {
 export type NewUserDetailReqBody = {
   phone_number: string;
   sms_code: string;
-  user_role: string;
+  user_role: "doctor" | "patient" | "relative" | string; // 更新类型
   birth_date: string; // ISO 字符串格式
   gender: string;
   password?: string; // 密码字段根据后端要求添加
 }
-
 
 // 修改密码接口返回类型
 export type ChangePasswordAPIRes = {

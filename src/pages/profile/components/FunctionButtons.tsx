@@ -2,6 +2,7 @@ import AutoGraphRoundedIcon from "@mui/icons-material/AutoGraphRounded";
 import BookOutlinedIcon from "@mui/icons-material/BookOutlined"; // 确保引入收藏图标
 import PeopleAltOutlinedIcon from '@mui/icons-material/PeopleAltOutlined'; // 引入病人图标
 import LibraryBooksOutlinedIcon from '@mui/icons-material/LibraryBooksOutlined'; // 引入语料图标
+import LinkIcon from '@mui/icons-material/Link'; // 引入绑定图标
 import { IconButton, Typography } from "@mui/material";
 import { Card } from "antd";
 import React from "react";
@@ -35,29 +36,39 @@ export const FunctionButtons: React.FC = () => {
   return (
     <Card className={`mx-4 box-border`}>
       <div className="flex-around">
+        {/* 统计分析按钮 (所有角色可见) */}
         <FunctionButton
           icon={<AutoGraphRoundedIcon />}
           title="统计分析"
           onClick={() => navigator("/analysis")}
         />
-        {/* 重新添加我的收藏按钮 */}
+        {/* 我的收藏按钮 (所有角色可见) */}
         <FunctionButton
           icon={<BookOutlinedIcon />}
           title="我的收藏"
           onClick={() => navigator("/favorite")} // 确保导航到正确的路径
         />
+        {/* 我的语料按钮 (仅医生可见) */}
         {userInfo?.user_role === 'doctor' && (
           <FunctionButton
             icon={<LibraryBooksOutlinedIcon />} // 使用语料图标
             title="我的语料" // 修改标题
             onClick={() => navigator("/corpus")} // 跳转到语料页面
           />)}
-        {/* 条件渲染：只有医生角色显示 */}
+        {/* 我的病人按钮 (仅医生可见) */}
         {userInfo?.user_role === 'doctor' && (
           <FunctionButton
             icon={<PeopleAltOutlinedIcon />}
             title="我的病人"
             onClick={() => navigator("/patients")} // 跳转到病人页面
+          />
+        )}
+        {/* 绑定管理按钮 (仅家属可见) */}
+        {userInfo?.user_role === 'relative' && (
+          <FunctionButton
+            icon={<LinkIcon />} // 使用链接/绑定图标
+            title="绑定管理"
+            onClick={() => navigator("/relative/management")} // 跳转到家属绑定管理页面 (待创建)
           />
         )}
       </div>

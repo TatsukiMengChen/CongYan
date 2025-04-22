@@ -1,5 +1,8 @@
 import http from '../utils/http';
 
+// 用户角色类型
+export type UserRole = "doctor" | "patient" | "relative"; // 添加 'relative'
+
 // 用户信息结构
 export interface UserInfo {
   id: number;
@@ -7,12 +10,14 @@ export interface UserInfo {
   username: string;
   created_at: string; // ISO 8601 format string
   avatar_url: string; // URL or path to avatar
-  user_role: 'patient' | 'doctor' | string; // Allow other roles as strings
+  user_role: UserRole; // 使用 UserRole 类型
   gender: 'male' | 'female' | string; // Allow 'other' or null/undefined initially
   birth_date: string | null; // ISO 8601 format string (YYYY-MM-DD) or null
   disease?: string | null; // Optional, can be string or null
   bind_doctor_id?: number; // Optional
   practice_duration_minutes?: number; // Optional
+  bind_patient_id?: number; // 添加新字段：家属绑定的病人 ID
+  updated_at: string; // ISO 8601 格式的时间字符串
 }
 
 // 获取用户信息接口返回类型
