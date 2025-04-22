@@ -1,0 +1,156 @@
+.pullToRefreshContainer {
+  height: 100%; // 确保容器占满父元素高度
+
+  :global {
+    .adm-pull-to-refresh {
+      height: 100%; // 使 PullToRefresh 组件本身也占满容器高度
+
+    }
+  }
+}
+
+// 任务列表容器
+.taskListContainer {
+  padding: 12px; // 为整个列表添加内边距
+}
+
+// 新增任务列表项样式
+.taskItem {
+  margin: 12px 0; // 墛加上下外边距
+  padding: 16px; // 墛加内边距
+  background: linear-gradient(145deg, #ffffff, #f8f9ff); // 渐变背景
+  border-radius: 12px; // 墛大圆角
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08); // 增强阴影效果
+  transition: all 0.3s ease; // 添加过渡效果
+  background-color: #fff; // 白色背景
+  padding: 12px 16px; // 内边距
+  margin-bottom: 10px; // 任务项之间的间距
+  border-radius: 8px; // 圆角
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05); // 轻微阴影增加层次感
+  transition: all 0.2s ease-out; // 为点击效果添加过渡
+
+  // 移除 antd-mobile 默认的下边框
+  :global(.adm-list-item-content) {
+    border-top: none !important;
+    border-bottom: none !important;
+    padding: 0 !important;
+  }
+  
+  &:active {
+    transform: scale(0.98); // 点击时的缩放效果
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1); // 点击时减弱阴影
+  }
+
+  // 可点击状态的样式
+  &.clickable {
+    cursor: pointer; // 手型光标
+    &:active {
+      background-color: #f0f0f0; // 点击时的背景色反馈
+    }
+  }
+}
+
+.taskTitle {
+  display: flex;
+  justify-content: space-between; // 标题和右侧内容（状态+箭头）两端对齐
+  align-items: center; // 垂直居中
+  font-size: 16px;
+  font-weight: 500;
+  margin-bottom: 8px;
+  color: #333;
+}
+
+// 限制标题文本宽度，防止过长挤压右侧内容
+.titleText {
+  flex: 1; // 占据多余空间
+  overflow: hidden; // 隐藏溢出部分
+  white-space: nowrap; // 不换行
+  text-overflow: ellipsis; // 显示省略号
+  margin-right: 8px; // 与右侧内容保持间距
+}
+
+// 新增：状态和箭头的包裹容器
+.statusArrowWrapper {
+  display: flex; // 使用 flex 布局内部元素
+  align-items: center; // 垂直居中状态标签和箭头
+  flex-shrink: 0; // 防止被压缩
+}
+
+.taskMeta {
+  font-size: 13px; // 墛大元数据字号
+  color: #666; // 稍微调亮颜色
+  line-height: 1.6; // 墛加行高
+  margin-top: 6px; // 墛加与标题间距
+  display: flex; // 使用弹性布局
+  flex-wrap: wrap; // 允许换行
+  display: flex;
+  justify-content: space-between; // 时间信息两端对齐
+  font-size: 12px;
+  color: #888; // 灰色字体
+  
+  > span { // 每个元数据项之间加点间距
+    margin-right: 16px; // 墛加间距
+    display: flex; // 使用弹性布局
+    align-items: center; // 垂直居中
+    display: flex; // 让图标和文字在同一行
+    align-items: center; // 垂直居中图标和文字
+    
+    &:last-child {
+      margin-right: 0; // 最后一个元素无右边距
+    }
+    
+    // 删除 ::before 伪元素，因为我们现在使用的是 MUI 图标
+    // &::before {
+    //   content: '';
+    //   display: inline-block;
+    //   width: 6px;
+    //   height: 6px;
+    //   border-radius: 50%;
+    //   background-color: #ddd;
+    //   margin-right: 6px;
+    // }
+  }
+}
+
+.taskStatus {
+  font-size: 12px;
+  padding: 2px 6px;
+  border-radius: 4px;
+  // 移除之前的 margin-left，由 wrapper 控制间距
+
+  &.finished {
+    background-color: #f6ffed; // 浅绿色背景
+    color: #52c41a; // 绿色字体
+    border: 1px solid #b7eb8f; // 绿色边框
+  }
+  
+  &.unfinished {
+    background-color: #e6f7ff; // 浅蓝色背景
+    color: #1890ff; // 蓝色字体
+    border: 1px solid #91d5ff; // 蓝色边框
+  }
+}
+
+// 全局加载状态和空状态美化
+.centerContent {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 200px;
+  flex-direction: column;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  padding: 40px 0; // 上下留白
+  height: 100%; // 尝试占满父容器高度
+}
+
+// 箭头指示器样式
+.arrowIndicator {
+  color: #bbb; // 灰色箭头
+  font-size: 16px; // 确保 sx prop 的设置生效，或者在这里设置
+  margin-left: 6px; // 状态标签和箭头之间的间距
+  display: flex; // 确保图标垂直居中（MUI 图标通常需要）
+  align-items: center;
+}

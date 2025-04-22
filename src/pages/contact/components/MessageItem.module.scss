@@ -1,0 +1,146 @@
+.bubbleStart {
+  :global {
+    .ant-bubble-content-shadow {
+      background-color: rgb(var(--mdui-color-on-secondary));
+    }
+
+    // .ant-bubble-content {
+    // }
+  }
+}
+
+.bubbleEnd {
+  :global {
+    .ant-bubble-content-shadow {
+      background-color: rgb(var(--mdui-color-secondary-container));
+    }
+
+    // .ant-bubble-content {
+    // }
+  }
+}
+
+.menu {
+  :global {
+    .MuiPaper-root {
+      box-shadow: rgba(0, 0, 0, 0.16) 0px 1px 4px;
+
+      .MuiList-root {
+        .MuiButtonBase-root {
+          min-height: 24px;
+        }
+      }
+    }
+  }
+}
+
+.bubble {
+  word-break: break-word;
+  overflow-wrap: break-word;
+
+  :global {
+    .ant-bubble-content {
+
+      h1,
+      h2,
+      h3,
+      h4,
+      h5,
+      h6 {
+        color: inherit;
+        margin-top: 0.5em;
+        margin-bottom: 0.2em;
+        line-height: 1.3;
+      }
+
+      h1 {
+        font-size: 1.4em;
+      }
+
+      h2 {
+        font-size: 1.25em;
+      }
+
+      h3 {
+        font-size: 1.15em;
+      }
+
+      p {
+        margin-bottom: 0.4em;
+        line-height: 1.5;
+        margin-top: 0.4em;
+      }
+
+      ul,
+      ol {
+        margin-left: 1.2em;
+        margin-bottom: 0.4em;
+        margin-top: 0.4em;
+        padding-left: 0;
+      }
+
+      code {
+        background-color: rgba(var(--mdui-color-surface-variant), 0.6);
+        padding: 0.1em 0.3em;
+        border-radius: 3px;
+        font-family: monospace;
+        font-size: 0.9em;
+      }
+
+      pre {
+        background-color: rgba(var(--mdui-color-surface), 0.8);
+        padding: 0.5em;
+        border-radius: 4px;
+        overflow-x: auto;
+        margin-bottom: 0.4em;
+        margin-top: 0.4em;
+        font-size: 0.9em;
+
+        code {
+          background-color: transparent;
+          padding: 0;
+        }
+      }
+
+      blockquote {
+        border-left: 3px solid rgba(var(--mdui-color-primary), 0.7);
+        padding-left: 0.7em;
+        margin: 0.4em 0 0.4em 0;
+        color: rgba(var(--mdui-color-on-surface), 0.7);
+      }
+
+      a {
+        color: rgb(var(--mdui-color-primary));
+        text-decoration: none;
+
+        &:hover {
+          text-decoration: underline;
+        }
+      }
+
+      table {
+        border-collapse: collapse;
+        width: 100%;
+        margin-bottom: 0.4em;
+        margin-top: 0.4em;
+        font-size: 0.9em;
+
+        th,
+        td {
+          border: 1px solid rgba(var(--mdui-color-outline), 0.3);
+          padding: 0.3em;
+        }
+
+        th {
+          background-color: rgba(var(--mdui-color-surface-variant), 0.5);
+        }
+      }
+
+      img {
+        max-width: 100%;
+        height: auto;
+        margin: 0.3em 0;
+      }
+    }
+  }
+}

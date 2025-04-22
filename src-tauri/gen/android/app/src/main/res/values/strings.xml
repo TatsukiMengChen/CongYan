@@ -1,4 +1,15 @@
 <resources>
-    <string name="app_name">聪言</string>
-    <string name="main_activity_title">聪言</string>
+  <string name="app_name">聪言</string>
+  <string name="main_activity_title">聪言</string>
+
+  <!-- Strings for WebviewActivity -->
+  <string name="title_activity_webview">WebView</string>
+  <string name="more_options">更多选项</string>
+  <string name="menu_refresh">刷新</string>
+  <string name="menu_copy_link">复制链接</string>
+  <string name="menu_open_in_browser">在浏览器打开</string>
+  <string name="menu_share">分享</string>
+
+  <!-- Strings for WebviewActivity Menu -->
+
 </resources>

@@ -17,12 +17,22 @@ import { ContactPage } from "./pages/contact";
 import TrainTextListPage from "./pages/features/train/trainTextList";
 import { HomePage } from "./pages/home";
 import { ProfilePage } from "./pages/profile";
+import ProfileDetailPage from "./pages/profile/detail"; // 引入 ProfileDetailPage
 import { SettingsPage } from "./pages/settings"; // 引入SettingsPage
 import { AboutSettingsPage } from "./pages/settings/about";
 import { AccountSettingsPage } from "./pages/settings/account";
+import { ChangePasswordPage } from "./pages/settings/changePassword"; // 导入修改密码页面
 import useAuthStore from "./store/auth";
-import TrainTextDetailPage from "./pages/features/train/trainTextDetail";
+import TrainDetailPage from "./pages/features/train/detail";
 import AnalysisPage from "./pages/features/analysis";
+import PatientsPage from "./pages/features/patients"; // 导入 PatientPage
+import PatientDetailPage from "./pages/features/patients/detail"; // 导入 PatientDetailPage
+import CorpusPage from "./pages/features/corpus"; // 导入 CorpusPage
+import TasksPage from "./pages/features/tasks"; // 导入 TasksPage
+import PersonalizedTrainingPage from "./pages/features/personalized";
+import FavoritePage from "./pages/features/favorite";
+import RelativeManagementPage from "./pages/features/relative/management"; // 导入家属管理页面
+import VoiceSettingsPage from "./pages/settings/voice";
 
 const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
   const { isAuthenticated } = useAuthStore();
@@ -95,7 +105,24 @@ const AnimatedRoutes = () => {
               path="/train/detail"
               element={
                 <ProtectedRoute>
-                  <TrainTextDetailPage />
+                  <TrainDetailPage />
+                </ProtectedRoute>
+              }
+            />
+            {/* 添加任务列表路由 */}
+            <Route
+              path="/tasks"
+              element={
+                <ProtectedRoute>
+                  <TasksPage />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/personalized"
+              element={
+                <ProtectedRoute>
+                  <PersonalizedTrainingPage />
                 </ProtectedRoute>
               }
             />
@@ -104,6 +131,14 @@ const AnimatedRoutes = () => {
               element={
                 <ProtectedRoute>
                   <AnalysisPage />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/favorite"
+              element={
+                <ProtectedRoute>
+                  <FavoritePage />
                 </ProtectedRoute>
               }
             />
@@ -128,6 +163,66 @@ const AnimatedRoutes = () => {
               element={
                 <ProtectedRoute>
                   <AccountSettingsPage />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/settings/voice"
+              element={
+                <ProtectedRoute>
+                  <VoiceSettingsPage />
+                </ProtectedRoute>
+              }
+            />
+            {/* 添加修改密码路由 */}
+            <Route
+              path="/settings/change-password"
+              element={
+                <ProtectedRoute>
+                  <ChangePasswordPage />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/profile/detail" // 添加 profile detail 路由
+              element={
+                <ProtectedRoute>
+                  <ProfileDetailPage />
+                </ProtectedRoute>
+              }
+            />
+            {/* 添加我的病人路由 */}
+            <Route
+              path="/patients"
+              element={
+                <ProtectedRoute>
+                  <PatientsPage />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/patients/detail" // 新增：病人详情页
+              element={
+                <ProtectedRoute>
+                  <PatientDetailPage />
+                </ProtectedRoute>
+              }
+            />
+            {/* 添加我的语料路由 */}
+            <Route
+              path="/corpus"
+              element={
+                <ProtectedRoute>
+                  <CorpusPage />
+                </ProtectedRoute>
+              }
+            />
+            {/* 添加家属绑定管理路由 */}
+            <Route
+              path="/relative/management"
+              element={
+                <ProtectedRoute>
+                  <RelativeManagementPage />
                 </ProtectedRoute>
               }
             />

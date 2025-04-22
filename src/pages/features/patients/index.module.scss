@@ -1,0 +1,14 @@
+.card {
+  background: white;
+  margin-bottom: 16px;
+
+  :global {
+    .ant-card-body {
+      padding: 0;
+    }
+  }
+
+  @media (prefers-color-scheme: dark) {
+    background: #1f1f1f;
+  }
+}

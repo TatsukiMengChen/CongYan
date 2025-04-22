@@ -1,0 +1,24 @@
+.gradientButton {
+  // 使用更柔和的渐变
+  background: linear-gradient(95deg, #E3F2FD 0%, #E8EAF6 50%, #F3E5F5 100%);
+  color: #333; // 设置默认文字颜色
+  flex: 1;
+  min-width: 80px;
+  transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+
+  &:hover {
+    transform: translateY(-2px);
+    // 调整悬停阴影
+    box-shadow: 0 3px 6px rgba(0, 0, 0, 0.1);
+    // 可以考虑在 hover 时略微加深渐变或改变文字颜色
+  }
+
+  @media (prefers-color-scheme: dark) {
+    // 调整暗色模式渐变和文字颜色
+    background: linear-gradient(95deg, #37474F 0%, #455A64 50%, #546E7A 100%);
+    color: #ECEFF1; // 设置暗色模式文字颜色
+    &:hover {
+       box-shadow: 0 3px 6px rgba(0, 0, 0, 0.4);
+    }
+  }
+}

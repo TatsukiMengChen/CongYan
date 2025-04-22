@@ -4,6 +4,7 @@ html {
   overflow: hidden;
   user-select: none;
   background: #fcfcff;
+
   @media (prefers-color-scheme: dark) {
     background: #1a1c1e;
   }
@@ -17,6 +18,11 @@ img {
 
 #root {
   height: 100vh;
+}
+
+.hanzi-kaiti {
+  font-weight: bold;
+  font-family: "Kaiti", "Kaiti SC", "Kaiti TC", "楷体", "楷体_GB2312", serif;
 }
 
 .container {
@@ -35,7 +41,18 @@ img {
 .ant-card {
   box-shadow: rgba(33, 35, 38, 0.1) 0px 10px 10px -10px;
   background: #fcfcff;
+
   @media (prefers-color-scheme: dark) {
     background: #1a1c1e;
+  }
+}
+
+.adm-pull-to-refresh {
+  height: 100%;
+  overflow: hidden;
+
+  .adm-pull-to-refresh-content {
+    height: 100%;
+    overflow-y: auto;
   }
 }

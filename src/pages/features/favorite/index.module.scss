@@ -1,0 +1,137 @@
+.pullToRefreshContainer {
+  height: 100%; // 确保容器占满父元素高度
+
+  :global {
+    .adm-pull-to-refresh {
+      height: 100%; // 使 PullToRefresh 组件本身也占满容器高度
+    }
+  }
+}
+
+.centerContent {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 200px;
+  flex-direction: column;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  padding: 40px 0; // 上下留白
+  height: 100%; // 尝试占满父容器高度
+}
+
+// 添加网格布局样式
+.favoriteGrid {
+  display: grid;
+  // 每列最小 70px，自动填充，尽可能多地在一行显示
+  grid-template-columns: repeat(auto-fill, minmax(70px, 1fr));
+  gap: 8px; // 网格项之间的间距
+  padding: 16px; // 容器内边距
+}
+
+.gridItem {
+  display: flex;
+  flex-direction: column; // 改为垂直布局
+  justify-content: center; // 主轴居中（垂直）
+  align-items: center; // 交叉轴居中（水平）
+  font-size: 2em; // 汉字大小
+  font-weight: 500;
+  color: #333;
+  border: 1px solid #eee; // 边框
+  border-radius: 8px; // 圆角
+  cursor: pointer;
+  // aspect-ratio: 1 / 1; // 移除固定宽高比，让内容决定高度
+  padding: 12px 8px; // 调整内边距
+  background-color: #fff; // 背景色
+  transition: background-color 0.2s ease; // 点击效果过渡
+  text-align: center; // 确保文字居中
+
+  &:hover {
+    background-color: #f9f9f9; // 悬停效果
+  }
+}
+
+// 新增日期样式
+.gridItemDate {
+  font-size: 0.4em; // 进一步减小日期字体大小
+  color: #999; // 日期颜色
+  margin-top: 2px; // 与汉字的间距
+  white-space: nowrap; // 防止日期换行
+}
+
+// 移除不再使用的样式注释
+/*
+.favoriteContainer {
+  display: flex;
+  height: 100%;
+  position: relative;
+}
+
+.favoriteList {
+  flex: 1;
+  overflow-y: auto;
+  height: 100%;
+}
+
+.indexBar {
+  width: 30px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  padding: 5px 0;
+  background-color: rgba(0, 0, 0, 0.02);
+}
+
+.indexItem {
+  font-size: 12px;
+  padding: 2px 0;
+  cursor: pointer;
+  color: #666;
+  
+  &.active {
+    color: #1677ff;
+    font-weight: bold;
+  }
+}
+
+.groupHeader {
+  padding: 8px 16px;
+  background-color: #f5f5f5;
+  font-weight: bold;
+  font-size: 14px;
+  color: #666;
+  position: sticky;
+  top: 0;
+  z-index: 1;
+}
+
+.favoriteItem { // 如果 List.Item 默认样式足够，可以移除
+  display: flex;
+  align-items: center;
+  padding: 12px 16px;
+  border-bottom: 1px solid #f0f0f0;
+  
+  .character {
+    font-size: 1.5em;
+    margin-right: 12px;
+  }
+  
+  .meta {
+    flex: 1;
+    
+    .pinyin {
+      font-size: 12px;
+      color: #666;
+      margin-bottom: 4px;
+    }
+    
+    .date {
+      font-size: 12px;
+      color: #999;
+    }
+  }
+}
+*/

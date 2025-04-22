@@ -1,0 +1,17 @@
+.searchBar {
+  width: 100%;
+  padding: 10px 16px;
+  // box-shadow: rgba(0, 0, 0, 0.16) 0px 1px 4px; // 移除阴影
+  border-bottom: 1px solid rgb(var(--mdui-color-outline-variant)); // 添加下边框
+  box-sizing: border-box;
+  background-color: rgb(var(--mdui-color-surface)); // 添加背景色确保覆盖内容
+
+  :global {
+    .container {
+      width: 100%;
+      border-radius: 20px;
+      height: 40px;
+      background: rgb(var(--mdui-color-secondary-container));
+    }
+  }
+}

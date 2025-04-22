@@ -1,0 +1,25 @@
+.personalizedTrainingCardBody {
+  padding: 16px 20px;
+  // 复用 ProgressArea 的渐变背景
+  background: linear-gradient(135deg, rgba(243, 229, 245, 0.8) 0%, rgba(225, 245, 254, 0.8) 100%);
+  background-color: #fff; // 确保有底色
+  transition: background 0.3s ease;
+  border-radius: inherit; // 继承 Card 的圆角
+
+  @media (prefers-color-scheme: dark) {
+    // 暗色模式背景
+    background: linear-gradient(135deg, rgba(84, 110, 122, 0.8) 0%, rgba(55, 71, 79, 0.8) 100%);
+    background-color: #263238; // 暗色底色
+  }
+}
+
+.titleContainer {
+  display: flex;
+  align-items: center;
+  margin-bottom: 8px; // 标题和描述之间的间距
+}
+
+.icon {
+  margin-right: 8px; // 图标和标题文字的间距
+  color: var(--adm-color-primary); // 使用 Ant Design Mobile 的主题色
+}

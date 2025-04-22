@@ -10,7 +10,7 @@ export const ScrollView = ({
   ...props
 }: ScrollView) => {
   return (
-    <div className={`h-full overflow-y-auto ${className}`} {...props}>
+    <div className={`box-border h-full overflow-y-auto ${className}`} {...props}>
       {children}
     </div>
   );

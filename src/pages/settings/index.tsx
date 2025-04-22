@@ -2,7 +2,6 @@ import { Button, Divider } from "@mui/material";
 import { message } from "antd";
 import { Dialog } from "antd-mobile";
 import { useNavigate } from "react-router";
-import { LogoutAPI } from "../../api/auth";
 import Navbar from "../../components/Navbar";
 import { OptionButton } from "../../components/OptionButton";
 import { ScrollView } from "../../components/ScrollView";
@@ -32,14 +31,10 @@ export const SettingsPage = () => {
       ],
       onAction: (action) => {
         if (action.key === "ok") {
-          message.loading({ content: "正在退出登录...", key: "logout" });
-          LogoutAPI().then((res) => {
-            if (res.code == 200 || res.code == 400) {
-              message.success({ content: "退出登录成功", key: "logout" });
-              logout();
-              navigator(-1);
-            }
-          });
+          logout();
+          navigator(-1);
+          message.success({ content: "退出登录成功", key: "logout" });
+          window.location.reload(); // 刷新页面
         }
       },
     });
@@ -50,6 +45,8 @@ export const SettingsPage = () => {
       <Navbar onBack={() => navigator(-1)}>设置</Navbar>
       <ScrollView >
         <OptionButton title="账号管理" onClick={() => navigator("account")} />
+        <Divider />
+        <OptionButton title="语音模型选择" onClick={() => navigator("voice")} /> {/* 新增 */}
         <Divider />
         <OptionButton title="关于聪言" onClick={() => navigator("about")} />
         <div className="px-5 py-2 color-gray">隐私</div>
