@@ -1,5 +1,5 @@
-import { BugOutlined, ClearOutlined, CodeOutlined, InfoCircleOutlined, PlayCircleOutlined, ShrinkOutlined } from '@ant-design/icons';
-import { Button, Card, FloatButton, Input, List, Space, Tabs, Tag, Tooltip, Typography } from 'antd'; // 导入 FloatButton 和 Tooltip
+import { BugOutlined, ClearOutlined, CloudOutlined, CodeOutlined, InfoCircleOutlined, PlayCircleOutlined, ShrinkOutlined } from '@ant-design/icons'; // 导入 CloudOutlined
+import { Button, Card, FloatButton, Input, List, Modal, Space, Spin, Tabs, Tag, Tooltip, Typography } from 'antd'; // 导入 FloatButton, Tooltip, Spin, Modal
 import React, { useCallback, useEffect, useRef, useState } from "react";
 
 interface DebugOverlayProps {
@@ -14,7 +14,30 @@ interface ConsoleMessage {
   message: any[]; // Store message arguments
 }
 
+// --- Network Log Types ---
+type NetworkLogStatus = 'pending' | 'success' | 'error';
+interface NetworkLog {
+  id: string; // Unique identifier for the request
+  url: string;
+  method: string;
+  status?: number;
+  statusText?: string;
+  startTime: number;
+  endTime?: number;
+  duration?: number;
+  logStatus: NetworkLogStatus;
+  type: 'fetch' | 'xhr';
+  requestHeaders?: Record<string, string>;
+  requestBody?: any;
+  responseHeaders?: Record<string, string>;
+  responseBody?: any; // Store response body if possible
+  error?: any; // Store error object
+}
+// --- End Network Log Types ---
+
+
 const MAX_CONSOLE_MESSAGES = 50; // Limit the number of messages stored
+const MAX_NETWORK_LOGS = 50; // Limit the number of network logs stored
 
 const { TabPane } = Tabs;
 
@@ -39,7 +62,9 @@ const DebugOverlay: React.FC<DebugOverlayProps> = ({ prefersDarkMode }) => {
   const floatButtonRef = useRef<HTMLDivElement>(null); // Ref for the float button
   const [consoleMessages, setConsoleMessages] = useState<ConsoleMessage[]>([]);
   const [consoleInput, setConsoleInput] = useState<string>(''); // State for console input
+  const [networkLogs, setNetworkLogs] = useState<NetworkLog[]>([]); // State for network logs
   const [activeTab, setActiveTab] = useState<string>('info'); // State for active tab
+  const [selectedNetworkLog, setSelectedNetworkLog] = useState<NetworkLog | null>(null); // State for modal
 
   const updateDebugInfo = useCallback(() => { // Wrap in useCallback
     setDebugInfo({
@@ -139,6 +164,243 @@ const DebugOverlay: React.FC<DebugOverlayProps> = ({ prefersDarkMode }) => {
       window.removeEventListener('unhandledrejection', rejectionHandler);
     };
   }, []); // Run only once on mount
+
+  // --- Network Interception ---
+  useEffect(() => {
+    const originalFetch = window.fetch;
+    const originalXhrOpen = XMLHttpRequest.prototype.open;
+    const originalXhrSend = XMLHttpRequest.prototype.send;
+    const originalXhrSetRequestHeader = XMLHttpRequest.prototype.setRequestHeader;
+
+    const addNetworkLog = (log: Partial<NetworkLog> & { id: string }) => {
+      setNetworkLogs(prevLogs => {
+        const existingIndex = prevLogs.findIndex(l => l.id === log.id);
+        let updatedLogs;
+        if (existingIndex !== -1) {
+          // Update existing log
+          const updatedLog = { ...prevLogs[existingIndex], ...log };
+          if (updatedLog.startTime && updatedLog.endTime) {
+            updatedLog.duration = updatedLog.endTime - updatedLog.startTime;
+          }
+          updatedLogs = [...prevLogs];
+          updatedLogs[existingIndex] = updatedLog;
+        } else {
+          // Add new log
+          updatedLogs = [{ ...log, startTime: Date.now(), logStatus: 'pending' } as NetworkLog, ...prevLogs];
+          if (updatedLogs.length > MAX_NETWORK_LOGS) {
+            updatedLogs.length = MAX_NETWORK_LOGS;
+          }
+        }
+        return updatedLogs;
+      });
+    };
+
+    // Intercept Fetch
+    window.fetch = async (input: RequestInfo | URL, init?: RequestInit): Promise<Response> => {
+      const id = `fetch-${Date.now()}-${Math.random().toString(16).slice(2)}`;
+      const url = typeof input === 'string' ? input : (input instanceof URL ? input.href : input.url);
+      const method = init?.method?.toUpperCase() ?? 'GET';
+      const requestHeaders: Record<string, string> = {};
+      if (init?.headers) {
+        if (init.headers instanceof Headers) {
+          init.headers.forEach((value, key) => { requestHeaders[key] = value; });
+        } else if (Array.isArray(init.headers)) {
+          init.headers.forEach(([key, value]) => { requestHeaders[key] = value; });
+        } else {
+          Object.assign(requestHeaders, init.headers);
+        }
+      }
+
+      addNetworkLog({
+        id,
+        url,
+        method,
+        type: 'fetch',
+        requestHeaders,
+        requestBody: init?.body, // Note: Body might be stream, difficult to capture fully here
+      });
+
+      const startTime = Date.now();
+      try {
+        const response = await originalFetch(input, init);
+        const endTime = Date.now();
+        const responseHeaders: Record<string, string> = {};
+        response.headers.forEach((value, key) => { responseHeaders[key] = value; });
+
+        // Clone response to read body safely
+        const clonedResponse = response.clone();
+        let responseBody: any = '[Response body not captured]';
+        try {
+          // Attempt to read body based on content type
+          const contentType = response.headers.get('content-type');
+          if (contentType?.includes('application/json')) {
+            responseBody = await clonedResponse.json();
+          } else if (contentType?.includes('text')) {
+            responseBody = await clonedResponse.text();
+          } else {
+            responseBody = '[Binary or unsupported content type]';
+          }
+        } catch (bodyError) {
+          console.error("Error reading response body:", bodyError);
+          responseBody = '[Error reading response body]';
+        }
+
+
+        addNetworkLog({
+          id,
+          status: response.status,
+          statusText: response.statusText,
+          endTime,
+          logStatus: response.ok ? 'success' : 'error',
+          responseHeaders,
+          responseBody,
+        });
+        return response;
+      } catch (error) {
+        const endTime = Date.now();
+        addNetworkLog({
+          id,
+          endTime,
+          logStatus: 'error',
+          status: 0, // Indicate network error
+          statusText: 'Fetch Failed',
+          error: error instanceof Error ? error.message : String(error),
+        });
+        throw error;
+      }
+    };
+
+    // Intercept XMLHttpRequest
+    const xhrDataMap = new Map<XMLHttpRequest, { id: string; method: string; url: string; requestHeaders: Record<string, string> }>();
+
+    XMLHttpRequest.prototype.open = function (method: string, url: string | URL, async?: boolean, username?: string | null, password?: string | null): void {
+      const id = `xhr-${Date.now()}-${Math.random().toString(16).slice(2)}`;
+      const urlString = url instanceof URL ? url.href : url;
+      xhrDataMap.set(this, { id, method: method.toUpperCase(), url: urlString, requestHeaders: {} });
+
+      addNetworkLog({
+        id,
+        url: urlString,
+        method: method.toUpperCase(),
+        type: 'xhr',
+      });
+
+      // Add listeners to capture response/error
+      this.addEventListener('load', () => {
+        const data = xhrDataMap.get(this);
+        if (!data) return;
+        const endTime = Date.now();
+        const responseHeaders: Record<string, string> = {};
+        const headersString = this.getAllResponseHeaders();
+        if (headersString) {
+          const lines = headersString.trim().split(/[\r\n]+/);
+          lines.forEach(line => {
+            const parts = line.split(': ');
+            const header = parts.shift();
+            const value = parts.join(': ');
+            if (header) responseHeaders[header.toLowerCase()] = value;
+          });
+        }
+
+        let responseBody: any = '[Response body not captured]';
+        try {
+          if (this.responseType === '' || this.responseType === 'text') {
+            responseBody = this.responseText;
+            // Try parsing if JSON
+            try {
+              if (responseHeaders['content-type']?.includes('application/json') && typeof responseBody === 'string') {
+                responseBody = JSON.parse(responseBody);
+              }
+            } catch { /* Ignore parsing error */ }
+          } else if (this.responseType === 'json') {
+            responseBody = this.response;
+          } else if (this.response) {
+            responseBody = `[${this.responseType} response]`;
+          }
+        } catch (e) {
+          responseBody = '[Error accessing response body]';
+        }
+
+
+        addNetworkLog({
+          id: data.id,
+          status: this.status,
+          statusText: this.statusText,
+          endTime,
+          logStatus: this.status >= 200 && this.status < 300 ? 'success' : 'error',
+          responseHeaders,
+          responseBody,
+        });
+        xhrDataMap.delete(this);
+      });
+
+      this.addEventListener('error', () => {
+        const data = xhrDataMap.get(this);
+        if (!data) return;
+        const endTime = Date.now();
+        addNetworkLog({
+          id: data.id,
+          status: this.status, // May be 0 for network errors
+          statusText: this.statusText || 'XHR Error',
+          endTime,
+          logStatus: 'error',
+          error: 'Network request failed',
+        });
+        xhrDataMap.delete(this);
+      });
+
+      this.addEventListener('abort', () => {
+        const data = xhrDataMap.get(this);
+        if (!data) return;
+        const endTime = Date.now();
+        addNetworkLog({
+          id: data.id,
+          status: this.status,
+          statusText: 'Aborted',
+          endTime,
+          logStatus: 'error', // Consider aborted as error or separate status
+          error: 'Request aborted',
+        });
+        xhrDataMap.delete(this);
+      });
+
+
+      return originalXhrOpen.call(this, method, url, async ?? true, username, password);
+    };
+
+    XMLHttpRequest.prototype.setRequestHeader = function (header: string, value: string): void {
+      const data = xhrDataMap.get(this);
+      if (data) {
+        data.requestHeaders[header] = value;
+      }
+      return originalXhrSetRequestHeader.call(this, header, value);
+    };
+
+
+    XMLHttpRequest.prototype.send = function (body?: Document | XMLHttpRequestBodyInit | null): void {
+      const data = xhrDataMap.get(this);
+      if (data) {
+        // Update the log with potentially finalized headers and body
+        addNetworkLog({
+          id: data.id,
+          requestHeaders: data.requestHeaders,
+          requestBody: body, // Note: Body might be complex type
+        });
+      }
+      return originalXhrSend.call(this, body);
+    };
+
+
+    // Cleanup
+    return () => {
+      window.fetch = originalFetch;
+      XMLHttpRequest.prototype.open = originalXhrOpen;
+      XMLHttpRequest.prototype.send = originalXhrSend;
+      XMLHttpRequest.prototype.setRequestHeader = originalXhrSetRequestHeader;
+    };
+  }, []); // Run only once on mount
+  // --- End Network Interception ---
+
 
   // --- Drag Logic ---
   const handleMouseDown = (e: React.MouseEvent<HTMLDivElement>) => {
@@ -267,6 +529,13 @@ const DebugOverlay: React.FC<DebugOverlayProps> = ({ prefersDarkMode }) => {
     setConsoleMessages([]);
   };
 
+  // --- Add clearNetworkLogs function ---
+  const clearNetworkLogs = (e?: React.MouseEvent) => {
+    e?.stopPropagation();
+    setNetworkLogs([]);
+  };
+  // --- End clearNetworkLogs function ---
+
   // --- Console Execution ---
   const executeConsoleInput = () => {
     if (!consoleInput.trim()) return;
@@ -350,6 +619,35 @@ const DebugOverlay: React.FC<DebugOverlayProps> = ({ prefersDarkMode }) => {
     }
   };
 
+  // --- Network Log Detail Modal ---
+  const showNetworkLogDetails = (log: NetworkLog) => {
+    setSelectedNetworkLog(log);
+  };
+
+  const handleCloseModal = () => {
+    setSelectedNetworkLog(null);
+  };
+
+  const renderDetailContent = (data: any): React.ReactNode => {
+    if (data === undefined || data === null) return <Text type="secondary">N/A</Text>;
+    if (typeof data === 'string') {
+      try {
+        // Try pretty-printing if it's a JSON string
+        const parsed = JSON.parse(data);
+        return <pre style={{ margin: 0, whiteSpace: 'pre-wrap', wordBreak: 'break-all' }}>{JSON.stringify(parsed, null, 2)}</pre>;
+      } catch {
+        // Otherwise, display as plain text
+        return <pre style={{ margin: 0, whiteSpace: 'pre-wrap', wordBreak: 'break-all' }}>{data}</pre>;
+      }
+    }
+    if (typeof data === 'object') {
+      return <pre style={{ margin: 0, whiteSpace: 'pre-wrap', wordBreak: 'break-all' }}>{JSON.stringify(data, null, 2)}</pre>;
+    }
+    return <Text>{String(data)}</Text>;
+  };
+  // --- End Network Log Detail Modal ---
+
+
   // --- Styles ---
   const commonWrapperStyle: React.CSSProperties = {
     position: 'fixed',
@@ -388,6 +686,12 @@ const DebugOverlay: React.FC<DebugOverlayProps> = ({ prefersDarkMode }) => {
 
   const consoleListStyle: React.CSSProperties = {
     maxHeight: 'calc(70vh - 90px)', // Adjust max height considering tab bar and input
+    overflowY: 'auto',
+    paddingRight: '8px', // Add some padding for scrollbar
+  };
+
+  const networkListStyle: React.CSSProperties = {
+    maxHeight: 'calc(70vh - 50px)', // Adjust max height considering tab bar
     overflowY: 'auto',
     paddingRight: '8px', // Add some padding for scrollbar
   };
@@ -444,7 +748,6 @@ const DebugOverlay: React.FC<DebugOverlayProps> = ({ prefersDarkMode }) => {
         bodyStyle={cardBodyStyle}
       // Remove cursor style from Card itself, handled by wrapper/title
       >
-        {/* Tabs and content remain the same */}
         <Tabs activeKey={activeTab} onChange={setActiveTab} size="small" style={{ marginBottom: 0 }}>
           <TabPane
             tab={<span><InfoCircleOutlined /> Info</span>}
@@ -475,7 +778,7 @@ const DebugOverlay: React.FC<DebugOverlayProps> = ({ prefersDarkMode }) => {
                   icon={<ClearOutlined />}
                   onClick={clearConsole}
                   title="Clear Console"
-                  style={{ marginLeft: '8px' }}
+                  style={{ marginLeft: 'auto' }} // Push button to the right
                 />
               </Space>
             }
@@ -511,8 +814,94 @@ const DebugOverlay: React.FC<DebugOverlayProps> = ({ prefersDarkMode }) => {
               spellCheck={false}
             />
           </TabPane>
+          {/* --- Network Tab --- */}
+          <TabPane
+            tab={
+              <Space size="small">
+                <CloudOutlined />
+                <span>Network</span>
+                <Button
+                  type="text"
+                  danger
+                  size="small"
+                  icon={<ClearOutlined />}
+                  onClick={clearNetworkLogs}
+                  title="Clear Network Logs"
+                  style={{ marginLeft: 'auto' }} // Push button to the right
+                />
+              </Space>
+            }
+            key="network"
+            style={tabPaneStyle} // Reuse style or create specific one
+          >
+            <List
+              size="small"
+              dataSource={networkLogs}
+              renderItem={(log) => (
+                <List.Item
+                  style={{ padding: '3px 0', borderBottom: '1px dashed #eee', cursor: 'pointer' }}
+                  onClick={() => showNetworkLogDetails(log)}
+                >
+                  <Space align="center" style={{ width: '100%', justifyContent: 'space-between' }}>
+                    <Space align="center">
+                      <Tag color={log.logStatus === 'success' ? 'success' : log.logStatus === 'error' ? 'error' : 'processing'} style={{ width: '65px', textAlign: 'center', marginRight: 0 }}>
+                        {log.logStatus === 'pending' ? <Spin size="small" /> : (log.status ?? 'N/A')}
+                      </Tag>
+                      <Tag style={{ width: '45px', textAlign: 'center', marginRight: 0 }}>{log.method}</Tag>
+                      <Tooltip title={log.url}>
+                        <Text style={{ maxWidth: '150px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', verticalAlign: 'middle' }} >
+                          {log.url.split('/').pop() || log.url} {/* Show filename or full URL */}
+                        </Text>
+                      </Tooltip>
+                    </Space>
+                    <Text type="secondary" style={{ fontSize: '10px' }}>
+                      {log.duration !== undefined ? `${log.duration}ms` : '...'}
+                    </Text>
+                  </Space>
+                </List.Item>
+              )}
+              locale={{ emptyText: 'No network activity recorded.' }}
+              style={networkListStyle} // Apply style to List
+            />
+          </TabPane>
+          {/* --- End Network Tab --- */}
         </Tabs>
       </Card>
+      {/* --- Network Log Detail Modal --- */}
+      <Modal
+        title="Network Request Details"
+        open={!!selectedNetworkLog}
+        onCancel={handleCloseModal}
+        footer={null} // No default buttons
+        width={600} // Adjust width as needed
+        destroyOnClose // Destroy modal state when closed
+      >
+        {selectedNetworkLog && (
+          <Tabs defaultActiveKey="headers" size="small">
+            <TabPane tab="Headers" key="headers">
+              <Typography.Title level={5}>Request Headers</Typography.Title>
+              {renderDetailContent(selectedNetworkLog?.requestHeaders)}
+              <Typography.Title level={5} style={{ marginTop: 16 }}>Response Headers</Typography.Title>
+              {renderDetailContent(selectedNetworkLog?.responseHeaders)}
+            </TabPane>
+            <TabPane tab="Request" key="request">
+              <Typography.Title level={5}>Request Payload</Typography.Title>
+              {renderDetailContent(selectedNetworkLog?.requestBody)}
+            </TabPane>
+            <TabPane tab="Response" key="response">
+              <Typography.Title level={5}>Response Body</Typography.Title>
+              {renderDetailContent(selectedNetworkLog?.responseBody)}
+            </TabPane>
+            {selectedNetworkLog?.error && (
+              <TabPane tab="Error" key="error">
+                <Typography.Title level={5}>Error</Typography.Title>
+                {renderDetailContent(selectedNetworkLog?.error)}
+              </TabPane>
+            )}
+          </Tabs>
+        )}
+      </Modal>
+      {/* --- End Network Log Detail Modal --- */}
     </div>
   );
 };

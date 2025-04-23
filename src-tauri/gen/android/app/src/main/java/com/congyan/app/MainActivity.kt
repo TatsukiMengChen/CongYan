@@ -67,11 +67,11 @@ class MainActivity : TauriActivity() {
     when (keyCode) {
       KeyEvent.KEYCODE_VOLUME_UP -> {
         appendSequence('+')
-        return true // Consume the event
+        // return true // Consume the event - REMOVED
       }
       KeyEvent.KEYCODE_VOLUME_DOWN -> {
         appendSequence('-')
-        return true // Consume the event
+        // return true // Consume the event - REMOVED
       }
       KeyEvent.KEYCODE_BACK -> {
         if (mWebView.canGoBack()) {
@@ -92,6 +92,7 @@ class MainActivity : TauriActivity() {
         return true
       }
     }
+    // Allow system to handle volume keys after sequence check
     return super.onKeyDown(keyCode, event)
   }
 
