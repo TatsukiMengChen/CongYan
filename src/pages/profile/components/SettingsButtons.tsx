@@ -45,12 +45,12 @@ export const SettingsButtons: React.FC = () => {
       <FunctionButton2
         icon={<HelpOutlineOutlinedIcon />}
         title="使用帮助"
-        onClick={() => navigator("/help")} // 假设帮助页路由为 /help
+        // onClick={() => navigator("/help")} // 假设帮助页路由为 /help
       />
       <FunctionButton2
         icon={<InfoOutlinedIcon />}
         title="关于软件"
-        onClick={() => navigator("/about")} // 假设关于页路由为 /about
+        // onClick={() => navigator("/about")} // 假设关于页路由为 /about
       />
       <FunctionButton2
         icon={<SettingsOutlinedIcon />}

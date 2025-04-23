@@ -121,11 +121,11 @@ export const PasswordLoginAPI = async (
     }
     // Throw or return a generic error structure if needed
     // For consistency, let's return a structure matching LoginAPIRes
-     return {
-       status: 1,
-       code: "passwordLoginRequestFailed", // Generic frontend error code
-       message: error.message || "密码登录请求失败"
-     };
+    return {
+      status: 1,
+      code: "passwordLoginRequestFailed", // Generic frontend error code
+      message: error.message || "密码登录请求失败"
+    };
   }
 };
 
@@ -215,8 +215,8 @@ export const RegisterAPI = async (
   user_role: string,
   birth_date: string, // 期望 ISO 字符串格式，例如 "2009-02-14T00:00:00Z"
   gender: string,
-  password?: string, // 密码可能仍然需要，具体取决于逻辑
   geetestResult?: GeetestResult | null, // 添加可选 Geetest 参数
+  password?: string, // 密码可能仍然需要，具体取决于逻辑
 ): Promise<NewUserDetailAPIRes> => {
   console.log("调用注册接口:", {
     phone_number,
