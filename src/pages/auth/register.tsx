@@ -5,11 +5,13 @@ import ArrowBackIosNewIcon from "@mui/icons-material/ArrowBackIosNew";
 import IconButton from "@mui/material/IconButton";
 import Link from "@mui/material/Link";
 import { message } from "antd";
+import { jwtDecode } from "jwt-decode"; // 导入 jwt-decode
 import { useNavigate } from "react-router";
 // 导入更新后的 API 函数 和 GeetestResult 类型
 import { AskCodeAPI, RegisterAPI, GeetestResult, CheckRegisteredStatusAPI } from "../../api/auth";
 import PrivacyPolicy from "../../components/PrivacyPolicy";
 import UserAgreement from "../../components/UserAgreement";
+import useAuthStore from "../../store/auth"; // 导入 useAuthStore
 import useInputStore from "../../store/input";
 import { AuthCard } from "./components/AuthCard";
 import { AuthContainer } from "./components/AuthContainer";
@@ -29,7 +31,16 @@ import { VerificationCodeInput } from "./components/VerificationCodeInput";
 // import Typography from "@mui/material/Typography";
 import { useCaptcha } from "../../hooks/useCaptcha"; // 导入 useCaptcha
 
+// 定义解码后的 Payload 类型 (与 login.tsx 保持一致)
+interface DecodedToken {
+  id: number;
+  'phone-number': string;
+  role: string;
+  exp: number;
+}
+
 export const RegisterPage = () => {
+  const { login: authLogin } = useAuthStore(); // 获取 Zustand 的 login 函数
   // ... existing state variables ...
   const { input: isTyping } = useInputStore();
   const [step, setStep] = useState(1); // 添加步骤状态，默认为 1
@@ -68,7 +79,6 @@ export const RegisterPage = () => {
     }
   });
 
-
   // ... 现有的验证码计时器 useEffect ...
   useEffect(() => {
     let timer: number;
@@ -97,12 +107,10 @@ export const RegisterPage = () => {
     // 验证码在提交时验证，不在这一步
     step1Errors.verificationCode = "";
 
-
     if (!step1Valid) {
       setErrors(step1Errors);
       return false;
     }
-
 
     let valid = true;
     const newErrors = { ...step1Errors }; // 保留步骤1的错误（如果有）
@@ -145,7 +153,6 @@ export const RegisterPage = () => {
       newErrors.verificationCode = ""; // 如果有效则清除错误
     }
 
-
     setErrors(newErrors);
     return valid;
     // 移除 password, confirmPassword 依赖
@@ -178,7 +185,6 @@ export const RegisterPage = () => {
     setStep(1); // 返回步骤 1
   };
 
-
   // 内部函数：实际执行注册 API 调用
   const performRegister = useCallback(async (registerGeetestResult: GeetestResult) => {
     // ... (格式化 birthDateString) ...
@@ -199,12 +205,61 @@ export const RegisterPage = () => {
         registerGeetestResult // 传递人机验证结果
       );
       console.log("RegisterAPI 响应:", res);
-      if (res.status === 0 && res.code === "registrationSuccessful") {
+      if (res.status === 0 && res.code === "registrationSuccessful" && res.data?.jwt_token) {
         message.success({ content: res.message || "注册成功", key: "register" });
-        console.log("注册成功，JWT Token:", res.data?.jwt_token);
-        navigator("/login"); // 跳转到登录页
+        console.log("注册成功，JWT Token:", res.data.jwt_token);
+
+        // --- 开始处理登录逻辑 ---
+        const token = res.data.jwt_token;
+        let decodedPayload: DecodedToken | null = null;
+        let username = "User"; // 默认值
+        let role = "unknown"; // 默认值
+        let expiryTimestamp = Date.now() + 3600 * 1000; // 默认1小时后过期
+
+        try {
+          // 解码 JWT Token
+          decodedPayload = jwtDecode<DecodedToken>(token);
+          console.log("Decoded Token (Register):", decodedPayload);
+
+          // 从解码后的 payload 中获取信息
+          username = decodedPayload['phone-number'] || username;
+          role = decodedPayload.role || role;
+          expiryTimestamp = decodedPayload.exp * 1000; // JWT exp 是秒，转为毫秒
+
+          // 将解码后的用户信息存储到 localStorage
+          localStorage.setItem('userInfo', JSON.stringify({
+            id: decodedPayload.id,
+            phone_number: decodedPayload['phone-number'],
+            role: decodedPayload.role,
+          }));
+          localStorage.setItem('jwtToken', token);
+
+        } catch (error) {
+          console.error("解码 JWT Token 失败 (Register):", error);
+          // 如果解码失败，可以考虑不自动登录或使用默认值
+          // 清理可能存在的旧 localStorage 数据
+          localStorage.removeItem('userInfo');
+          localStorage.removeItem('jwtToken');
+          // 可以选择显示错误消息或回退到登录页
+          message.error({ content: "注册成功，但自动登录失败，请手动登录", key: "register", duration: 5 });
+          navigator("/login"); // 回退到登录页
+          return; // 提前退出函数
+        }
+
+        // 更新 Zustand store
+        authLogin(
+          username,
+          token,
+          role,
+          expiryTimestamp,
+        );
+
+        console.log("注册成功并自动登录");
+        navigator("/home", { replace: true }); // 跳转到主页
+        // --- 结束处理登录逻辑 ---
+
       } else {
-        // 处理不同的失败情况
+        // ... (处理注册失败的逻辑，与原来类似) ...
         let errorMsg = res.message || "注册失败";
         let shouldResetGeetest = false;
         if (res.code === "registrationFailedExpired" || res.code === "invalidSmsCode") {
@@ -230,8 +285,8 @@ export const RegisterPage = () => {
     } finally {
       setIsRegisterLoading(false);
     }
-    // 移除 password 依赖
-  }, [phoneNumber, verificationCode, userRole, birthDate, gender, navigator]);
+    // 添加 authLogin 依赖
+  }, [phoneNumber, verificationCode, userRole, birthDate, gender, navigator, authLogin]);
 
   // 更新的 onSubmit 函数（仅在步骤 2 中调用）
   const onSubmit = useCallback(async (event: React.FormEvent) => {
@@ -275,7 +330,6 @@ export const RegisterPage = () => {
       }
     }
   }, [validateForm, isPolicyChecked, birthDate, lastGeetestResult, isCaptchaReady, triggerCaptcha, performRegister]); // 添加依赖
-
 
   // ... 现有的 handleUserAgreementOpen/Close 函数 ...
   const handleUserAgreementOpen = () => setIsUserAgreementOpen(true);
@@ -374,7 +428,6 @@ export const RegisterPage = () => {
     }
   }, [phoneNumber, isCaptchaReady, triggerCaptcha]); // 依赖不变
 
-
   // ... 现有的 handleVerificationCodeChange 函数 ...
   const handleVerificationCodeChange = (
     e: React.ChangeEvent<HTMLInputElement>,
@@ -388,7 +441,6 @@ export const RegisterPage = () => {
       }
     }
   };
-
 
   // 计算按钮禁用状态
   const isSendCodeButtonDisabled = isCheckingCaptcha || isCodeSent || !!errors.phoneNumber;
@@ -417,7 +469,6 @@ export const RegisterPage = () => {
         {/* 从此处移除返回按钮 */}
         {/* <Box sx={{ position: 'relative', width: '100%' }}> ... </Box> */}
         <AuthHeader />
-
 
         {/* 步骤 1: 账号信息 */}
         {step === 1 && (
@@ -449,7 +500,7 @@ export const RegisterPage = () => {
               error={!!errors.verificationCode}
               helperText={errors.verificationCode}
               phoneError={errors.phoneNumber} // 传递手机错误以便禁用发送按钮（如果需要）
-              // disabled={isCheckingCaptcha || isCodeSent} // 发送按钮在验证或已发送时禁用
+            // disabled={isCheckingCaptcha || isCodeSent} // 发送按钮在验证或已发送时禁用
             />
             <Button
               onClick={handleNext}

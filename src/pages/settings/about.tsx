@@ -21,7 +21,7 @@ export const AboutSettingsPage = () => {
         </div>
         <div className="mb-8 text-center">
           <h2 className="mb-0">聪言</h2>
-          版本：V 1.0.1
+          版本：V 1.0.2
         </div>
         <OptionButton title="检查更新" />
         <OptionButton

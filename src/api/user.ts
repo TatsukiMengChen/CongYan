@@ -116,3 +116,34 @@ export const UpdateUsernameAPI = async (newUsername: string): Promise<UpdateUser
     };
   }
 };
+
+// 更新头像接口返回类型
+export type UpdateAvatarAPIRes = {
+    status: number;
+    code: "avatarUpdateSuccessful" | string;
+    message?: string;
+    data?: { // 可能包含更新后的头像 URL 或其他信息
+        avatar_url?: string;
+    }
+}
+
+// 更新头像接口 (通知后端)
+export const UpdateAvatarAPI = async (): Promise<UpdateAvatarAPIRes> => {
+    console.log("调用更新头像接口");
+    try {
+        // PUT /avatar，无需请求体
+        const res = await http.put<UpdateAvatarAPIRes>('/avatar');
+        console.log("更新头像接口响应:", res.data);
+        return res.data;
+    } catch (error: any) {
+        console.error("更新头像接口错误:", error);
+        if (error.response && error.response.data) {
+            return error.response.data as UpdateAvatarAPIRes;
+        }
+        return {
+            status: 1,
+            code: "requestFailed",
+            message: error.message || "更新头像失败"
+        };
+    }
+};

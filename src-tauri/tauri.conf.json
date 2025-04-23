@@ -1,11 +1,11 @@
 {
   "$schema": "https://schema.tauri.app/config/2",
   "productName": "聪言",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "identifier": "com.congyan.app",
   "build": {
     "beforeDevCommand": "pnpm dev",
-    "devUrl": "http://192.168.1.28:5173",
+    "devUrl": "http://10.102.106.172:5173",
     "beforeBuildCommand": "pnpm build",
     "frontendDist": "../dist"
   },
