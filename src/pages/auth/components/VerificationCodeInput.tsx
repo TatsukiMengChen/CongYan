@@ -17,6 +17,7 @@ interface VerificationCodeInputProps {
     error?: boolean;
     helperText?: string;
     phoneError?: string; // 如果需要，可以添加属性以显示与手机号相关的错误
+    disabled?: boolean; // 新增：控制整个组件或按钮的禁用状态
 }
 
 export const VerificationCodeInput: React.FC<VerificationCodeInputProps> = ({
@@ -28,9 +29,10 @@ export const VerificationCodeInput: React.FC<VerificationCodeInputProps> = ({
     error,
     helperText,
     phoneError, // 接收手机号相关的错误
+    disabled, // 接收 disabled 属性
 }) => {
     return (
-        <FormControl error={error || !!phoneError} fullWidth> {/* 考虑手机号相关的错误 */}
+        <FormControl error={error || !!phoneError} fullWidth disabled={disabled}> {/* 考虑手机号相关的错误，并应用 disabled */}
             <InputLabel htmlFor="verification-code">验证码</InputLabel>
             <OutlinedInput
                 id="verification-code"
@@ -45,7 +47,7 @@ export const VerificationCodeInput: React.FC<VerificationCodeInputProps> = ({
                             onClick={onSendCode} // 触发传入的发送验证码处理函数
                             variant="contained"
                             size="small"
-                            disabled={isCodeSent}
+                            disabled={isCodeSent || disabled || !!phoneError} // 添加 disabled 和 phoneError 条件
                         >
                             {isCodeSent ? `${codeTimer}s` : "获取验证码"}
                         </Button>

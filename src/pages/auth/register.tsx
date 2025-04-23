@@ -1,13 +1,13 @@
 import Button from "@mui/material/Button";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react"; // 导入 useCallback
 // ... 其他导入 ...
 import ArrowBackIosNewIcon from "@mui/icons-material/ArrowBackIosNew";
 import IconButton from "@mui/material/IconButton";
 import Link from "@mui/material/Link";
 import { message } from "antd";
 import { useNavigate } from "react-router";
-// 导入更新后的 API 函数
-import { AskCodeAPI, RegisterAPI } from "../../api/auth";
+// 导入更新后的 API 函数 和 GeetestResult 类型
+import { AskCodeAPI, RegisterAPI, GeetestResult, CheckRegisteredStatusAPI } from "../../api/auth";
 import PrivacyPolicy from "../../components/PrivacyPolicy";
 import UserAgreement from "../../components/UserAgreement";
 import useInputStore from "../../store/input";
@@ -18,7 +18,8 @@ import dayjs, { Dayjs } from "dayjs";
 import { AuthHeader } from "./components/AuthHeader";
 import { BirthDatePicker } from "./components/BirthDatePicker";
 import { GenderSelect } from "./components/GenderSelect";
-import { PasswordInput } from "./components/PasswordInput";
+// 移除 PasswordInput 导入，如果不再需要
+// import { PasswordInput } from "./components/PasswordInput";
 import { PhoneInput } from "./components/PhoneInput";
 import { PolicyCheckbox } from "./components/PolicyCheckbox";
 import { RoleSelect } from "./components/RoleSelect";
@@ -26,24 +27,25 @@ import { VerificationCodeInput } from "./components/VerificationCodeInput";
 // 如果步骤之间不再使用，则移除 Divider 和 Typography
 // import Divider from "@mui/material/Divider";
 // import Typography from "@mui/material/Typography";
+import { useCaptcha } from "../../hooks/useCaptcha"; // 导入 useCaptcha
 
 export const RegisterPage = () => {
   // ... existing state variables ...
   const { input: isTyping } = useInputStore();
   const [step, setStep] = useState(1); // 添加步骤状态，默认为 1
   const [phoneNumber, setPhoneNumber] = useState("");
-  const [password, setPassword] = useState("");
-  const [confirmPassword, setConfirmPassword] = useState("");
+  // const [password, setPassword] = useState(""); // 移除密码状态
+  // const [confirmPassword, setConfirmPassword] = useState(""); // 移除确认密码状态
   const [verificationCode, setVerificationCode] = useState("");
   const [userRole, setUserRole] = useState("");
   const [birthDate, setBirthDate] = useState<Dayjs | null>(null);
   const [gender, setGender] = useState("");
   const [isPolicyChecked, setIsPolicyChecked] = useState(false);
-  // 确保 errors 状态覆盖所有字段
+  // 确保 errors 状态覆盖所有字段，移除密码相关
   const [errors, setErrors] = useState({
     phoneNumber: "",
-    password: "",
-    confirmPassword: "",
+    // password: "", // 移除
+    // confirmPassword: "", // 移除
     verificationCode: "",
     userRole: "",
     birthDate: "",
@@ -54,7 +56,17 @@ export const RegisterPage = () => {
   const [isRegisterLoading, setIsRegisterLoading] = useState(false);
   const [isCodeSent, setIsCodeSent] = useState(false);
   const [codeTimer, setCodeTimer] = useState(60);
+  const [isCheckingCaptcha, setIsCheckingCaptcha] = useState(false); // 人机验证加载状态
+  const [lastGeetestResult, setLastGeetestResult] = useState<GeetestResult | null>(null); // 存储人机验证结果
   const navigator = useNavigate();
+  const { triggerCaptcha, isCaptchaReady } = useCaptcha({ // 初始化 useCaptcha
+    onError: (error) => {
+      console.error("Captcha Hook Error:", error);
+      setIsCheckingCaptcha(false); // 清理加载状态
+      // 可以选择性地显示错误消息
+      // message.error("人机验证失败，请重试");
+    }
+  });
 
 
   // ... 现有的验证码计时器 useEffect ...
@@ -70,21 +82,18 @@ export const RegisterPage = () => {
   }, [isCodeSent, codeTimer]);
 
   // 步骤 2 的验证（以及组合验证）
-  const validateForm = () => {
+  const validateForm = useCallback(() => {
     // 首先，确保步骤 1 的字段有效（如果 handleNext 已经验证过，可能冗余）
     // 注意：注册时不再需要验证步骤1的验证码，因为验证码用于注册本身
     let step1Valid = true;
     const step1Errors = { ...errors };
-    // 仅验证步骤1的手机号、密码、确认密码
+    // 仅验证步骤1的手机号
     if (!phoneNumber) { step1Errors.phoneNumber = "手机号是必填项"; step1Valid = false; }
     else if (!/^1\d{10}$/.test(phoneNumber)) { step1Errors.phoneNumber = "手机号格式不正确"; step1Valid = false; }
     else { step1Errors.phoneNumber = ""; }
-    if (!password) { step1Errors.password = "密码是必填项"; step1Valid = false; }
-    else if (password.length < 6 || password.length > 20) { step1Errors.password = "密码长度应在6到20个字符之间"; step1Valid = false; }
-    else { step1Errors.password = ""; }
-    if (!confirmPassword) { step1Errors.confirmPassword = "请确认密码"; step1Valid = false; }
-    else if (password !== confirmPassword) { step1Errors.confirmPassword = "两次输入的密码不匹配"; step1Valid = false; }
-    else { step1Errors.confirmPassword = ""; }
+    // 移除密码验证
+    // if (!password) { ... }
+    // if (!confirmPassword) { ... }
     // 验证码在提交时验证，不在这一步
     step1Errors.verificationCode = "";
 
@@ -139,23 +148,21 @@ export const RegisterPage = () => {
 
     setErrors(newErrors);
     return valid;
-  };
-
+    // 移除 password, confirmPassword 依赖
+  }, [phoneNumber, userRole, birthDate, gender, verificationCode]);
 
   // 处理“下一步”按钮点击 - 只验证步骤1的非验证码字段
-  const handleNext = () => {
+  const handleNext = useCallback(() => {
     let valid = true;
     const newErrors = { ...errors };
 
+    // 只验证手机号
     if (!phoneNumber) { newErrors.phoneNumber = "手机号是必填项"; valid = false; }
     else if (!/^1\d{10}$/.test(phoneNumber)) { newErrors.phoneNumber = "手机号格式不正确"; valid = false; }
     else { newErrors.phoneNumber = ""; }
-    if (!password) { newErrors.password = "密码是必填项"; valid = false; }
-    else if (password.length < 6 || password.length > 20) { newErrors.password = "密码长度应在6到20个字符之间"; valid = false; }
-    else { newErrors.password = ""; }
-    if (!confirmPassword) { newErrors.confirmPassword = "请确认密码"; valid = false; }
-    else if (password !== confirmPassword) { newErrors.confirmPassword = "两次输入的密码不匹配"; valid = false; }
-    else { newErrors.confirmPassword = ""; }
+    // 移除密码验证
+    // if (!password) { ... }
+    // if (!confirmPassword) { ... }
     // 清除验证码错误，因为此时不验证
     newErrors.verificationCode = "";
 
@@ -163,7 +170,8 @@ export const RegisterPage = () => {
     if (valid) {
       setStep(2); // 如果步骤 1 有效，则移动到步骤 2
     }
-  };
+    // 移除 password, confirmPassword 依赖
+  }, [phoneNumber, errors]);
 
   // 处理“上一步”按钮点击
   const handleBack = () => {
@@ -171,71 +179,103 @@ export const RegisterPage = () => {
   };
 
 
-  // 更新的 onSubmit 函数（仅在步骤 2 中调用）
-  const onSubmit = (event: React.FormEvent) => {
-    event.preventDefault();
-    // 验证所有字段（包括步骤1和步骤2）并确保已勾选政策
-    if (validateForm() && isPolicyChecked) {
-      // 确保 birthDate 不为 null
-      if (!birthDate) {
-        setErrors(prev => ({ ...prev, birthDate: "请选择出生日期" }));
-        return;
-      }
-      // 将日期格式化为YYYY-MM-DD格式，使用本地时间而非UTC
-      const birthDateString = dayjs(birthDate).hour(12).minute(0).second(0).millisecond(0).utc().format('YYYY-MM-DDT12:00:00Z');
+  // 内部函数：实际执行注册 API 调用
+  const performRegister = useCallback(async (registerGeetestResult: GeetestResult) => {
+    // ... (格式化 birthDateString) ...
+    const birthDateString = dayjs(birthDate).hour(12).minute(0).second(0).millisecond(0).utc().format('YYYY-MM-DDT12:00:00Z');
 
-      console.log("准备注册:", {
-        phone_number: phoneNumber,
-        sms_code: verificationCode,
-        user_role: userRole,
-        birth_date: birthDateString,
-        gender: gender,
-        password: password, // 传递密码
-      });
-      setIsRegisterLoading(true);
-      message.loading({ content: "正在注册", key: "register" });
-      RegisterAPI(
+    console.log("准备注册:", { /* ... */ registerGeetestResult });
+    setIsRegisterLoading(true);
+    message.loading({ content: "正在注册", key: "register" });
+    try {
+      // 移除 password 参数
+      const res = await RegisterAPI(
         phoneNumber,
         verificationCode,
         userRole,
         birthDateString,
         gender,
-        password, // 传递密码给 API
-      )
-        .then((res) => {
-          console.log("RegisterAPI 响应:", res);
-          // 使用后端返回的 code 进行判断
-          if (res.status === 0 && res.code === "registrationSuccessful") {
-            message.success({ content: res.message || "注册成功", key: "register" });
-            // 可以在这里处理 JWT token，例如存储到 localStorage 或状态管理
-            console.log("注册成功，JWT Token:", res.data?.jwt_token);
-            navigator("/login"); // 跳转到登录页
-          } else {
-            // 处理不同的失败情况
-            let errorMsg = res.message || "注册失败";
-            if (res.code === "registrationFailedExpired") {
-              errorMsg = "注册失败，验证码可能已过期或无效";
-              setErrors(prev => ({ ...prev, verificationCode: "验证码无效或已过期" }));
-            } else if (res.code === "invalidSmsCode") { // 假设后端有这个 code
-              errorMsg = "验证码错误";
-              setErrors(prev => ({ ...prev, verificationCode: "验证码错误" }));
-            }
-            // 可以根据后端返回的其他 code 添加更多错误处理
-            message.error({ content: errorMsg, key: "register" });
-          }
-        })
-        .catch((error) => {
-          // 处理网络错误或其他未捕获的异常
-          message.error({ content: error.message || "注册请求失败", key: "register" });
-          console.error("注册错误:", error);
-        })
-        .finally(() => {
-          setIsRegisterLoading(false);
-        });
-    } else if (!isPolicyChecked) {
-      message.warning("请先阅读并同意用户协议和隐私政策");
+        // password, // 移除密码
+        registerGeetestResult // 传递人机验证结果
+      );
+      console.log("RegisterAPI 响应:", res);
+      if (res.status === 0 && res.code === "registrationSuccessful") {
+        message.success({ content: res.message || "注册成功", key: "register" });
+        console.log("注册成功，JWT Token:", res.data?.jwt_token);
+        navigator("/login"); // 跳转到登录页
+      } else {
+        // 处理不同的失败情况
+        let errorMsg = res.message || "注册失败";
+        let shouldResetGeetest = false;
+        if (res.code === "registrationFailedExpired" || res.code === "invalidSmsCode") {
+          errorMsg = res.message || "验证码无效或已过期";
+          setErrors(prev => ({ ...prev, verificationCode: "验证码无效或已过期" }));
+          shouldResetGeetest = true; // 验证码相关错误，重置 Geetest
+        } else if (res.code === "captchaFailed") {
+          errorMsg = res.message || "人机验证失败";
+          shouldResetGeetest = true; // Geetest 失败，重置
+        }
+        // 可以根据后端返回的其他 code 添加更多错误处理
+        message.error({ content: errorMsg, key: "register" });
+        if (shouldResetGeetest) {
+          console.log("注册失败，重置 Geetest 状态");
+          setLastGeetestResult(null);
+        }
+      }
+    } catch (error: any) {
+      message.error({ content: error.message || "注册请求失败", key: "register" });
+      console.error("注册错误:", error);
+      console.log("注册请求错误，重置 Geetest 状态");
+      setLastGeetestResult(null); // 请求错误也重置
+    } finally {
+      setIsRegisterLoading(false);
     }
-  };
+    // 移除 password 依赖
+  }, [phoneNumber, verificationCode, userRole, birthDate, gender, navigator]);
+
+  // 更新的 onSubmit 函数（仅在步骤 2 中调用）
+  const onSubmit = useCallback(async (event: React.FormEvent) => {
+    event.preventDefault();
+    // 验证所有字段（包括步骤1和步骤2）并确保已勾选政策
+    if (!validateForm() || !isPolicyChecked) {
+      if (!isPolicyChecked) {
+        message.warning("请先阅读并同意用户协议和隐私政策");
+      }
+      return;
+    }
+    // 确保 birthDate 不为 null
+    if (!birthDate) {
+      setErrors(prev => ({ ...prev, birthDate: "请选择出生日期" }));
+      return;
+    }
+
+    // 检查是否存在有效的 Geetest 结果
+    if (lastGeetestResult) {
+      console.log("复用上次的人机验证结果进行注册");
+      await performRegister(lastGeetestResult);
+    } else {
+      // 如果没有，触发新的人机验证
+      if (!isCaptchaReady) {
+        message.error("人机验证组件未就绪，请稍候...");
+        return;
+      }
+      console.log("为注册操作触发新的人机验证");
+      setIsCheckingCaptcha(true); // 开始验证加载状态
+      try {
+        const geetestResult = await triggerCaptcha();
+        console.log("新的人机验证成功 (for register):", geetestResult);
+        setLastGeetestResult(geetestResult); // 存储新的结果
+        await performRegister(geetestResult); // 使用新结果注册
+      } catch (error: any) {
+        console.error("注册人机验证错误:", error);
+        message.error(error.message || "安全验证失败，请重试");
+        setLastGeetestResult(null); // 验证出错，清除结果
+      } finally {
+        setIsCheckingCaptcha(false); // 结束验证加载状态
+      }
+    }
+  }, [validateForm, isPolicyChecked, birthDate, lastGeetestResult, isCaptchaReady, triggerCaptcha, performRegister]); // 添加依赖
+
 
   // ... 现有的 handleUserAgreementOpen/Close 函数 ...
   const handleUserAgreementOpen = () => setIsUserAgreementOpen(true);
@@ -244,8 +284,8 @@ export const RegisterPage = () => {
   const handlePrivacyPolicyClose = () => setIsPrivacyPolicyOpen(false);
 
   // 更新的 handleSendCode 函数
-  const handleSendCode = () => {
-    // 发送验证码前验证手机号
+  const handleSendCode = useCallback(async () => {
+    // 1. 本地验证手机号格式
     if (!phoneNumber) {
       setErrors((prev) => ({ ...prev, phoneNumber: "手机号是必填项" }));
       return;
@@ -254,47 +294,85 @@ export const RegisterPage = () => {
       setErrors((prev) => ({ ...prev, phoneNumber: "手机号格式不正确" }));
       return;
     }
-    // 如果验证通过，清除手机号错误
-    setErrors((prev) => ({ ...prev, phoneNumber: "" }));
+    setErrors((prev) => ({ ...prev, phoneNumber: "" })); // 清除本地格式错误
 
-    message.loading({ content: "正在检查手机号并发送验证码...", key: "send-code" });
-    // 注意：不在此时设置 setIsCodeSent(true)，等待 API 调用成功后再设置
+    // 2. 触发人机验证 (用于状态检查)
+    if (!isCaptchaReady) {
+      message.error("人机验证组件未就绪，请稍候...");
+      return;
+    }
+    setIsCheckingCaptcha(true); // 开始验证加载状态
 
-    AskCodeAPI(phoneNumber, "register") // 调用更新后的 API
-      .then((res) => {
-        console.log("AskCodeAPI 响应:", res);
-        // 检查 API 返回的状态和 code
-        if (res.status === 0) { // 假设 status 0 且没有特定错误 code 表示成功发送
-          message.success({ content: res.message || "验证码发送成功", key: "send-code" });
-          setIsCodeSent(true); // 验证码发送成功，开始计时
-          setCodeTimer(60); // 重置计时器为 60 秒
+    try {
+      const geetestResult = await triggerCaptcha();
+      console.log("人机验证成功 (for status check before send code):", geetestResult);
+
+      // 3. 使用 geetestResult 调用 CheckRegisteredStatusAPI
+      console.log("检查手机号注册状态...");
+      const statusRes = await CheckRegisteredStatusAPI(phoneNumber, geetestResult);
+      console.log("CheckRegisteredStatusAPI 响应 (Register):", statusRes);
+
+      // 4. 根据状态检查结果决定是否发送验证码
+      if (statusRes.status === 0 && statusRes.code === "phoneNotRegistered") {
+        // 手机号未注册，可以发送验证码
+        console.log("手机号未注册，准备发送验证码...");
+        message.loading({ content: "正在发送验证码...", key: "send-code" });
+
+        const smsRes = await AskCodeAPI(phoneNumber, geetestResult); // 使用相同的 geetestResult
+        console.log("AskCodeAPI 响应 (Register):", smsRes);
+
+        if (smsRes.status === 0) {
+          message.success({ content: smsRes.message || "验证码发送成功", key: "send-code" });
+          setIsCodeSent(true);
+          setCodeTimer(60);
+          setLastGeetestResult(geetestResult); // !! 存储成功的验证结果 !!
           console.log("验证码发送成功");
         } else {
-          // 处理特定错误，例如手机号已注册
-          let errorMsg = res.message || "验证码发送失败";
-          if (res.code === "phoneRegistered") {
-            errorMsg = "该手机号已被注册";
-            setErrors((prev) => ({ ...prev, phoneNumber: errorMsg })); // 在手机号字段显示错误
-          } else if (res.code === "statusCheckFailed") {
-            errorMsg = "检查手机号状态失败，请稍后重试";
+          // AskCodeAPI 失败处理
+          let errorMsg = smsRes.message || "验证码发送失败";
+          let shouldResetGeetest = false;
+          if (smsRes.code === "captchaFailed") { // AskCodeAPI 也可能返回 captchaFailed
+            errorMsg = smsRes.message || "人机验证失败";
+            shouldResetGeetest = true;
           }
-          // 可以根据后端返回的其他 code 添加更多错误处理
+          // ... 其他 AskCodeAPI 错误处理 ...
           message.error({ content: errorMsg, key: "send-code" });
           console.log("验证码发送失败:", errorMsg);
-          // 发送失败，不启动计时器，确保按钮可用
           setIsCodeSent(false);
           setCodeTimer(60);
+          if (shouldResetGeetest) {
+            setLastGeetestResult(null);
+          }
         }
-      })
-      .catch((error) => {
-        // 处理网络错误或其他未捕获的异常
-        message.error({ content: error.message || "验证码发送请求失败", key: "send-code" });
-        console.error("发送验证码错误:", error);
-        // 网络错误时重置按钮和计时器
-        setIsCodeSent(false);
-        setCodeTimer(60);
-      });
-  };
+      } else if (statusRes.status === 0 && statusRes.code === "phoneRegistered") {
+        // 手机号已注册
+        message.error({ content: "该手机号已被注册", key: "send-code" });
+        setErrors((prev) => ({ ...prev, phoneNumber: "该手机号已被注册" }));
+        setLastGeetestResult(null); // 手机号无效，清除 geetest
+      } else {
+        // CheckRegisteredStatusAPI 失败处理 (例如 captchaFailed 或其他错误)
+        let errorMsg = statusRes.message || "检查手机号状态失败";
+        if (statusRes.code === "captchaFailed") {
+          errorMsg = statusRes.message || "人机验证失败";
+          setLastGeetestResult(null); // Geetest 失败，清除
+        }
+        message.error({ content: errorMsg, key: "send-code" });
+        console.error("检查手机号状态失败:", errorMsg);
+        // 根据情况决定是否清除 lastGeetestResult
+      }
+
+    } catch (error: any) {
+      // 处理 triggerCaptcha, CheckRegisteredStatusAPI, AskCodeAPI 的网络错误等
+      message.error({ content: error.message || "请求处理失败，请重试", key: "send-code" });
+      console.error("发送验证码流程错误:", error);
+      setIsCodeSent(false);
+      setCodeTimer(60);
+      // 网络错误等不一定意味着 Geetest 结果无效，暂时不清除
+      // setLastGeetestResult(null);
+    } finally {
+      setIsCheckingCaptcha(false); // 结束验证加载状态
+    }
+  }, [phoneNumber, isCaptchaReady, triggerCaptcha]); // 依赖不变
 
 
   // ... 现有的 handleVerificationCodeChange 函数 ...
@@ -311,6 +389,11 @@ export const RegisterPage = () => {
     }
   };
 
+
+  // 计算按钮禁用状态
+  const isSendCodeButtonDisabled = isCheckingCaptcha || isCodeSent || !!errors.phoneNumber;
+  const isNextButtonDisabled = isCheckingCaptcha; // 下一步按钮在验证时禁用
+  const isRegisterButtonDisabled = !isPolicyChecked || isRegisterLoading || isCheckingCaptcha; // 注册按钮在验证或注册时禁用
 
   return (
     <AuthContainer sx={{ position: 'relative' }}> {/* 确保 AuthContainer 是相对定位，以便绝对定位子元素 */}
@@ -351,30 +434,10 @@ export const RegisterPage = () => {
               error={!!errors.phoneNumber}
               helperText={errors.phoneNumber}
             />
-            <PasswordInput
-              id="password"
-              label="密码"
-              value={password}
-              onChange={(e) => {
-                setPassword(e.target.value);
-                if (errors.password) setErrors(prev => ({ ...prev, password: "" }));
-                // 如果确认密码有错误（通常是因为不匹配），也清除它，让用户重新确认
-                if (errors.confirmPassword === "两次输入的密码不匹配") setErrors(prev => ({ ...prev, confirmPassword: "" }));
-              }}
-              error={!!errors.password}
-              helperText={errors.password}
-            />
-            <PasswordInput
-              id="confirm-password"
-              label="确认密码"
-              value={confirmPassword}
-              onChange={(e) => {
-                setConfirmPassword(e.target.value);
-                if (errors.confirmPassword) setErrors(prev => ({ ...prev, confirmPassword: "" }));
-              }}
-              error={!!errors.confirmPassword}
-              helperText={errors.confirmPassword}
-            />
+            {/* 移除密码输入框 */}
+            {/* <PasswordInput id="password" ... /> */}
+            {/* 移除确认密码输入框 */}
+            {/* <PasswordInput id="confirm-password" ... /> */}
             {/* 验证码输入移到步骤 2 或保持在步骤 1，取决于 UI 设计 */}
             {/* 如果验证码在步骤 1，则保留 */}
             <VerificationCodeInput
@@ -386,6 +449,7 @@ export const RegisterPage = () => {
               error={!!errors.verificationCode}
               helperText={errors.verificationCode}
               phoneError={errors.phoneNumber} // 传递手机错误以便禁用发送按钮（如果需要）
+              // disabled={isCheckingCaptcha || isCodeSent} // 发送按钮在验证或已发送时禁用
             />
             <Button
               onClick={handleNext}
@@ -393,8 +457,9 @@ export const RegisterPage = () => {
               size="large"
               fullWidth // 使按钮宽度占满
               sx={{ mt: 2 }} // 添加上边距
+              disabled={isNextButtonDisabled} // 应用禁用状态
             >
-              下一步
+              {isCheckingCaptcha ? "验证中..." : "下一步"}
             </Button>
           </>
         )}
@@ -403,7 +468,7 @@ export const RegisterPage = () => {
         {step === 2 && (
           <>
             {/* 如果验证码输入移到步骤 2，则放在这里 */}
-            {/*
+            {/* 
             <VerificationCodeInput
               value={verificationCode}
               onChange={handleVerificationCodeChange}
@@ -453,11 +518,11 @@ export const RegisterPage = () => {
               onClick={onSubmit} // 触发包含所有验证的 onSubmit
               variant="contained"
               size="large"
-              disabled={!isPolicyChecked || isRegisterLoading}
+              disabled={isRegisterButtonDisabled} // 应用禁用状态
               fullWidth // 使按钮宽度占满
               sx={{ mt: 2 }} // 添加上边距
             >
-              {isRegisterLoading ? "注册中..." : "注册"}
+              {isCheckingCaptcha ? "验证中..." : (isRegisterLoading ? "注册中..." : "注册")}
             </Button>
             {/* 返回按钮现在由外部的 IconButton 处理 */}
           </>
