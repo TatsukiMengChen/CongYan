@@ -66,6 +66,12 @@ const AssignTaskModal: React.FC<AssignTaskModalProps> = ({
       message.warning("请选择一个语料进行分配");
       return;
     }
+    // --- 新增：任务标题校验 ---
+    if (!newTaskTitle.trim()) {
+        message.warning("请输入任务标题");
+        return;
+    }
+    // --- 结束新增 ---
     if (!patient) {
         message.error("无法获取病人信息，无法分配任务");
         return;
@@ -76,8 +82,10 @@ const AssignTaskModal: React.FC<AssignTaskModalProps> = ({
       const res = await AssignPracticeTaskAPI({
         patient_id: patient.id,
         text_uuid: selectedTextUuid,
-        title: newTaskTitle.trim() || undefined, // 如果为空则不传或传 undefined
-        remark: newTaskRemark.trim() || undefined, // 如果为空则不传或传 undefined
+        // --- 修改：标题现在是必填 ---
+        title: newTaskTitle.trim(),
+        // --- 结束修改 ---
+        remark: newTaskRemark.trim() || undefined, // 备注仍然可选
       });
       if (res.status === 0) {
         message.success(res.message || "任务分配成功");
@@ -133,9 +141,11 @@ const AssignTaskModal: React.FC<AssignTaskModalProps> = ({
               data: corpus
           }))}
         />
-        {/* --- 新增：标题和备注输入框 --- */}
+        {/* --- 修改：标题和备注输入框 --- */}
         <Input
-            placeholder="请输入任务标题（可选）"
+            // --- 修改：更新 placeholder ---
+            placeholder="请输入任务标题 *"
+            // --- 结束修改 ---
             value={newTaskTitle}
             onChange={(e) => setNewTaskTitle(e.target.value)}
             style={{ marginBottom: '1rem' }}
