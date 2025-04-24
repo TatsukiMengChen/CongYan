@@ -86,6 +86,12 @@ const CorpusPage: React.FC = () => {
   };
 
   const handleCreateOk = async () => {
+    // --- 修改：添加标题校验 ---
+    if (!newTitle.trim()) {
+        message.warning("请输入语料标题");
+        return;
+    }
+    // --- 结束修改 ---
     if (!newText.trim()) {
       message.warning("请输入语料内容");
       return;
@@ -262,7 +268,9 @@ const CorpusPage: React.FC = () => {
         destroyOnClose // 关闭时销毁内部组件状态
       >
         <Input
-          placeholder="请输入语料标题（可选）"
+          // --- 修改：更新 placeholder ---
+          placeholder="请输入语料标题 *"
+          // --- 结束修改 ---
           value={newTitle}
           onChange={(e) => setNewTitle(e.target.value)}
           style={{ marginBottom: "1rem" }}

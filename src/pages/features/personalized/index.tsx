@@ -8,8 +8,8 @@ import { AssignPracticeTaskAPI } from '../../../api/patients';
 import { GetPersonalizedPracticeTextAPI, GetPracticeHistoriesAPI, PracticeHistory } from '../../../api/train';
 import Navbar from '../../../components/Navbar';
 import useAuthStore from '../../../store/auth'; // 导入 auth store
-import styles from './index.module.scss';
 import useTasksStore from '../../../store/tasks';
+import styles from './index.module.scss';
 
 // 汉字及其分数信息
 interface CharScoreInfo {
@@ -44,30 +44,30 @@ const PersonalizedTrainingPage: React.FC = () => {
 
     histories.forEach(history => {
       if (history.target_text && history.char_scores) {
-        // 清理目标文本，只保留汉字
-        const cleanedText = history.target_text.split('').filter(char => chineseCharRegex.test(char)).join('');
+        const textChars = history.target_text.split('');
         const scores = history.char_scores;
 
-        // 确保清理后的文本长度与分数数组长度一致
-        if (cleanedText.length === scores.length) {
-          cleanedText.split('').forEach((char, index) => {
-            const scoreData = scores[index];
-            // 仅当 score 是有效数字时才记录
-            if (scoreData && typeof scoreData.score === 'number') {
+        // 遍历原始文本的每个字符及其索引
+        textChars.forEach((char, index) => {
+          // 检查是否是汉字
+          if (chineseCharRegex.test(char)) {
+            // 检查索引是否在分数数组范围内，并且分数数据有效
+            if (index < scores.length && scores[index] && typeof scores[index].score === 'number') {
+              const scoreData = scores[index];
               const existingScores = charScoreMap.get(char) || [];
-              // 仅记录得分不为1（即非满分）或为0的情况，更能反映薄弱点
-              // 或者直接记录所有分数，让平均分反映问题
-              existingScores.push(scoreData.score);
+              existingScores.push(scores[index].score); // Use the narrowed type
               charScoreMap.set(char, existingScores);
+            } else {
+              // 如果是汉字但没有对应的有效分数，可以选择记录或忽略
+              console.warn(`汉字 '${char}' 在索引 ${index} 处缺少有效分数数据，文本: "${history.target_text}"`);
             }
-          });
-        } else {
-          console.warn(`文本 '${history.target_text}' 清理后长度 (${cleanedText.length}) 与 char_scores 长度 (${scores.length}) 不匹配，跳过此记录`);
-        }
+          }
+          // 非汉字字符直接忽略
+        });
       }
     });
 
-    // 计算平均分并排序
+    // 计算平均分并排序 (保持不变)
     const charScoreInfos: CharScoreInfo[] = [];
     charScoreMap.forEach((scores, char) => {
       const sum = scores.reduce((acc, score) => acc + score, 0);
