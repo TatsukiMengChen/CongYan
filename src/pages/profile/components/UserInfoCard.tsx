@@ -51,6 +51,7 @@ const formatRole = (role?: UserInfo["user_role"]): string => {
 export const UserInfoCard: React.FC<UserInfoCardProps> = ({ userInfo, onNavigate }) => {
   const theme = useTheme(); // 获取主题对象以访问调色板
   const avatarSrc = getAvatarSrc(userInfo);
+  console.log(avatarSrc)
   const age = calculateAge(userInfo?.birth_date);
   const gender = formatGender(userInfo?.gender);
   const role = formatRole(userInfo?.user_role);

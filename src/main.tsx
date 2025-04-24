@@ -10,6 +10,8 @@ import "virtual:uno.css";
 import "./index.scss";
 import AppRouter from "./routes";
 import { getTheme } from "mdui/functions/getTheme.js";
+import DebugOverlay from "./components/DebugOverlay"; // 导入 DebugOverlay
+
 console.log(getTheme());
 const { darkAlgorithm, defaultAlgorithm } = theme;
 
@@ -21,6 +23,10 @@ const Root = () => {
   const [prefersDarkMode, setPrefersDarkMode] = useState(
     window.matchMedia("(prefers-color-scheme: dark)").matches,
   );
+
+  // Check if User Agent contains "DebugMode"
+  const showDebugOverlay = import.meta.env.DEV || navigator.userAgent.includes("DebugMode");
+
 
   useEffect(() => {
     const mediaQuery = window.matchMedia("(prefers-color-scheme: dark)");
@@ -55,13 +61,20 @@ const Root = () => {
   };
 
   return (
-    <ThemeProvider theme={muiTheme}>
-      <ConfigProvider theme={antdTheme}>
-        <App>
-          <AppRouter />
-        </App>
-      </ConfigProvider>
-    </ThemeProvider>
+    <>
+      {" "}
+      {/* Use Fragment to wrap multiple elements */}
+      <ThemeProvider theme={muiTheme}>
+        <ConfigProvider theme={antdTheme}>
+          <App>
+            <AppRouter />
+          </App>
+        </ConfigProvider>
+      </ThemeProvider>
+      {/* Render Debug Overlay outside the main app structure but within Root */}
+      {/* Conditionally render based on environment or UA */}
+      {showDebugOverlay && <DebugOverlay prefersDarkMode={prefersDarkMode} />}
+    </>
   );
 };
 

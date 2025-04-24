@@ -5,7 +5,7 @@ export const getAvatarSrc = (userInfo: UserInfo | null): string => {
   // 假设默认头像在 public/avatar/ 目录下
   const defaultAvatarPath = "/avatar/default.png"; // 使用绝对路径
   // 假设最终回退头像在 public/avat/ 目录下 (注意路径可能是 /avat/ 或 /avatar/) - 保持与原逻辑一致
-  const fallbackAvatar = "/avat/avatar-boy.png"; // 使用绝对路径
+  const fallbackAvatar = "/avatar/avatar-boy.png"; // 使用绝对路径
 
   if (!userInfo) {
     return fallbackAvatar; // 没有用户信息，使用回退头像
@@ -21,12 +21,8 @@ export const getAvatarSrc = (userInfo: UserInfo | null): string => {
     if (isFullUrl) {
       return avatar_url;
     } else {
-      // 如果不是完整 URL，尝试拼接基础路径或假定它是相对于根的路径
-      // 如果需要 API 基础路径:
-      // const fullPath = `${apiBaseUrl}/${avatar_url.startsWith('/') ? avatar_url.substring(1) : avatar_url}`;
-      // 如果假定它是根相对路径:
-      const fullPath = avatar_url.startsWith('/') ? avatar_url : `/${avatar_url}`;
-      return fullPath;
+      // 如果不是完整 URL，但也不是系统默认路径，则使用 OSS URL
+      return `${import.meta.env.VITE_OSS_URL}/${avatar_url.startsWith('/') ? avatar_url.substring(1) : avatar_url}`;
     }
   }
 
