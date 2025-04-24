@@ -15,7 +15,7 @@
     android:icon="@mipmap/icon"
     android:label="@string/app_name"
     android:theme="@style/Theme.congyan"
-    android:usesCleartextTraffic="${usesCleartextTraffic}">
+    android:usesCleartextTraffic="true">
     <activity
       android:name=".MainActivity"
       android:configChanges="orientation|keyboardHidden|keyboard|screenSize|locale|smallestScreenSize|screenLayout|uiMode"
