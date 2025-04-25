@@ -221,33 +221,36 @@ export const DysarthriaText = ({
   };
 
   return (
-    <div
-      className="relative box-border max-h-48 w-full overflow-y-auto rounded-md p-4"
-      style={{ boxShadow: "rgba(149, 157, 165, 0.2) 0px 8px 24px" }}
-    >
-      <strong className="flex-center flex-wrap text-lg space-x-2">
-        {/* Iterate through selectedTextChars */}
-        {selectedTextChars.map((t, index) => {
-          const displayScore = getDisplayScore(index);
-          return (
-            <span
-              key={index}
-              onClick={() => {
-                // Pass index relative to selectedTextChars
-                handleShowDetail(t, index);
-              }}
-              style={{ color: getColor(displayScore) }}
-              className="cursor-pointer"
-            >
-              {t}
-            </span>
-          );
-        })}
-      </strong>
+    <div className="relative"> {/* Add a non-scrolling relative parent */}
+      <div
+        className="relative box-border max-h-48 w-full overflow-y-auto rounded-md p-4" // Keep this for scrolling text
+        style={{ boxShadow: "rgba(149, 157, 165, 0.2) 0px 8px 24px" }}
+      >
+        <strong className="flex-center flex-wrap text-lg space-x-2">
+          {/* Iterate through selectedTextChars */}
+          {selectedTextChars.map((t, index) => {
+            const displayScore = getDisplayScore(index);
+            return (
+              <span
+                key={index}
+                onClick={() => {
+                  // Pass index relative to selectedTextChars
+                  handleShowDetail(t, index);
+                }}
+                style={{ color: getColor(displayScore) }}
+                className="cursor-pointer"
+              >
+                {t}
+              </span>
+            );
+          })}
+        </strong>
+      </div>
 
+      {/* Move absolute elements outside the scrolling div, but inside the new relative parent */}
       {/* Display the calculated total score for the selected segment */}
       <span
-        className="absolute right-1 top-0"
+        className="absolute right-1 top-0 px-1 py-0.5 bg-white bg-opacity-75 rounded-bl-md" // Position relative to the outer div
         // Color based on the calculated average score (use 0 if null for coloring)
         style={{ color: getColor(calculatedTotalScore ?? 0) }}
       >
@@ -261,13 +264,13 @@ export const DysarthriaText = ({
       {/* Import Tooltip at the top of the file: import { Tooltip } from 'antd'; */}
       <Tooltip title="AI 评估，仅供参考">
         <span
-          className="absolute right-1 bottom-0 cursor-help" // Added cursor-help for better UX
+          className="absolute right-1 bottom-0 px-1 py-0.5 bg-white bg-opacity-75 rounded-tl-md cursor-help" // Position relative to the outer div
         >
           清晰度：
           <strong
-        style={{ color: getColor(result.intelligibility_score ?? 0) }}>
-        {/* Show calculated score (0.0 if calculated), or N/A if no text selected */}
-        {result.intelligibility_score >= 0 ? result.intelligibility_score.toFixed(2) : "无"} {/* Ensure score is formatted */}
+            style={{ color: getColor(result.intelligibility_score ?? 0) }}>
+            {/* Show calculated score (0.0 if calculated), or N/A if no text selected */}
+            {result.intelligibility_score >= 0 ? result.intelligibility_score.toFixed(2) : "无"} {/* Ensure score is formatted */}
           </strong>
         </span>
       </Tooltip>
