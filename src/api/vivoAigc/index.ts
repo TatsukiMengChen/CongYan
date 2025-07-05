@@ -21,6 +21,14 @@ export {
   SAMPLE_RATES,
 } from "./tts";
 
+// 导入必要的类型
+import { VivoAigcConfig } from "./types";
+import { VivoAigcClient } from "./client";
+import { VivoAigcChatService } from "./chat";
+import { VivoAigcDrawService } from "./draw";
+import { VivoAigcOcrService } from "./ocr";
+import { VivoAigcTtsService } from "./tts";
+
 // 主要的SDK类
 export class VivoAigcSDK {
   private client: VivoAigcClient;
@@ -59,14 +67,6 @@ export class VivoAigcSDK {
   }
 }
 
-// 导入必要的类型
-import { VivoAigcConfig } from "./types";
-import { VivoAigcClient } from "./client";
-import { VivoAigcChatService } from "./chat";
-import { VivoAigcDrawService } from "./draw";
-import { VivoAigcOcrService } from "./ocr";
-import { VivoAigcTtsService } from "./tts";
-
 // 创建SDK实例的便捷函数
 export const createVivoAigcSDK = (config: VivoAigcConfig): VivoAigcSDK => {
   return new VivoAigcSDK(config);
@@ -86,6 +86,21 @@ export const createVivoAigcSDKWithDefaults = (
     ...config,
   } as VivoAigcConfig);
 };
+
+// 创建全局SDK实例
+const createGlobalSDK = (): VivoAigcSDK => {
+  const config: VivoAigcConfig = {
+    appId: import.meta.env.VITE_VIVO_AIGC_APP_ID || "",
+    appKey: import.meta.env.VITE_VIVO_AIGC_APP_KEY || "",
+    baseURL:
+      import.meta.env.VITE_VIVO_AIGC_BASE_URL || "https://api-ai.vivo.com.cn",
+  };
+
+  return new VivoAigcSDK(config);
+};
+
+// 导出全局SDK实例
+export const vivoAigcSDK = createGlobalSDK();
 
 // 便捷的服务创建函数
 export const createChatService = (config: VivoAigcConfig) => {

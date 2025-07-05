@@ -29,6 +29,9 @@ importers:
       '@fontsource/roboto':
         specifier: ^5.1.1
         version: 5.1.1
+      '@iconify/react':
+        specifier: ^6.0.0
+        version: 6.0.0(react@18.3.1)
       '@mui/icons-material':
         specifier: ^6.4.1
         version: 6.4.1(@mui/material@6.4.1(@emotion/react@11.14.0(@types/react@18.3.18)(react@18.3.1))(@emotion/styled@11.14.0(@emotion/react@11.14.0(@types/react@18.3.18)(react@18.3.1))(@types/react@18.3.18)(react@18.3.1))(@types/react@18.3.18)(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(@types/react@18.3.18)(react@18.3.1)
@@ -923,6 +926,11 @@ packages:
 
   '@iconify/json@2.2.298':
     resolution: {integrity: sha512-+/bcltP0KzlzWuKqtvUeTL2Gvf7SkW56Ghxw0PJOG+BSh6vF7ZQBe/1GMWH4MeIR+FUFSLAbGnLcyIdYRZqrLw==}
+
+  '@iconify/react@6.0.0':
+    resolution: {integrity: sha512-eqNscABVZS8eCpZLU/L5F5UokMS9mnCf56iS1nM9YYHdH8ZxqZL9zyjSwW60IOQFsXZkilbBiv+1paMXBhSQnw==}
+    peerDependencies:
+      react: '>=16'
 
   '@iconify/types@2.0.0':
     resolution: {integrity: sha512-+wluvCrRhXrhyOmRDJ3q8mux9JkKy5SJ/v8ol2tu4FVjyYvtEzkc/3pK15ET6RKg4b4w4BmTk1+gsCUhf21Ykg==}
@@ -4706,6 +4714,11 @@ snapshots:
     dependencies:
       '@iconify/types': 2.0.0
       pathe: 1.1.2
+
+  '@iconify/react@6.0.0(react@18.3.1)':
+    dependencies:
+      '@iconify/types': 2.0.0
+      react: 18.3.1
 
   '@iconify/types@2.0.0': {}
 
