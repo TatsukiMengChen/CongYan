@@ -5,11 +5,13 @@ import {
   PictureOutlined,
   ScanOutlined,
   SoundOutlined,
+  ExperimentOutlined,
 } from "@ant-design/icons";
 import ChatSection from "./components/ChatSection";
 import DrawSection from "./components/DrawSection";
 import OcrSection from "./components/OcrSection";
 import TtsSection from "./components/TtsSection";
+import IntelligibilitySection from "./components/IntelligibilitySection";
 import "./index.module.scss";
 
 const { Title, Paragraph } = Typography;
@@ -59,6 +61,16 @@ const VivoAigcPage: React.FC = () => {
         </span>
       ),
       children: <TtsSection />,
+    },
+    {
+      key: "intelligibility",
+      label: (
+        <span className="flex items-center gap-2">
+          <ExperimentOutlined />
+          语音可懂度测试
+        </span>
+      ),
+      children: <IntelligibilitySection />,
     },
   ];
 

@@ -192,4 +192,25 @@ class MainActivity : TauriActivity() {
     }
   }
   // --- End Debug Mode Activation Logic ---
+
+  /**
+   * 推理结果回调方法
+   * 由 WebAppInterface 调用，负责将结果传递给 WebView
+   * @param callbackName JS 回调函数名
+   * @param score 预测的分数
+   */
+  fun onInferenceResult(callbackName: String, score: Float) {
+    // 安全处理回调函数名，防止注入攻击
+    val safeCallbackName = callbackName.filter { it.isLetterOrDigit() || it == '_' }
+    if (safeCallbackName.isNotEmpty()) {
+      val jsCode = "javascript:if(window.$safeCallbackName && typeof window.$safeCallbackName === 'function') { window.$safeCallbackName($score); }"
+      runOnUiThread {
+        mWebView.evaluateJavascript(jsCode) { result ->
+          Log.d("MainActivity", "Callback executed: $callbackName, result: $result")
+        }
+      }
+    } else {
+      Log.w("MainActivity", "Invalid callback name: $callbackName")
+    }
+  }
 }
