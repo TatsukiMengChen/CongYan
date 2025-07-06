@@ -65,30 +65,23 @@ class InferenceService(private val context: Context, private val modelAssetName:
 
     /**
      * 音频预处理函数
-     * 注意：这是一个简化的实现，实际项目中需要根据训练时的预处理步骤来实现
+     * 基于Python训练脚本的预处理逻辑实现
      * @param audioFilePath 音频文件路径
-     * @return 预处理后的音频特征数组
+     * @return 预处理后的音频特征数组 [128, 500] 展平为一维数组
      */
     private fun audioPreprocessing(audioFilePath: String): FloatArray {
-        // TODO: 实现真正的音频预处理逻辑
-        // 这里需要实现与Python训练脚本完全一致的预处理步骤：
-        // 1. 加载音频文件
-        // 2. 计算梅尔频谱图 (n_fft=400, hop_length=160, n_mels=128)
-        // 3. 幅度转分贝
-        // 4. 实例归一化
-        // 5. 填充或截断到500帧
-        
-        Log.w(TAG, "Using placeholder audio preprocessing. Please implement actual preprocessing logic.")
-        
-        // 暂时返回随机数据作为占位符
-        val size = 128 * 500
-        val data = FloatArray(size)
-        val random = Random.Default
-        for (i in data.indices) {
-            data[i] = random.nextFloat() * 2 - 1 // -1 to 1
+        return try {
+            // 使用专门的音频处理器进行预处理
+            val audioProcessor = AudioProcessor()
+            audioProcessor.processAudioFile(audioFilePath)
+        } catch (e: Exception) {
+            Log.e(TAG, "音频预处理失败", e)
+            // 返回零数组作为fallback
+            FloatArray(AudioProcessor.N_MELS * AudioProcessor.TARGET_AUDIO_LEN_FRAMES)
         }
-        return data
     }
+
+
 
     /**
      * 获取assets文件的绝对路径
