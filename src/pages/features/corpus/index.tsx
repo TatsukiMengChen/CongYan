@@ -177,6 +177,7 @@ const CorpusPage: React.FC = () => {
         setSortBy={setSortBy}
         onManualAdd={handleCreateManual}
         onOcrAdd={handleCreateWithOCR}
+        onAiAdd={handleCreateWithAI}
         onRefresh={fetchCorpus}
       />
 

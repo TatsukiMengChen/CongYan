@@ -1,8 +1,6 @@
 import React, { useState } from "react";
-import { Popover, Button, Input, Select, Modal } from "antd";
+import { Popover, Button, Input, Select } from "antd";
 import Icon from "../../../../components/Icon";
-import AiCorpusGenerator from "./AiCorpusGenerator";
-import { message } from "antd";
 
 interface CorpusToolbarProps {
   searchTerm: string;
@@ -13,6 +11,7 @@ interface CorpusToolbarProps {
   setSortBy: (sort: string) => void;
   onManualAdd: () => void;
   onOcrAdd: () => void;
+  onAiAdd: () => void;
   onRefresh: () => void;
 }
 
@@ -25,27 +24,10 @@ const CorpusToolbar: React.FC<CorpusToolbarProps> = ({
   setSortBy,
   onManualAdd,
   onOcrAdd,
+  onAiAdd,
   onRefresh,
 }) => {
   const [isCreating, setIsCreating] = useState(false);
-  const [isAiGenerateModalOpen, setIsAiGenerateModalOpen] = useState(false);
-
-  const handleCreateSuccess = () => {
-    setIsAiGenerateModalOpen(false);
-    onRefresh();
-    message.success("语料生成成功！");
-  };
-
-  // 处理AI生成的语料
-  const handleAiGenerate = (
-    text: string,
-    title?: string,
-    category?: string,
-  ) => {
-    // 这里应该调用实际的添加语料逻辑
-    console.log("Generated corpus:", { text, title, category });
-    handleCreateSuccess();
-  };
 
   const createMenuItems = [
     {
@@ -63,7 +45,7 @@ const CorpusToolbar: React.FC<CorpusToolbarProps> = ({
       icon: <Icon name="robot" size={14} />,
       onClick: () => {
         setIsCreating(false);
-        setIsAiGenerateModalOpen(true);
+        onAiAdd();
       },
     },
     {
@@ -174,18 +156,6 @@ const CorpusToolbar: React.FC<CorpusToolbarProps> = ({
           </div>
         </div>
       </div>
-
-      {/* AI生成模态框 */}
-      <Modal
-        title="AI智能生成语料"
-        open={isAiGenerateModalOpen}
-        onCancel={() => setIsAiGenerateModalOpen(false)}
-        footer={null}
-        width={800}
-        className="top-4"
-      >
-        <AiCorpusGenerator onGenerate={handleAiGenerate} />
-      </Modal>
     </>
   );
 };

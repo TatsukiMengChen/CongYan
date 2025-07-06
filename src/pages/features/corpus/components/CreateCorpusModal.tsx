@@ -132,36 +132,31 @@ const CreateCorpusModal: React.FC<CreateCorpusModalProps> = ({
   };
 
   // 处理AI生成完成
-  const handleAiGenerate = async (
-    generatedText: string,
-    title?: string,
-    category?: string,
-  ) => {
+  const handleAiComplete = (generatedText: string) => {
     setContentSource(generatedText);
     setFormattedContent(generatedText); // AI生成的内容已经是格式化的
+
+    // 设置表单字段
     form.setFieldsValue({
       text: generatedText,
-      title: title || generatedTitle, // 使用AI生成的标题
-      category: category || form.getFieldValue("category"), // 使用AI生成的分类
+      title: "", // 清空标题，让用户填写或使用AI生成
+      category: form.getFieldValue("category") || corpusCategories[0].value,
     });
 
-    // 自动进入下一步
+    // 立即进入下一步
     setCurrentStep(1);
 
-    // 如果AI已经生成了标题，直接使用，否则尝试生成
-    if (title) {
-      setGeneratedTitle(title);
-    } else {
-      try {
-        const titles = await generateTitleWithAI(generatedText);
+    // 异步生成标题建议
+    generateTitleWithAI(generatedText)
+      .then((titles) => {
         if (titles.length > 0) {
           setGeneratedTitle(titles[0]);
           form.setFieldsValue({ title: titles[0] });
         }
-      } catch (error) {
+      })
+      .catch((error) => {
         console.error("标题生成失败:", error);
-      }
-    }
+      });
   };
 
   // 处理手动文本输入
@@ -275,7 +270,7 @@ const CreateCorpusModal: React.FC<CreateCorpusModalProps> = ({
         } else if (mode === "ai") {
           return (
             <AiCorpusGenerator
-              onGenerate={handleAiGenerate}
+              onComplete={handleAiComplete}
               loading={aiLoading}
             />
           );

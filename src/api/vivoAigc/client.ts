@@ -119,6 +119,12 @@ export class VivoAigcClient {
       ...authHeaders,
     };
 
+    // 添加Authorization头部（token认证）
+    const token = localStorage.getItem("token");
+    if (token) {
+      headers.Authorization = `Bearer ${token}`;
+    }
+
     // 构建请求URL
     const requestUrl = new URL(fullUrl);
     Object.keys(allParams).forEach((key) => {
