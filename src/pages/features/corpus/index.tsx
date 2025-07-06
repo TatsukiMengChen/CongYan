@@ -6,6 +6,7 @@ import {
   CreateCorpusAPI,
   GetCorpusAPI,
   DeleteCorpusAPI,
+  EditCorpusAPI,
 } from "../../../api/text";
 import CorpusHeader from "./components/CorpusHeader";
 import CorpusToolbar from "./components/CorpusToolbar";
