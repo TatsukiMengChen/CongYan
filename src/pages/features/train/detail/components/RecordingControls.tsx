@@ -7,6 +7,7 @@ interface RecordingControlsProps {
   handleRecordStart: () => void;
   handleRecordEnd: () => void;
   disabled?: boolean; // 在连接或录音后分析期间为 true
+  backgroundImage?: string | null;
 }
 
 export const RecordingControls = ({
@@ -14,27 +15,42 @@ export const RecordingControls = ({
   handleRecordStart,
   handleRecordEnd,
   disabled,
+  backgroundImage,
 }: RecordingControlsProps) => {
   const isDisabled = !!disabled;
 
   return (
     <IconButton
-      className="!bg-white dark:!bg-dark-4"
+      className={
+        backgroundImage
+          ? "!bg-white/95 dark:!bg-dark-4/95"
+          : "!bg-white dark:!bg-dark-4"
+      }
       color="primary"
       onClick={isRecording ? handleRecordEnd : handleRecordStart}
       sx={{
         width: "60px",
         height: "60px",
-        boxShadow: "rgba(99, 99, 99, 0.2) 0px 2px 8px 0px",
+        boxShadow: backgroundImage
+          ? "0 6px 24px rgba(0, 0, 0, 0.15), 0 2px 8px rgba(0, 0, 0, 0.1)"
+          : "rgba(99, 99, 99, 0.2) 0px 2px 8px 0px",
+        backdropFilter: backgroundImage ? "blur(8px)" : "none",
+        border: backgroundImage ? "1px solid rgba(255, 255, 255, 0.3)" : "none",
       }}
       disabled={isDisabled} // 直接使用计算出的禁用状态
     >
       {isRecording ? (
         // 正在录音，显示停止图标
-        <MicRoundedIcon color={isDisabled ? "disabled" : "primary"} fontSize="large" />
+        <MicRoundedIcon
+          color={isDisabled ? "disabled" : "primary"}
+          fontSize="large"
+        />
       ) : (
         // 未录音，显示开始图标
-        <MicNoneRoundedIcon color={isDisabled ? "disabled" : "action"} fontSize="large" />
+        <MicNoneRoundedIcon
+          color={isDisabled ? "disabled" : "action"}
+          fontSize="large"
+        />
       )}
     </IconButton>
   );
