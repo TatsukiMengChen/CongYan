@@ -1,38 +1,72 @@
-# 聪言
+# 聪言（CongYan）
 
-聪言是一个学校科研项目，旨在实现普通话检测评分功能。前端使用了 Tauri、React 和 Typescript，后端地址为 [congyan_backend](https://github.com/jcmz19/congyan_backend/)。
+聪言是一款专为发音障碍用户（如脑瘫患者、声带受损患者、听力障碍康复者等）设计的医学 AI 辅助应用。项目致力于通过前沿智能技术，为用户提供普通话发音检测与评分、个性化康复训练、语音合成辅助交流等功能，助力提升发音能力和交流效率。
 
-## 项目简介
+## 项目定位
 
-聪言是一款专为发音障碍用户（如脑瘫患者、声带受损患者、听力障碍康复者等）设计的医学AI辅助应用，旨在通过智能技术帮助用户改善发音能力，提升交流效率，并为康复训练提供科学指导。可以检测具体的汉字声母韵母发音分析，并根据历史记录分析用户的具体发音口型、发音结构等。
+- **目标用户**：发音障碍患者、康复医生、患者家属
+- **应用场景**：医院、康复中心、家庭训练
+- **核心价值**：科学、智能、个性化的发音康复辅助工具
 
-## 功能特点
+## 功能模块
 
-- **普通话检测评分**：实现对用户普通话发音的检测和评分。
-- **TTS 和语音识别**：提供支持。
-- **发音分析**：可以检测具体的汉字声母韵母发音，并提供详细的发音分析。
-- **历史记录分析**：根据用户的历史记录，分析具体的发音口型和发音结构。
-- **个性化发音训练**：根据用户的发音评估结果，生成个性化的发音训练计划。
-- **语音合成与辅助交流**：提供文字转语音功能，帮助发音障碍用户更轻松地与他人交流。
-- **医学康复指导**：结合医学知识库，为用户提供发音障碍的初步诊断建议，并推荐相应的康复方向。
+- **普通话检测评分**：实时检测用户普通话发音并专业评分
+- **深度发音分析**：支持汉字声母韵母的详细分析与报告
+- **历史记录追踪**：长期分析用户发音习惯和进步情况
+- **个性化发音训练**：基于评估结果智能生成训练计划
+- **语音合成（TTS）**：内置强大的文字转语音功能，辅助日常交流
+- **医学康复指导**：结合医学知识库，提供初步诊断建议和康复方向
+- **多角色支持**：医生、患者、家属多端协作
 
-## 前端技术栈
+## 技术架构
 
-- **Tauri**：用于构建跨平台应用。
-- **React**：用于构建用户界面。
-- **Typescript**：提供类型检查和代码补全。
-- **MUI**：用于构建现代化的用户界面。
-- **Ant Design**：用于构建高质量的 React 组件。
-- **Axios**：用于处理 HTTP 请求。
-- **Sass**：用于编写样式。
-- **Styled Components**：用于编写 CSS in JS。
-- **Zustand**：用于状态管理。
-- **UnoCSS**：用于原子化 CSS。
+- **前端**：Tauri + React 18 + TypeScript + Zustand + UnoCSS + Ant Design + MUI
+- **后端**：Rust（Tauri Shell）+ 独立业务后端（[congyan_backend](https://github.com/jcmz19/congyan_backend/)）
+- **API 通信**：Axios 封装，支持 JWT 鉴权
+- **状态管理**：Zustand 按业务模块拆分 Store
+- **样式方案**：UnoCSS 原子化 + MUI/Antd 主题，支持暗黑/明亮模式
+- **开发规范**：详见 `docs/development-standards.md`，涵盖命名、组件、AI 接入等
 
-## 推荐的 IDE 设置
+## 快速开始
 
-- [VS Code](https://code.visualstudio.com/) + [Tauri](https://marketplace.visualstudio.com/items?itemName=tauri-apps.tauri-vscode) + [rust-analyzer](https://marketplace.visualstudio.com/items?itemName=rust-lang.rust-analyzer)
+### 环境要求
 
-## 注意事项
+- Node.js 18+
+- pnpm
+- Rust 及 Tauri 依赖
+- Git
 
-开发过程中可能会有一些小错误，但我们会不断优化和改进项目。
+### 安装与运行
+
+```bash
+git clone <repository-url>
+cd cong-yan
+pnpm install
+pnpm tauri dev
+```
+
+更多开发与部署细节请参考 `docs/01_入门指南.md` 和 `docs/05_部署与构建.md`。
+
+## 目录结构
+
+- `src/` 前端源代码（React + TS）
+- `src-tauri/` 后端与 Tauri 配置（Rust）
+- `public/` 静态资源
+- `docs/` 开发与功能文档
+
+## 贡献与规范
+
+- 遵循统一的代码风格和组件开发规范
+- AI 功能开发请参考 `docs/ai-development-prompt.md`
+- 详细开发标准见 `docs/development-standards.md`
+
+## 推荐开发环境
+
+- [VS Code](https://code.visualstudio.com/)
+  - [Tauri 插件](https://marketplace.visualstudio.com/items?itemName=tauri-apps.tauri-vscode)
+  - [rust-analyzer](https://marketplace.visualstudio.com/items?itemName=rust-lang.rust-analyzer)
+  - [UnoCSS](https://marketplace.visualstudio.com/items?itemName=unocss.unocss)
+
+---
+
+如需更详细的功能说明、API 设计、UI 规范等，请查阅 `docs/` 目录下的相关文档。
