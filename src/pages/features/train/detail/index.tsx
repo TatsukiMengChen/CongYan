@@ -18,11 +18,15 @@ type TextInfoType = {
 
 const TrainDetailPage = () => {
   const location = useLocation();
-  const locationState = location.state as { text?: TextInfoType; text_uuid?: string; task_uuid?: string } | undefined;
+  const locationState = location.state as
+    | { text?: TextInfoType; text_uuid?: string; task_uuid?: string }
+    | undefined;
   const { tasks } = useTasksStore(); // Get tasks from store
   const [textData, setTextData] = useState<string[]>([]);
   const [textInfo, setTextInfo] = useState<TextInfoType | null>(null);
-  const [currentTextUuid, setCurrentTextUuid] = useState<string | null>(locationState?.text_uuid || null);
+  const [currentTextUuid, setCurrentTextUuid] = useState<string | null>(
+    locationState?.text_uuid || null,
+  );
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -31,7 +35,9 @@ const TrainDetailPage = () => {
     if (!locationState?.task_uuid) {
       return false; // Not navigated from a task
     }
-    const currentTask = tasks.find(task => task.uuid === locationState.task_uuid);
+    const currentTask = tasks.find(
+      (task) => task.uuid === locationState.task_uuid,
+    );
     return currentTask?.finished ?? false; // Return true if task exists and is finished, otherwise false
   }, [locationState?.task_uuid, tasks]);
 
@@ -51,10 +57,12 @@ const TrainDetailPage = () => {
             uuid: corpus.uuid, // 假设 API 返回文本的 uuid
           };
           setTextInfo(info);
-          setTextData(info.text.split("\n").filter(line => line.trim() !== ''));
+          setTextData(
+            info.text.split("\n").filter((line) => line.trim() !== ""),
+          );
           // 确保即使是获取的 UUID 也被设置
           if (!currentTextUuid) {
-              setCurrentTextUuid(corpus.uuid);
+            setCurrentTextUuid(corpus.uuid);
           }
         } else {
           setError(res.message || "未能加载文本内容");
@@ -72,17 +80,21 @@ const TrainDetailPage = () => {
     const initialUuid = locationState?.text_uuid;
 
     if (initialUuid) {
-        fetchTextData(initialUuid);
+      fetchTextData(initialUuid);
     } else if (locationState?.text) {
-        // 如果直接传递了 text 对象，尝试从中获取 UUID 或处理缺少 UUID 的情况
-        setTextInfo(locationState.text);
-        setTextData(locationState.text.text.split("\n").filter(line => line.trim() !== ''));
-        const textUuidFromState = locationState.text.uuid || null;
-        setCurrentTextUuid(textUuidFromState);
-        if (!locationState.text.uuid) {
-            console.warn("Text object provided in location state is missing UUID."); // 保留警告
-        }
-        setIsLoading(false);
+      // 如果直接传递了 text 对象，尝试从中获取 UUID 或处理缺少 UUID 的情况
+      setTextInfo(locationState.text);
+      setTextData(
+        locationState.text.text
+          .split("\n")
+          .filter((line) => line.trim() !== ""),
+      );
+      const textUuidFromState = locationState.text.uuid || null;
+      setCurrentTextUuid(textUuidFromState);
+      if (!locationState.text.uuid) {
+        console.warn("Text object provided in location state is missing UUID."); // 保留警告
+      }
+      setIsLoading(false);
     } else {
       setError("无效的页面状态，缺少文本信息或ID");
       setIsLoading(false);
@@ -104,14 +116,19 @@ const TrainDetailPage = () => {
     return <div className="p-4 text-red-500">错误：{error}</div>;
   }
 
-  if (!textInfo || !currentTextUuid) { // Also check if currentTextUuid is available
+  if (!textInfo || !currentTextUuid) {
+    // Also check if currentTextUuid is available
     return <div className="p-4">未能加载文本信息或其ID。</div>;
   }
 
   return (
     <TextProvider>
       <div className="h-100vh flex flex-col">
-        <NavArea title={textInfo.title} author={textInfo.author} />
+        <NavArea
+          title={textInfo.title}
+          author={textInfo.author}
+          fullText={textInfo.text}
+        />
         <div className="relative h-full flex flex-col overflow-hidden">
           {/* 移除 AsrDisplay */}
           <TextArea textData={textData} />

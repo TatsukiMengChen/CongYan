@@ -1,12 +1,7 @@
-import {
-  useTheme
-} from "@mui/material";
+import { useTheme } from "@mui/material";
 import { message, Tooltip } from "antd";
 import { useMemo, useState } from "react";
-import {
-  GetHanziPhoneticsAPI,
-  HanziPhonetics,
-} from "../../../../../api/hanzi";
+import { GetHanziPhoneticsAPI, HanziPhonetics } from "../../../../../api/hanzi";
 import { DysarthriaResult } from "../../../../../api/train"; // 引入 CharScore
 import { useTextContext } from "../context/TextContext";
 import { CharacterDetailPopup } from "./CharacterDetailPopup"; // Import the new component
@@ -43,11 +38,13 @@ export const DysarthriaText = ({
   result, // result.single_score is now Array<CharScore>
   fullText, // The complete original text
   selectedText, // The currently selected text segment
+  backgroundImage, // 背景图片状态
 }: {
   selectedTextChars: Array<string>;
   result: DysarthriaResult; // DysarthriaResult now contains single_score: CharScore[]
   fullText: string;
   selectedText: string;
+  backgroundImage?: string | null; // 可选的背景图片状态
 }) => {
   const theme = useTheme();
   const [isPopupVisible, setIsPopupVisible] = useState(false);
@@ -59,7 +56,9 @@ export const DysarthriaText = ({
     sim_ya: null,
     sim_sd: null,
   });
-  const [phoneticsInfo, setPhoneticsInfo] = useState<HanziPhonetics | null>(null);
+  const [phoneticsInfo, setPhoneticsInfo] = useState<HanziPhonetics | null>(
+    null,
+  );
   const [isFetchingPhonetics, setIsFetchingPhonetics] = useState(false);
 
   // --- Scoring Logic ---
@@ -72,11 +71,20 @@ export const DysarthriaText = ({
     let calcTotalScore: number | null = null;
 
     // 确保 result.single_score 是数组并且包含对象
-    if (startIdx !== -1 && Array.isArray(result.single_score) && result.single_score.length > 0 && selectedTextChars.length > 0) {
+    if (
+      startIdx !== -1 &&
+      Array.isArray(result.single_score) &&
+      result.single_score.length > 0 &&
+      selectedTextChars.length > 0
+    ) {
       for (let i = 0; i < selectedTextChars.length; i++) {
         const scoreIndex = startIdx + i;
         // 检查索引有效性以及 score 对象和 score 属性是否存在
-        if (scoreIndex < result.single_score.length && result.single_score[scoreIndex] && typeof result.single_score[scoreIndex].score === 'number') {
+        if (
+          scoreIndex < result.single_score.length &&
+          result.single_score[scoreIndex] &&
+          typeof result.single_score[scoreIndex].score === "number"
+        ) {
           const charScore = result.single_score[scoreIndex].score; // 获取 0-1 范围的分数
           // 仅累加有效的数字分数 (包括 0)
           if (!isNaN(charScore)) {
@@ -102,7 +110,6 @@ export const DysarthriaText = ({
   }, [fullText, selectedTextChars, result.single_score]); // 依赖 result.single_score
   // --- End Scoring Logic ---
 
-
   // 返回 0-100 范围的分数或 -1
   const getDisplayScore = (charIndexInSelected: number): number => {
     if (startIndex === -1 || !Array.isArray(result.single_score)) {
@@ -110,7 +117,11 @@ export const DysarthriaText = ({
     }
     const scoreIndexInFull = startIndex + charIndexInSelected;
     // 检查索引和分数对象的有效性
-    if (scoreIndexInFull >= result.single_score.length || !result.single_score[scoreIndexInFull] || typeof result.single_score[scoreIndexInFull].score !== 'number') {
+    if (
+      scoreIndexInFull >= result.single_score.length ||
+      !result.single_score[scoreIndexInFull] ||
+      typeof result.single_score[scoreIndexInFull].score !== "number"
+    ) {
       return -1; // 索引越界或分数无效
     }
     const rawScore = result.single_score[scoreIndexInFull].score; // 获取 0-1 分数
@@ -120,18 +131,22 @@ export const DysarthriaText = ({
     return rawScore * 100; // 转换为 0-100
   };
 
-
   const getColor = (displayScore: number) => {
     // 使用 displayScore (0-100 或 -1) 进行着色
-    if (displayScore >= 90) { // 90-100
+    if (displayScore >= 90) {
+      // 90-100
       return theme.palette.success.main;
-    } else if (displayScore >= 80) { // 80-89
+    } else if (displayScore >= 80) {
+      // 80-89
       return theme.palette.primary.main;
-    } else if (displayScore >= 60) { // 60-79
+    } else if (displayScore >= 60) {
+      // 60-79
       return theme.palette.warning.main;
-    } else if (displayScore >= 0) { // 0-59
+    } else if (displayScore >= 0) {
+      // 0-59
       return theme.palette.error.main;
-    } else { // -1 (未评分)
+    } else {
+      // -1 (未评分)
       return theme.palette.text.primary;
     }
   };
@@ -156,15 +171,27 @@ export const DysarthriaText = ({
     // 获取详细分数对象
     if (startIndex !== -1 && Array.isArray(result.single_score)) {
       const scoreIndexInFull = startIndex + indexInSelected;
-      if (scoreIndexInFull < result.single_score.length && result.single_score[scoreIndexInFull]) {
+      if (
+        scoreIndexInFull < result.single_score.length &&
+        result.single_score[scoreIndexInFull]
+      ) {
         const scoreObj = result.single_score[scoreIndexInFull];
-        if (typeof scoreObj.score === 'number' && !isNaN(scoreObj.score)) {
+        if (typeof scoreObj.score === "number" && !isNaN(scoreObj.score)) {
           displayScore = scoreObj.score * 100; // 主分数 0-100
         }
         // 转换相似度分数 (0-100)，如果无效则为 null
-        sim_sa = (typeof scoreObj.sim_sa === 'number' && !isNaN(scoreObj.sim_sa)) ? scoreObj.sim_sa * 100 : null;
-        sim_ya = (typeof scoreObj.sim_ya === 'number' && !isNaN(scoreObj.sim_ya)) ? scoreObj.sim_ya * 100 : null;
-        sim_sd = (typeof scoreObj.sim_sd === 'number' && !isNaN(scoreObj.sim_sd)) ? scoreObj.sim_sd * 100 : null;
+        sim_sa =
+          typeof scoreObj.sim_sa === "number" && !isNaN(scoreObj.sim_sa)
+            ? scoreObj.sim_sa * 100
+            : null;
+        sim_ya =
+          typeof scoreObj.sim_ya === "number" && !isNaN(scoreObj.sim_ya)
+            ? scoreObj.sim_ya * 100
+            : null;
+        sim_sd =
+          typeof scoreObj.sim_sd === "number" && !isNaN(scoreObj.sim_sd)
+            ? scoreObj.sim_sd * 100
+            : null;
       }
     }
 
@@ -221,10 +248,24 @@ export const DysarthriaText = ({
   };
 
   return (
-    <div className="relative"> {/* Add a non-scrolling relative parent */}
+    <div className="relative">
+      {" "}
+      {/* Add a non-scrolling relative parent */}
       <div
-        className="relative box-border max-h-48 w-full overflow-y-auto rounded-md p-4" // Keep this for scrolling text
-        style={{ boxShadow: "rgba(149, 157, 165, 0.2) 0px 8px 24px" }}
+        className={`relative box-border max-h-48 w-full overflow-y-auto rounded-md p-4 ${
+          backgroundImage
+            ? "bg-white/95 backdrop-blur-sm shadow-lg border border-white/20"
+            : "bg-white"
+        }`}
+        style={
+          backgroundImage
+            ? {
+                backdropFilter: "blur(8px)",
+                boxShadow:
+                  "0 4px 20px rgba(0, 0, 0, 0.1), 0 1px 4px rgba(0, 0, 0, 0.05)",
+              }
+            : { boxShadow: "rgba(149, 157, 165, 0.2) 0px 8px 24px" }
+        }
       >
         <strong className="flex-center flex-wrap text-lg space-x-2">
           {/* Iterate through selectedTextChars */}
@@ -246,35 +287,44 @@ export const DysarthriaText = ({
           })}
         </strong>
       </div>
-
       {/* Move absolute elements outside the scrolling div, but inside the new relative parent */}
       {/* Display the calculated total score for the selected segment */}
       <span
-        className="absolute right-1 top-0 px-1 py-0.5 bg-white bg-opacity-75 rounded-bl-md" // Position relative to the outer div
-        // Color based on the calculated average score (use 0 if null for coloring)
+        className={`absolute right-1 top-0 px-1 py-0.5 rounded-bl-md ${
+          backgroundImage
+            ? "bg-white/90 backdrop-blur-sm shadow-md border border-white/30"
+            : "bg-white bg-opacity-75"
+        }`}
         style={{ color: getColor(calculatedTotalScore ?? 0) }}
       >
         <strong>
           {/* Show calculated score (0.0 if calculated), or N/A if no text selected */}
-          {calculatedTotalScore !== null ? calculatedTotalScore.toFixed(2) : "N/A"}
+          {calculatedTotalScore !== null
+            ? calculatedTotalScore.toFixed(2)
+            : "N/A"}
         </strong>
       </span>
-
-
       {/* Import Tooltip at the top of the file: import { Tooltip } from 'antd'; */}
       <Tooltip title="AI 评估，仅供参考">
         <span
-          className="absolute right-1 bottom-0 px-1 py-0.5 bg-white bg-opacity-75 rounded-tl-md cursor-help" // Position relative to the outer div
+          className={`absolute right-1 bottom-0 px-1 py-0.5 rounded-tl-md cursor-help ${
+            backgroundImage
+              ? "bg-white/90 backdrop-blur-sm shadow-md border border-white/30"
+              : "bg-white bg-opacity-75"
+          }`}
         >
           清晰度：
           <strong
-            style={{ color: getColor(result.intelligibility_score ?? 0) }}>
+            style={{ color: getColor(result.intelligibility_score ?? 0) }}
+          >
             {/* Show calculated score (0.0 if calculated), or N/A if no text selected */}
-            {result.intelligibility_score >= 0 ? result.intelligibility_score.toFixed(2) : "无"} {/* Ensure score is formatted */}
+            {result.intelligibility_score >= 0
+              ? result.intelligibility_score.toFixed(2)
+              : "无"}{" "}
+            {/* Ensure score is formatted */}
           </strong>
         </span>
       </Tooltip>
-
       {/* Render the CharacterDetailPopup component */}
       <CharacterDetailPopup
         visible={isPopupVisible}

@@ -1,7 +1,14 @@
-import React, { createContext, useContext, useState, useRef, useCallback } from "react";
+import React, {
+  createContext,
+  useContext,
+  useState,
+  useRef,
+  useCallback,
+} from "react";
 import { DysarthriaResult } from "../../../../../api/train"; // Keep this import
 import { GetTTSAPI } from "../../../../../api/tts"; // Updated import path
 import { message } from "antd";
+import { vivoAigcSDK } from "../../../../../api/vivoAigc"; // 新增：导入vivoAigc SDK
 
 type TextContextType = {
   selectedText: string;
@@ -24,9 +31,19 @@ type TextContextType = {
   setDysarthriaResult: (result: DysarthriaResult) => void;
   asrTranscription: string; // 新增：实时 ASR 结果
   setAsrTranscription: (text: string) => void; // 新增：设置 ASR 结果
+  // 新增：AI绘画相关状态
+  backgroundImage: string | null;
+  setBackgroundImage: (image: string | null) => void;
+  isGeneratingImage: boolean;
+  setIsGeneratingImage: (isGenerating: boolean) => void;
+  imageLoadingState: "idle" | "loading" | "loaded" | "error";
+  setImageLoadingState: (
+    state: "idle" | "loading" | "loaded" | "error",
+  ) => void;
   getAudio: (text: string, index: number) => Promise<HTMLAudioElement | null>;
   getCharAudio: (char: string) => Promise<HTMLAudioElement | null>;
   playAudio: (audio: HTMLAudioElement | null) => void;
+  generateBackgroundImage: (title: string, text: string) => Promise<void>;
 };
 
 const TextContext = createContext<TextContextType | undefined>(undefined);
@@ -56,29 +73,38 @@ export const TextProvider: React.FC<{ children: React.ReactNode }> = ({
     {},
   );
   const [asrTranscription, setAsrTranscription] = useState<string>(""); // 新增状态
+  // 新增：AI绘画相关状态
+  const [backgroundImage, setBackgroundImage] = useState<string | null>(null);
+  const [isGeneratingImage, setIsGeneratingImage] = useState<boolean>(false);
+  const [imageLoadingState, setImageLoadingState] = useState<
+    "idle" | "loading" | "loaded" | "error"
+  >("idle");
   const [pendingRequests, setPendingRequests] = useState<{
     [key: string]: boolean;
   }>({});
   const audioCache = useRef<Record<string, HTMLAudioElement>>({});
 
-  const playAudio = useCallback((audio: HTMLAudioElement | null) => {
-    if (!audio) {
-      console.warn("Attempted to play null audio.");
-      setIsPlaying(false);
-      return;
-    }
-    if (currentAudio && currentAudio !== audio) {
-      currentAudio.pause();
-      currentAudio.currentTime = 0;
-    }
-    setCurrentAudio(audio);
-    audio.play().catch(err => {
-      console.error("Error playing audio:", err);
-      setIsPlaying(false); // 如果播放失败，重置状态
-      message.error("播放音频失败");
-    });
-    setIsPlaying(true);
-  }, [currentAudio]); // 依赖 currentAudio
+  const playAudio = useCallback(
+    (audio: HTMLAudioElement | null) => {
+      if (!audio) {
+        console.warn("Attempted to play null audio.");
+        setIsPlaying(false);
+        return;
+      }
+      if (currentAudio && currentAudio !== audio) {
+        currentAudio.pause();
+        currentAudio.currentTime = 0;
+      }
+      setCurrentAudio(audio);
+      audio.play().catch((err) => {
+        console.error("Error playing audio:", err);
+        setIsPlaying(false); // 如果播放失败，重置状态
+        message.error("播放音频失败");
+      });
+      setIsPlaying(true);
+    },
+    [currentAudio],
+  ); // 依赖 currentAudio
 
   const getAudio = useCallback(
     async (text: string, index: number): Promise<HTMLAudioElement | null> => {
@@ -117,7 +143,7 @@ export const TextProvider: React.FC<{ children: React.ReactNode }> = ({
         setIsFetchingAudio(false); // 结束获取音频
       }
     },
-    [] // 依赖项为空，因为函数内部不依赖外部可变状态（除了 ref 和 state setters）
+    [], // 依赖项为空，因为函数内部不依赖外部可变状态（除了 ref 和 state setters）
   );
 
   const getCharAudio = useCallback(
@@ -154,7 +180,62 @@ export const TextProvider: React.FC<{ children: React.ReactNode }> = ({
         setIsFetchingAudio(false); // 结束获取音频
       }
     },
-    [] // 依赖项为空
+    [], // 依赖项为空
+  );
+
+  // 新增：生成背景图片的函数
+  const generateBackgroundImage = useCallback(
+    async (title: string, text: string): Promise<void> => {
+      try {
+        setIsGeneratingImage(true);
+
+        // 第一步：使用70b模型生成符合意境的绘画提示词
+        const promptInstruction = `请根据以下训练文本的标题和内容，生成一个符合意境的绘画提示词。要求：
+1. 提示词应该是中文，描述一个美丽的场景
+2. 适合作为发音训练的背景图片
+3. 风格温和，有助于康复训练的氛围
+4. 不要包含文字或人物
+5. 只返回绘画提示词，不要其他解释
+
+标题：${title}
+内容：${text}
+
+请生成绘画提示词：`;
+
+        const drawPrompt = await vivoAigcSDK.chat.chat(promptInstruction, {
+          model: "vivo-BlueLM-TB-Pro",
+          temperature: 0.7,
+          maxTokens: 100,
+        });
+
+        console.log("Generated draw prompt:", drawPrompt);
+
+        // 第二步：使用生成的提示词生成图片
+        const images = await vivoAigcSDK.draw.generateImageFromText(
+          drawPrompt,
+          {
+            width: 576,
+            height: 1024,
+            styleConfig: "4cbc9165bc615ea0815301116e7925a3", // 通用v6.0
+          },
+        );
+
+        if (images && images.length > 0) {
+          setImageLoadingState("loading");
+          setBackgroundImage(images[0]);
+          message.success("智能配图生成成功！");
+        } else {
+          setImageLoadingState("error");
+          message.error("图片生成失败");
+        }
+      } catch (error: any) {
+        console.error("Generate background image error:", error);
+        message.error("生成配图失败：" + (error.message || "未知错误"));
+      } finally {
+        setIsGeneratingImage(false);
+      }
+    },
+    [],
   );
 
   return (
@@ -180,9 +261,17 @@ export const TextProvider: React.FC<{ children: React.ReactNode }> = ({
         setDysarthriaResult,
         asrTranscription, // 提供状态
         setAsrTranscription, // 提供 setter
+        // 新增：AI绘画相关状态和函数
+        backgroundImage,
+        setBackgroundImage,
+        isGeneratingImage,
+        setIsGeneratingImage,
+        imageLoadingState,
+        setImageLoadingState,
         getAudio,
         getCharAudio,
         playAudio,
+        generateBackgroundImage,
       }}
     >
       {children}

@@ -33,6 +33,7 @@ import PersonalizedTrainingPage from "./pages/features/personalized";
 import FavoritePage from "./pages/features/favorite";
 import RelativeManagementPage from "./pages/features/relative/management"; // 导入家属管理页面
 import VoiceSettingsPage from "./pages/settings/voice";
+import VivoAigcPage from "./pages/features/vivoaigc";
 
 const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
   const { isAuthenticated } = useAuthStore();
@@ -223,6 +224,14 @@ const AnimatedRoutes = () => {
               element={
                 <ProtectedRoute>
                   <RelativeManagementPage />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/vivoaigc"
+              element={
+                <ProtectedRoute>
+                  <VivoAigcPage />
                 </ProtectedRoute>
               }
             />

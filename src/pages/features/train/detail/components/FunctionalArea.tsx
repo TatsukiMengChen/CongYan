@@ -17,7 +17,11 @@ interface FunctionalAreaProps {
   isTaskFinished: boolean; // 新增：任务是否已完成
 }
 
-export const FunctionalArea = ({ text, textUuid, isTaskFinished }: FunctionalAreaProps) => {
+export const FunctionalArea = ({
+  text,
+  textUuid,
+  isTaskFinished,
+}: FunctionalAreaProps) => {
   // console.log("[FunctionalArea] Received props - textUuid:", textUuid); // 移除日志
 
   const {
@@ -34,6 +38,7 @@ export const FunctionalArea = ({ text, textUuid, isTaskFinished }: FunctionalAre
     setDysarthriaResult, // 保留 setter 用于文本更改时清除
     isFetchingAudio,
     setIsRecording: setContextIsRecording, // 从 context 获取 setIsRecording
+    backgroundImage, // 获取背景图片状态
   } = useTextContext();
 
   const [isEvaluationMode, setIsEvaluationMode] = useState(false);
@@ -63,6 +68,7 @@ export const FunctionalArea = ({ text, textUuid, isTaskFinished }: FunctionalAre
       // 如果录音出错，也尝试清理 WebSocket 连接
       finishStreaming(); // 调用 finishStreaming 会触发 cleanupWebSocket
     },
+    outputFormat: "mp3",
   });
 
   // 用于在关键阶段禁用控件的组合状态
@@ -88,7 +94,6 @@ export const FunctionalArea = ({ text, textUuid, isTaskFinished }: FunctionalAre
       // setContextIsRecording(true); // 移动到这里？ - 不，useMediaRecorder 会更新 isRecording 状态，我们依赖它
       // 但是我们需要在成功启动后更新 context
       setContextIsRecording(true);
-
     } catch (error) {
       // connectAndStartStreaming 被拒绝 (WebSocket 错误或在打开前关闭)
       // 或 startRecording 失败 (尽管其错误在其 hook 中处理)
@@ -96,7 +101,15 @@ export const FunctionalArea = ({ text, textUuid, isTaskFinished }: FunctionalAre
       setContextIsRecording(false); // 如果启动失败，重置 context 状态
       // 错误消息可能已由 hooks (WebSocket 或 MediaRecorder) 显示
     }
-  }, [isBusy, connectAndStartStreaming, startRecording, setDysarthriaResult, isRecording, isAnalyzing, setContextIsRecording]); // 添加 setContextIsRecording 依赖
+  }, [
+    isBusy,
+    connectAndStartStreaming,
+    startRecording,
+    setDysarthriaResult,
+    isRecording,
+    isAnalyzing,
+    setContextIsRecording,
+  ]); // 添加 setContextIsRecording 依赖
 
   const handleRecordEnd = useCallback(async () => {
     if (!isRecording) {
@@ -108,9 +121,7 @@ export const FunctionalArea = ({ text, textUuid, isTaskFinished }: FunctionalAre
 
     // 2. 告诉 WebSocket 服务器流结束 (发送 "finish")
     await finishStreaming();
-
   }, [isRecording, stopRecording, finishStreaming, setContextIsRecording]); // 添加 setContextIsRecording 依赖
-
 
   const getChineseCharacters = (text: string) => {
     const chineseCharacters = text.match(/[\u4e00-\u9fa5]/g) || [];
@@ -145,7 +156,6 @@ export const FunctionalArea = ({ text, textUuid, isTaskFinished }: FunctionalAre
     finishStreaming();
   }, [isRecording, stopRecording, finishStreaming, setContextIsRecording]); // 添加 setContextIsRecording 依赖
 
-
   return (
     <div className="box-border w-full flex flex-col px-4 pb-8">
       {/* 在 DysarthriaText 上方添加 AsrDisplay */}
@@ -157,6 +167,7 @@ export const FunctionalArea = ({ text, textUuid, isTaskFinished }: FunctionalAre
         result={dysarthriaResult} // 显示来自 context 的评分 (可能是全文的)
         fullText={text} // 传递完整文本
         selectedText={selectedText || ""} // 传递当前选中的文本
+        backgroundImage={backgroundImage} // 传递背景图片状态
       />
 
       <div className="mt-4 w-full flex flex-col items-center">
@@ -165,7 +176,8 @@ export const FunctionalArea = ({ text, textUuid, isTaskFinished }: FunctionalAre
             isPlaying={isPlaying}
             isFetchingAudio={isFetchingAudio}
             handlePlay={handlePlay}
-          // disabled={isBusy} // 禁用播放按钮
+            backgroundImage={backgroundImage}
+            // disabled={isBusy} // 禁用播放按钮
           />
           <Button
             variant="outlined"
@@ -183,6 +195,23 @@ export const FunctionalArea = ({ text, textUuid, isTaskFinished }: FunctionalAre
               }
             }}
             disabled={isBusy} // 禁用全文练习按钮
+            style={
+              backgroundImage
+                ? {
+                    backgroundColor: "rgba(255, 255, 255, 0.95)",
+                    backdropFilter: "blur(8px)",
+                    border: "2px solid rgba(59, 130, 246, 0.3)",
+                    boxShadow: "0 4px 16px rgba(0, 0, 0, 0.1)",
+                    color: "#1f2937",
+                    fontWeight: 600,
+                  }
+                : {}
+            }
+            className={
+              backgroundImage
+                ? "hover:bg-white/100 hover:shadow-lg transition-all duration-300"
+                : ""
+            }
           >
             全文练习
           </Button>
@@ -190,6 +219,7 @@ export const FunctionalArea = ({ text, textUuid, isTaskFinished }: FunctionalAre
             isRecording={isRecording}
             handleRecordStart={handleRecordStart}
             handleRecordEnd={handleRecordEnd}
+            backgroundImage={backgroundImage}
             // 仅在连接或录音后分析期间禁用按钮
             // 即，当 isAnalyzing 为 true 且 isRecording 为 false 时。
             disabled={isAnalyzing && !isRecording}
@@ -198,7 +228,8 @@ export const FunctionalArea = ({ text, textUuid, isTaskFinished }: FunctionalAre
         <EvaluationModeSwitch
           isEvaluationMode={isEvaluationMode}
           setIsEvaluationMode={setIsEvaluationMode}
-        // disabled={isBusy} // 禁用模式切换
+          backgroundImage={backgroundImage}
+          // disabled={isBusy} // 禁用模式切换
         />
       </div>
     </div>

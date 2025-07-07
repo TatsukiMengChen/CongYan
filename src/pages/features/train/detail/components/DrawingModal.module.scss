@@ -1,0 +1,121 @@
+.drawing-modal {
+  .ant-modal-content {
+    border-radius: 16px;
+    overflow: hidden;
+    box-shadow:
+      0 20px 60px rgba(0, 0, 0, 0.1),
+      0 8px 24px rgba(0, 0, 0, 0.06);
+  }
+
+  .ant-modal-header {
+    background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+    border-bottom: 1px solid rgba(0, 0, 0, 0.06);
+  }
+
+  .ant-modal-close {
+    color: #64748b;
+    transition: all 0.2s ease;
+
+    &:hover {
+      color: #334155;
+      background-color: rgba(248, 250, 252, 0.8);
+      border-radius: 8px;
+    }
+  }
+}
+
+// 卡片进入动画
+@keyframes cardEnter {
+  from {
+    opacity: 0;
+    transform: translateY(20px) scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+// 按钮悬停发光效果
+@keyframes buttonGlow {
+  0%,
+  100% {
+    box-shadow: 0 0 5px rgba(59, 130, 246, 0.3);
+  }
+  50% {
+    box-shadow:
+      0 0 20px rgba(59, 130, 246, 0.6),
+      0 0 30px rgba(59, 130, 246, 0.4);
+  }
+}
+
+// 图片加载动画
+@keyframes imageShimmer {
+  0% {
+    background-position: -200px 0;
+  }
+  100% {
+    background-position: calc(200px + 100%) 0;
+  }
+}
+
+.image-loading {
+  background: linear-gradient(90deg, #f0f0f0 0px, #e0e0e0 40px, #f0f0f0 80px);
+  background-size: 600px;
+  animation: imageShimmer 1.5s ease-in-out infinite;
+}
+
+.button-glow:hover {
+  animation: buttonGlow 2s ease-in-out infinite;
+}
+
+// 文本块动画
+.text-block {
+  animation: cardEnter 0.5s ease-out;
+
+  &:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 12px 40px rgba(0, 0, 0, 0.12) !important;
+  }
+}
+
+// 背景图片淡入动画
+@keyframes backgroundFadeIn {
+  from {
+    opacity: 0;
+    transform: scale(1.1);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+.background-image {
+  animation: backgroundFadeIn 0.8s ease-out;
+}
+
+// 渐变边框动画
+@keyframes gradientRotate {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
+.gradient-border {
+  position: relative;
+
+  &::before {
+    content: "";
+    position: absolute;
+    inset: -2px;
+    background: linear-gradient(45deg, #3b82f6, #8b5cf6, #06b6d4, #10b981);
+    background-size: 200% 200%;
+    border-radius: inherit;
+    z-index: -1;
+    animation: gradientRotate 3s linear infinite;
+  }
+}
