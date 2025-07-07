@@ -1,5 +1,5 @@
 import Alert from "@mui/material/Alert";
-import CampaignOutlinedIcon from '@mui/icons-material/CampaignOutlined'; // 导入图标
+import CampaignOutlinedIcon from "@mui/icons-material/CampaignOutlined"; // 导入图标
 import { PullToRefresh } from "antd-mobile"; // 1. 导入 PullToRefresh
 // import { ScrollView } from "../../components/ScrollView"; // 不再需要 ScrollView
 import useAuthStore from "../../store/auth"; // 2. 导入 auth store
@@ -9,6 +9,7 @@ import { ProgressArea } from "./components/ProgressArea"; // 导入 ProgressArea
 import { SearchBar } from "./components/SearchBar";
 import { SwiperArea } from "./components/SwiperArea";
 import { PersonalizedTrainingArea } from "./components/PersonalizedTrainingArea"; // 导入 PersonalizedTrainingArea
+import { Link } from "react-router";
 
 export const HomePage = () => {
   // 3. 获取 store 中的方法和用户信息
@@ -46,22 +47,31 @@ export const HomePage = () => {
               icon={<CampaignOutlinedIcon fontSize="inherit" />}
               className="mt-4 !rounded-lg"
             >
-              公告内容
+              此分支为 AIGC 分支，用于参与 AIGC 创新大赛，非正式版本。
+              <Link to="/vivoaigc">Vivo AIGC 测试</Link>
             </Alert>
-            <SwiperArea className="mt-4" items={[{
-              imageUrl: "/images/cover-1.png",
-              linkUrl: "https://mbd.baidu.com/newspage/data/dtlandingsuper?nid=dt_3823228988348180275&sourceFrom=search_s",
-              title: "儿童语言障碍康复训练全攻略"
-            }, {
-              imageUrl: "/images/cover-2.png",
-              linkUrl: "https://v.youku.com/video?vid=XNjE1NzY5MjgzMg",
-              title: "语言发育迟缓需要做哪些康复训练"
-            }]} />
+            <SwiperArea
+              className="mt-4"
+              items={[
+                {
+                  imageUrl: "/images/cover-1.png",
+                  linkUrl:
+                    "https://mbd.baidu.com/newspage/data/dtlandingsuper?nid=dt_3823228988348180275&sourceFrom=search_s",
+                  title: "儿童语言障碍康复训练全攻略",
+                },
+                {
+                  imageUrl: "/images/cover-2.png",
+                  linkUrl: "https://v.youku.com/video?vid=XNjE1NzY5MjgzMg",
+                  title: "语言发育迟缓需要做哪些康复训练",
+                },
+              ]}
+            />
             <ProgressArea className="mt-4" />
             {/* 仅当用户不是家属时显示个性化训练区域 */}
-            {userInfo?.user_role !== 'relative' && (
+            {userInfo?.user_role !== "relative" && (
               <>
-                <PersonalizedTrainingArea className="mt-4" /> {/* 添加个性化训练入口 */}
+                <PersonalizedTrainingArea className="mt-4" />{" "}
+                {/* 添加个性化训练入口 */}
                 <PracticeArea className="mt-4" />
               </>
             )}
